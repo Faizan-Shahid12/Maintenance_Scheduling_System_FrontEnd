@@ -56,6 +56,7 @@ import TaskLogsModal from "../Components/Task/TaskLogModal"
 import EnhancedAssignModal from "../Components/Task/AssignTaskModal"
 import { DownloadAttachment } from "../Redux/Thunks/LogAttachmentThunk"
 import { StoreTechTask } from "../Redux/Slicers/TaskSlicer"
+import { Skeleton, CircularProgress } from "@mui/material"
 
 export const TaskManagementPage = () => {
   
@@ -63,6 +64,7 @@ export const TaskManagementPage = () => {
   const userId = localStorage.getItem("userId")
 
   const TaskList = useSelector((state: RootState) => userRole?.includes("Admin") ? state.AppTask.MainTask : state.AppTask.TechTask)
+  const taskLoading = useSelector((state: RootState) => state.AppTask.loading)
   const TechOptions = useSelector((state: RootState) => state.Technicians.TechOptions)
   const EquipmentList = useSelector((state: RootState) => state.Equipment.equipmentList)
   const currentTech = useSelector((state: RootState) => state.Technicians.currentTechnician)
@@ -547,75 +549,86 @@ export const TaskManagementPage = () => {
                   variant="contained"
                   startIcon={<Add />}
                   onClick={handleCreateClick}
+                  disabled={taskLoading}
                 >
-                  Create Task
+                  {taskLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Create Task'}
                 </Button>
               )}
             </Box>
 
             {/* Statistics */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
-                    <Assignment sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.total}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Total Tasks
-                    </Typography>
+            {taskLoading ? (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                    <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
                   </Box>
-                </TaskStatsCard>
+                ))}
               </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#4caf50", width: 36, height: 36 }}>
-                    <CheckCircle sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.completed}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Completed
-                    </Typography>
-                  </Box>
-                </TaskStatsCard>
+            ) : (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
+                      <Assignment sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.total}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Total Tasks
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#4caf50", width: 36, height: 36 }}>
+                      <CheckCircle sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.completed}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Completed
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#f44336", width: 36, height: 36 }}>
+                      <Warning sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.overdue}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Overdue
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#9e9e9e", width: 36, height: 36 }}>
+                      <PauseCircle sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.pending}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Pending
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
               </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#f44336", width: 36, height: 36 }}>
-                    <Warning sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.overdue}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Overdue
-                    </Typography>
-                  </Box>
-                </TaskStatsCard>
-              </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#9e9e9e", width: 36, height: 36 }}>
-                    <PauseCircle sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.pending}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Pending
-                    </Typography>
-                  </Box>
-                </TaskStatsCard>
-              </Box>
-            </Box>
+            )}
           </Box>
         </HeaderCard>
 
@@ -683,101 +696,109 @@ export const TaskManagementPage = () => {
 
         {/* Task Cards */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          {filteredTasks?.sort((a, b) => b.taskId - a.taskId).map((task, index) => {
-            const isOverdue = task.status === "OverDue"
-            const daysUntilDue = getDaysUntilDue(task.dueDate)
-            const assignedTechName = task.assignedTo || "Unassigned"
-
-            return (
-              <Box key={task.taskId || index} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
-                <TaskCard isOverdue={isOverdue}>
-                  <CardHeader
-                    avatar={<TechnicianAvatar name={assignedTechName} specialization="" />}
-                    title={
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1rem" }}>
-                          {task.taskName}
-                        </Typography>
-                        {isOverdue && <Warning sx={{ color: "#f44336", fontSize: 18 }} />}
-                      </Box>
-                    }
-                    subheader={
-                      <Box sx={{ mt: 1 }}>
-                        <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                          {task.equipmentName}
-                        </Typography>
-                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
-                          <PriorityChip priority={task.priority || "Medium"} />
-                          <StatusChip status={isOverdue ? "Overdue" : task.status || "Pending"} />
-                        </Box>
-                      </Box>
-                    }
-                  />
-                  <CardContent sx={{ pt: 0, cursor: "pointer" }}>
-                    {/* Task Details */}
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, mb: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <Schedule sx={{ color: "#666", fontSize: 16 }} />
-                        <Box>
-                          <Typography variant="caption" color="textSecondary">
-                            Due Date
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                            {formatDate(task.dueDate)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
-                        <Person sx={{ color: "#666", fontSize: 16 }} />
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography variant="caption" color="textSecondary">
-                            Assigned To
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                            {assignedTechName}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="textSecondary"
-                            sx={{
-                              display: "block",
-                              fontSize: "0.75rem",
-                              lineHeight: 1.2,
-                              mt: 0.25,
-                              wordBreak: "break-word",
-                            }}
-                          >
-                            {task.techEmail && assignedTechName !== "Unassigned" ? task.techEmail : "\u00A0"}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    {/* Due Date Warning */}
-                    {!isOverdue &&
-                      daysUntilDue !== null &&
-                      daysUntilDue <= 3 &&
-                      daysUntilDue > 0 &&
-                      task.status !== "Completed" && (
-                        <Chip
-                          label={`Due in ${daysUntilDue} day${daysUntilDue !== 1 ? "s" : ""}`}
-                          color="warning"
-                          size="small"
-                          sx={{ mt: 0, mb: 2 }}
-                        />
-                      )}
-
-                    {/* Action Buttons */}
-                    {renderActionButtons(task)}
-                  </CardContent>
-                </TaskCard>
+          {taskLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
+                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
               </Box>
-            )
-          })}
+            ))
+          ) : (
+            filteredTasks?.sort((a, b) => b.taskId - a.taskId).map((task, index) => {
+              const isOverdue = task.status === "OverDue"
+              const daysUntilDue = getDaysUntilDue(task.dueDate)
+              const assignedTechName = task.assignedTo || "Unassigned"
+
+              return (
+                <Box key={task.taskId || index} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
+                  <TaskCard isOverdue={isOverdue}>
+                    <CardHeader
+                      avatar={<TechnicianAvatar name={assignedTechName} specialization="" />}
+                      title={
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1rem" }}>
+                            {task.taskName}
+                          </Typography>
+                          {isOverdue && <Warning sx={{ color: "#f44336", fontSize: 18 }} />}
+                        </Box>
+                      }
+                      subheader={
+                        <Box sx={{ mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                            {task.equipmentName}
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+                            <PriorityChip priority={task.priority || "Medium"} />
+                            <StatusChip status={isOverdue ? "Overdue" : task.status || "Pending"} />
+                          </Box>
+                        </Box>
+                      }
+                    />
+                    <CardContent sx={{ pt: 0, cursor: "pointer" }}>
+                      {/* Task Details */}
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, mb: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <Schedule sx={{ color: "#666", fontSize: 16 }} />
+                          <Box>
+                            <Typography variant="caption" color="textSecondary">
+                              Due Date
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                              {formatDate(task.dueDate)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
+                          <Person sx={{ color: "#666", fontSize: 16 }} />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="caption" color="textSecondary">
+                              Assigned To
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                              {assignedTechName}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="textSecondary"
+                              sx={{
+                                display: "block",
+                                fontSize: "0.75rem",
+                                lineHeight: 1.2,
+                                mt: 0.25,
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {task.techEmail && assignedTechName !== "Unassigned" ? task.techEmail : "\u00A0"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Due Date Warning */}
+                      {!isOverdue &&
+                        daysUntilDue !== null &&
+                        daysUntilDue <= 3 &&
+                        daysUntilDue > 0 &&
+                        task.status !== "Completed" && (
+                          <Chip
+                            label={`Due in ${daysUntilDue} day${daysUntilDue !== 1 ? "s" : ""}`}
+                            color="warning"
+                            size="small"
+                            sx={{ mt: 0, mb: 2 }}
+                          />
+                        )}
+
+                      {/* Action Buttons */}
+                      {renderActionButtons(task)}
+                    </CardContent>
+                  </TaskCard>
+                </Box>
+              )
+            })
+          )}
         </Box>
 
         {/* Empty State */}
-        {filteredTasks?.length === 0 && (
+        {filteredTasks?.length === 0 && !taskLoading && (
           <Paper sx={{ p: 6, textAlign: "center", mt: 3 }}>
             <Assignment sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
             <Typography variant="h6" color="textSecondary" gutterBottom>

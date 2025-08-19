@@ -70,7 +70,7 @@ export default function LoginPage()
 
     return (
         <Container maxWidth="sm" sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Paper elevation={4} sx={{ width: '100%', borderRadius: 3, overflow: 'hidden' }}>
+            <Paper elevation={4} sx={{ width: '100%', borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
                 {/* Header */}
                 <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', p: 4, textAlign: 'center' }}>
                     <Box sx={{ width: 72, height: 72, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.2)', mx: 'auto', mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -111,6 +111,17 @@ export default function LoginPage()
                                 </InputAdornment>
                             ),
                         }}
+                        InputLabelProps={{
+                            sx: {
+                                mt: 0.5,
+                            }
+                        }}
+                        sx={{
+                            '& .MuiInputBase-root': {
+                                pt: 1.5,
+                                pb: 1.25,
+                            },
+                        }}
                     />
 
                     <TextField
@@ -136,6 +147,17 @@ export default function LoginPage()
                                     </IconButton>
                                 </InputAdornment>
                             )
+                        }}
+                        InputLabelProps={{
+                            sx: {
+                                mt: 0.5,
+                            }
+                        }}
+                        sx={{
+                            '& .MuiInputBase-root': {
+                                pt: 1.5,
+                                pb: 1.25,
+                            },
                         }}
                     />
 

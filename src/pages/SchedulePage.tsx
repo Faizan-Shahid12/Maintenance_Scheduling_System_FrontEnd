@@ -24,6 +24,7 @@ import {
   Avatar,
   Chip,
   Fab,
+  Skeleton,
 } from "@mui/material"
 import {
   Add,
@@ -210,6 +211,7 @@ const StatusChip = ({ status }: { status: string }) =>
 export const SchedulePage = () => {
   const dispatch = useDispatch<MyDispatch>()
   const ScheduleList = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask)
+  const scheduleLoading = useSelector((state: RootState) => state.Schedule.loading)
   const equipmentOptions = useSelector((state: RootState) => state.Equipment.equipmentList)
   const technicianOptions = useSelector((state: RootState) => state.Technicians.TechOptions)
 
@@ -487,7 +489,16 @@ if (selectedSchedule) {
             </Box>
 
             {/* Statistics */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+            {scheduleLoading ? (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                    <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
                 <StatsCard>
                   <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
@@ -549,6 +560,7 @@ if (selectedSchedule) {
                 </StatsCard>
               </Box>
             </Box>
+            )}
           </Box>
         </HeaderCard>
 
@@ -602,7 +614,14 @@ if (selectedSchedule) {
 
         {/* Schedule Cards */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          {filteredSchedules.sort((a,b) => b.scheduleId-a.scheduleId).map((schedule) => (
+          {scheduleLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
+                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
+              </Box>
+            ))
+          ) : (
+          filteredSchedules.sort((a,b) => b.scheduleId-a.scheduleId).map((schedule) => (
             <Box
               key={schedule.scheduleId}
               sx={{
@@ -701,11 +720,12 @@ if (selectedSchedule) {
                 </CardContent>
               </ScheduleCard>
             </Box>
-          ))}
+          ))
+          )}
         </Box>
 
         {/* Empty State */}
-        {filteredSchedules.length === 0 && (
+        {filteredSchedules.length === 0 && !scheduleLoading && (
           <Paper sx={{ p: 6, textAlign: "center", mt: 3 }}>
             <Schedule sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
             <Typography variant="h6" color="textSecondary" gutterBottom>

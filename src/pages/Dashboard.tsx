@@ -24,6 +24,7 @@ import {
   ListItemText,
   LinearProgress,
   IconButton,
+  Skeleton,
 } from "@mui/material"
 import {
   Schedule as ScheduleIcon,
@@ -186,6 +187,8 @@ export const AdminDashboard: React.FC = () => {
   const schedules = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask)
   const technicians = useSelector((state: RootState) => state.Technicians.Technicians)
   const overdueTask = useSelector((state: RootState) => state.AppTask.MainTask || [])
+  const loadingSchedules = useSelector((state: RootState) => state.Schedule.loading)
+  const loadingTasks = useSelector((state: RootState) => state.AppTask.loading)
 
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null)
@@ -420,7 +423,16 @@ export const AdminDashboard: React.FC = () => {
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+            {(loadingSchedules || loadingTasks) ? (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                    <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
                 <StatsCard>
                   <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
@@ -512,13 +524,20 @@ export const AdminDashboard: React.FC = () => {
                 </StatsCard>
               </Box>
             </Box>
+            )}
           </Box>
         </HeaderCard>
 
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
           <Box sx={{ flex: "1 1 350px", minWidth: "350px" }}>
             <DashboardCard title="Upcoming Schedules">
-              {upcomingSchedules.length > 0 ? (
+              {loadingSchedules ? (
+                <Box sx={{ p: 2 }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} variant="rectangular" height={56} sx={{ borderRadius: 2, mb: 1 }} />
+                  ))}
+                </Box>
+              ) : upcomingSchedules.length > 0 ? (
                 renderUpcomingSchedules()
               ) : (
                 <Box sx={{ textAlign: "center", py: 4 }}>
@@ -533,7 +552,13 @@ export const AdminDashboard: React.FC = () => {
 
           <Box sx={{ flex: "1 1 350px", minWidth: "350px" }}>
             <DashboardCard title="Overdue Tasks">
-              {overdueTasks.length > 0 ? (
+              {loadingTasks ? (
+                <Box sx={{ p: 2 }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} variant="rectangular" height={56} sx={{ borderRadius: 2, mb: 1 }} />
+                  ))}
+                </Box>
+              ) : overdueTasks.length > 0 ? (
                 renderOverdueTasks()
               ) : (
                 <Box sx={{ textAlign: "center", py: 4 }}>
@@ -548,7 +573,13 @@ export const AdminDashboard: React.FC = () => {
 
           <Box sx={{ flex: "1 1 350px", minWidth: "350px" }}>
             <DashboardCard title="Technician Activity">
-              {technicianActivity.length > 0 ? (
+              {loadingTasks ? (
+                <Box sx={{ p: 2 }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} variant="rectangular" height={72} sx={{ borderRadius: 2, mb: 1 }} />
+                  ))}
+                </Box>
+              ) : technicianActivity.length > 0 ? (
                 <List sx={{ p: 0 }}>
                   {technicianActivity.slice(0, 5).map((tech) => (
                     <ListItem key={tech.id} sx={{ px: 0, py: 1.5 }}>
@@ -608,20 +639,20 @@ export const AdminDashboard: React.FC = () => {
             </DashboardCard>
           </Box>
         </Box>
-      </Container>
 
-      <ScheduleModal
-        show={showScheduleModal}
-        onClose={handleCloseModal}
-        schedule={selectedSchedule}
-        view={modalView}
-      />
-      <TaskModal
-        show={showTaskModal}
-        onClose={handleCloseTaskModal}
-        task={selectedTask}
-        view={taskModalView}
-      />
+        <ScheduleModal
+          show={showScheduleModal}
+          onClose={handleCloseModal}
+          schedule={selectedSchedule}
+          view={modalView}
+        />
+        <TaskModal
+          show={showTaskModal}
+          onClose={handleCloseTaskModal}
+          task={selectedTask}
+          view={taskModalView}
+        />
+      </Container>
     </Box>
   )
 }

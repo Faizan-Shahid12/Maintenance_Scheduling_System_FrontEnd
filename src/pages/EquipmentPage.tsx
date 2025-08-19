@@ -51,6 +51,7 @@ import {
   CategoryIcon
 } from "../Components/ui/equipment-tree-component"
 import { Box, Divider, Button } from "@mui/material"
+import { Skeleton, CircularProgress } from "@mui/material"
 
 
 
@@ -58,6 +59,7 @@ export const EquipmentPage: React.FC = () => {
   const dispatch = useDispatch<MyDispatch>();
   const equipmentData = useSelector((state: RootState) => state.Equipment.equipmentList);
   const archivedEquipment = useSelector((state: RootState) => state.Equipment.archivedEquipment);
+  const loading = useSelector((state: RootState) => state.Equipment.loading);
 
   const [workshops, setWorkshops] = useState<WorkShop[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -493,13 +495,25 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
       <Box sx={{ mb: 3 }}>
         <SectionTitle>Active Equipment</SectionTitle>
 
-        <GridContainer>
-          {filteredEquipment.sort((a, b) => b.equipmentId - a.equipmentId).map((equipment) => (
-            <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} />
-          ))}
-        </GridContainer>
+        {loading ? (
+          <GridContainer>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Box key={i} sx={{ p: 2 }}>
+                <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
+                <Skeleton variant="text" sx={{ mt: 1, width: '60%' }} />
+                <Skeleton variant="text" sx={{ width: '40%' }} />
+              </Box>
+            ))}
+          </GridContainer>
+        ) : (
+          <GridContainer>
+            {filteredEquipment.sort((a, b) => b.equipmentId - a.equipmentId).map((equipment) => (
+              <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} />
+            ))}
+          </GridContainer>
+        )}
 
-        {filteredEquipment.length === 0 && (
+        {filteredEquipment.length === 0 && !loading && (
           <EmptyState 
             message="No equipment found matching the current filters."
             icon={<SearchIcon sx={{ fontSize: 64, color: "#ccc" }} />}
@@ -511,13 +525,24 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
       <Box>
         <SectionTitle>Archived Equipment</SectionTitle>
         
-        <GridContainer>
-          {archivedEquipment.map((equipment) => (
-            <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} isArchived={true} />
-          ))}
-        </GridContainer>
+        {loading ? (
+          <GridContainer>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Box key={i} sx={{ p: 2 }}>
+                <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2 }} />
+                <Skeleton variant="text" sx={{ mt: 1, width: '50%' }} />
+              </Box>
+            ))}
+          </GridContainer>
+        ) : (
+          <GridContainer>
+            {archivedEquipment.map((equipment) => (
+              <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} isArchived={true} />
+            ))}
+          </GridContainer>
+        )}
 
-        {archivedEquipment.length === 0 && (
+        {archivedEquipment.length === 0 && !loading && (
           <EmptyState 
             message="No archived equipment found."
             icon={<ArchiveIcon sx={{ fontSize: 64, color: "#ccc" }} />}

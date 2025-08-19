@@ -21,6 +21,7 @@ import {
   Chip,
   Fab,
   ButtonGroup,
+  Skeleton,
 } from "@mui/material"
 import {
   Add,
@@ -142,6 +143,7 @@ export const UserManagementPage = () =>
   const [showPassword, setShowPassword] = useState(false)
 
   const users = useSelector((state:RootState) => state.Technicians.Technicians)
+  const loading = useSelector((state:RootState) => state.Technicians.loading)
   const dispatch = useDispatch<MyDispatch>();
 
   useEffect( () =>
@@ -370,60 +372,70 @@ const handleCloseModal = () =>
             </Box>
 
             {/* Statistics */}
-            <Box sx={{ 
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 2,
-              "@media (max-width: 600px)": {
-                flexDirection: "column",
-              }
-            }}>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard>
-                  <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
-                    <People sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.total}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Total Users
-                    </Typography>
+            {loading ? (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                    <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
                   </Box>
-                </StatsCard>
+                ))}
               </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard>
-                  <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
-                    <Male sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.male}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Male
-                    </Typography>
-                  </Box>
-                </StatsCard>
+            ) : (
+              <Box sx={{ 
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+                "@media (max-width: 600px)": {
+                  flexDirection: "column",
+                }
+              }}>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <StatsCard>
+                    <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
+                      <People sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.total}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Total Users
+                      </Typography>
+                    </Box>
+                  </StatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <StatsCard>
+                    <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
+                      <Male sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.male}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Male
+                      </Typography>
+                    </Box>
+                  </StatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <StatsCard>
+                    <Avatar sx={{ bgcolor: "#e91e63", width: 36, height: 36 }}>
+                      <Female sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.female}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Female
+                      </Typography>
+                    </Box>
+                  </StatsCard>
+                </Box>
               </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard>
-                  <Avatar sx={{ bgcolor: "#e91e63", width: 36, height: 36 }}>
-                    <Female sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {stats.female}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Female
-                    </Typography>
-                  </Box>
-                </StatsCard>
-              </Box>
-            </Box>
+            )}
           </Box>
         </HeaderCard>
 
@@ -534,79 +546,87 @@ const handleCloseModal = () =>
             flexDirection: "column",
           }
         }}>
-          {filteredUsers  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((user) => (
-            <Box 
-              key={user.id}
-              sx={{
-                flex: "1 1 350px",
-                minWidth: "350px",
-                maxWidth: "400px",
-                "@media (max-width: 600px)": {
-                  minWidth: "100%",
-                  maxWidth: "100%",
-                }
-              }}
-            >
-              <UserCard>
-                <CardHeader
-                  avatar={<UserAvatar name={user.fullName} gender={user.gender} />}
-                  title={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1rem" }}>
-                        {user.fullName}
-                      </Typography>
-                    </Box>
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
+                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
+              </Box>
+            ))
+          ) : (
+            filteredUsers  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((user) => (
+              <Box 
+                key={user.id}
+                sx={{
+                  flex: "1 1 350px",
+                  minWidth: "350px",
+                  maxWidth: "400px",
+                  "@media (max-width: 600px)": {
+                    minWidth: "100%",
+                    maxWidth: "100%",
                   }
-                  subheader={
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
-                        {user.email}
-                      </Typography>
-                      <Chip
-                        label={user.gender}
-                        size="small"
-                        icon={user.gender === "Male" ? <Male /> : <Female />}
-                        sx={{
-                          bgcolor: user.gender === "Male" ? "#e3f2fd" : "#fce4ec",
-                          color: user.gender === "Male" ? "#1976d2" : "#c2185b",
-                          fontWeight: "bold",
-                          fontSize: "0.7rem"
-                        }}
-                      />
+                }}
+              >
+                <UserCard>
+                  <CardHeader
+                    avatar={<UserAvatar name={user.fullName} gender={user.gender} />}
+                    title={
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1rem" }}>
+                          {user.fullName}
+                        </Typography>
+                      </Box>
+                    }
+                    subheader={
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
+                          {user.email}
+                        </Typography>
+                        <Chip
+                          label={user.gender}
+                          size="small"
+                          icon={user.gender === "Male" ? <Male /> : <Female />}
+                          sx={{
+                            bgcolor: user.gender === "Male" ? "#e3f2fd" : "#fce4ec",
+                            color: user.gender === "Male" ? "#1976d2" : "#c2185b",
+                            fontWeight: "bold",
+                            fontSize: "0.7rem"
+                          }}
+                        />
+                      </Box>
+                    }
+                  />
+                  <CardContent sx={{ pt: 0 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Phone sx={{ color: "#666", fontSize: 16 }} />
+                        <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                          {user.phoneNumber}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+                        <LocationOn sx={{ color: "#666", fontSize: 16, mt: 0.2 }} />
+                        <Typography variant="body2" sx={{ fontWeight: "medium", lineHeight: 1.4 }}>
+                          {user.address}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+                        <Typography variant="caption" color="textSecondary">
+                          Joined: {new Date(user.createdAt).toLocaleDateString()}
+                        </Typography>
+                      </Box>
                     </Box>
-                  }
-                />
-                <CardContent sx={{ pt: 0 }}>
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Phone sx={{ color: "#666", fontSize: 16 }} />
-                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                        {user.phoneNumber}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
-                      <LocationOn sx={{ color: "#666", fontSize: 16, mt: 0.2 }} />
-                      <Typography variant="body2" sx={{ fontWeight: "medium", lineHeight: 1.4 }}>
-                        {user.address}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-                      <Typography variant="caption" color="textSecondary">
-                        Joined: {new Date(user.createdAt).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                  </Box>
 
-                  {/* Action Buttons */}
-                  {renderActionButtons(user)}
-                </CardContent>
-              </UserCard>
-            </Box>
-          ))}
+                    {/* Action Buttons */}
+                    {renderActionButtons(user)}
+                  </CardContent>
+                </UserCard>
+              </Box>
+            ))
+          )}
         </Box>
 
         {/* Empty State */}
-        {filteredUsers.length === 0 && (
+        {filteredUsers.length === 0 && !loading && (
           <Paper sx={{ p: 6, textAlign: "center", mt: 3 }}>
             <People sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
             <Typography variant="h6" color="textSecondary" gutterBottom>

@@ -45,6 +45,7 @@ export function setupInterceptors(dispatch: MyDispatch) {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
+      const isAuthEndpoint = typeof originalRequest?.url === 'string' && originalRequest.url.includes('/Authentication/');
 
       if (
         error.response?.status === 401 &&
@@ -54,9 +55,12 @@ export function setupInterceptors(dispatch: MyDispatch) {
         const refreshToken = localStorage.getItem("RefreshToken");
 
         if (!refreshToken) {
-          dispatch(setLogout());
-          localStorage.clear();
-          window.location.href = "/login";
+          // Avoid forcing a reload while on the login page or during auth endpoints
+          if (window.location.pathname !== '/login' && !isAuthEndpoint) {
+            dispatch(setLogout());
+            localStorage.clear();
+            window.location.href = "/login";
+          }
           return Promise.reject(error);
         }
 
@@ -94,9 +98,12 @@ export function setupInterceptors(dispatch: MyDispatch) {
         catch (err) 
         {
           processQueue(err, null);
-          dispatch(setLogout());
-          localStorage.clear();
-          window.location.href = "/login";
+          // Avoid reload loop on login page or for auth endpoints
+          if (window.location.pathname !== '/login' && !isAuthEndpoint) {
+            dispatch(setLogout());
+            localStorage.clear();
+            window.location.href = "/login";
+          }
           return Promise.reject(err);
           
         } 

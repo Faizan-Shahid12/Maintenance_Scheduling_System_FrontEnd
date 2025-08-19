@@ -294,16 +294,16 @@ const validateFullName = (name: string): string | undefined => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {titleIcon}
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            {getModalTitle()}
+              {getModalTitle()}
           </Typography>
         </Box>
         <IconButton onClick={onClose}>
-          <Close />
+            <Close />
         </IconButton>
       </DialogTitle>
 
       <DialogContent dividers sx={{ pt: 2 }}>
-        {isViewMode || isDeleteMode ? (
+          {isViewMode || isDeleteMode ? (
           <Box sx={{ display: 'grid', gap: 2 }}>
             {!isDeleteMode ? (
               <>
@@ -351,7 +351,7 @@ const validateFullName = (name: string): string | undefined => {
           <Box sx={{ display: 'grid', gap: 2 }}>
             <TextField
               label="Full Name"
-              value={formData.fullName}
+                    value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
               onBlur={(e) => handleBlur('fullName', e.target.value)}
               error={!!errors.fullName}
@@ -361,7 +361,7 @@ const validateFullName = (name: string): string | undefined => {
 
             <TextField
               label="Email"
-              value={formData.email}
+                    value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               onBlur={(e) => handleBlur('email', e.target.value)}
               error={!!errors.email}
@@ -371,7 +371,7 @@ const validateFullName = (name: string): string | undefined => {
 
             <TextField
               label="Phone Number"
-              value={formData.phoneNumber}
+                    value={formData.phoneNumber}
               onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
               onBlur={(e) => handleBlur('phoneNumber', e.target.value)}
               error={!!errors.phoneNumber}
@@ -394,7 +394,7 @@ const validateFullName = (name: string): string | undefined => {
             <TextField
               label={isCreateMode ? 'Password' : 'New Password (optional)'}
               type={showPassword ? 'text' : 'password'}
-              value={formData.password}
+                      value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
               onBlur={(e) => handleBlur('password', e.target.value)}
               error={!!errors.password}
@@ -413,9 +413,9 @@ const validateFullName = (name: string): string | undefined => {
 
             <TextField
               label="Address"
-              value={formData.address}
-              onChange={(e) => handleInputChange('address', e.target.value)}
-              onBlur={(e) => handleBlur('address', e.target.value)}
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                onBlur={(e) => handleBlur('address', e.target.value)}
               error={!!errors.address}
               helperText={errors.address}
               multiline
@@ -428,19 +428,19 @@ const validateFullName = (name: string): string | undefined => {
 
       <DialogActions sx={{ p: 2.5 }}>
         <Button onClick={onClose} variant="outlined">
-          Close
+            Close
         </Button>
-        {!isViewMode && !isDeleteMode ? (
+          {!isViewMode && !isDeleteMode ? (
           <Button onClick={onSubmit} variant="contained" startIcon={isEditMode ? <Save /> : <Add />}>
             {isEditMode ? 'Save Changes' : 'Create User'}
           </Button>
         ) : (
           user && isDeleteMode ? (
             <Button onClick={handleDelete} color="error" variant="contained" startIcon={<Delete />}>
-              Delete User
+                Delete User
             </Button>
           ) : null
-        )}
+          )}
       </DialogActions>
     </Dialog>
   )

@@ -32,6 +32,8 @@ import {
   Edit,
   Delete,
   Add,
+  Search,
+  FilterList,
 } from "@mui/icons-material"
 import {
   Box,
@@ -47,7 +49,14 @@ import {
   Collapse,
   Tooltip,
   ButtonGroup,
-  Chip
+  Chip,
+  Skeleton,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material"
 
 // Import our custom components
@@ -86,13 +95,18 @@ export const MaintenanceTree = () => {
   const MaintenanceHistoryLoading = useSelector(
     (state: RootState) => state.MaintenanceHistory.loading
   );
+  const EquipmentLoading = useSelector(
+    (state: RootState) => state.Equipment.loading
+  );
+  const TaskLoading = useSelector(
+    (state: RootState) => state.AppTask.loading
+  );
 
   const dispatch = useDispatch<MyDispatch>();
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentHistory | null>(null);
   const [selectedMaintenance, setSelectedMaintenance] = useState<MaintenanceHistory | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedTaskLog, setSelectedTaskLog] = useState<TaskLog | null>(null);
-  const [selectedLogAttach, setSelectedLogAttach] = useState<Attachment | null>(null);
   const [showLogsModal, setShowLogsModal] = useState(false)
 
   const PageType = "History"
@@ -101,6 +115,12 @@ export const MaintenanceTree = () => {
   const [expandedMaintenance, setExpandedMaintenance] = useState<number | null>(null)
   const [expandedTask, setExpandedTask] = useState<number | null>(null)
   const [expandedLog, setExpandedLog] = useState<number | null>(null)
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("All")
+  const [priorityFilter, setPriorityFilter] = useState<string>("All")
+  const [dateFilter, setDateFilter] = useState<string>("All")
 
   const handleEquipmentToggle = (equipment: EquipmentHistory) => {
     const isCurrentlyExpanded = expandedEquipment === equipment.equipmentId
@@ -173,7 +193,7 @@ export const MaintenanceTree = () => {
     }
   }, [MaintenanceHistory, selectedEquipment]);
   
-  useEffect(()=>
+  useEffect(() =>
   {
     if (selectedMaintenance !== null) 
     {
@@ -197,7 +217,7 @@ export const MaintenanceTree = () => {
     }
   }, [HistoryTask, selectedMaintenance]);
 
-  useEffect(()=>
+  useEffect(() =>
   {
     if (selectedTask !== null) 
     {
@@ -222,7 +242,7 @@ export const MaintenanceTree = () => {
     }
   }, [TaskLogs, selectedTask]);
 
-  useEffect(()=>
+  useEffect(() =>
   {
     if (selectedTaskLog !== null) 
     {
@@ -307,6 +327,53 @@ export const MaintenanceTree = () => {
     setShowLogsModal(false)
   }
 
+  // Filter functions
+  const filteredEquipmentList = EquipmentList?.filter((equipment) => {
+    const matchesSearch = equipment.name.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    if (!matchesSearch) return false
+    
+    // Filter by maintenance dates
+    if (dateFilter !== "All") {
+      const hasMatchingDate = equipment.maintenances?.some(maintenance => {
+        const startDate = new Date(maintenance.startDate)
+        const endDate = new Date(maintenance.endDate)
+        const now = new Date()
+        
+        switch (dateFilter) {
+          case "This Week":
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+            return startDate >= weekAgo
+          case "This Month":
+            const monthAgo = new Date(now.getFullYear(), now.getMonth(), 1)
+            return startDate >= monthAgo
+          case "Last 3 Months":
+            const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1)
+            return startDate >= threeMonthsAgo
+          case "Ongoing":
+            return endDate >= now
+          default:
+            return true
+        }
+      })
+      if (!hasMatchingDate) return false
+    }
+    
+    // Filter by task status or priority
+    if (statusFilter !== "All" || priorityFilter !== "All") {
+      const hasMatchingTasks = equipment.maintenances?.some(maintenance =>
+        maintenance.tasks?.some(task => {
+          const matchesStatus = statusFilter === "All" || task.status === statusFilter
+          const matchesPriority = priorityFilter === "All" || task.priority === priorityFilter
+          return matchesStatus && matchesPriority
+        })
+      )
+      if (!hasMatchingTasks) return false
+    }
+    
+    return true
+  })
+
   return (
     <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
       <Container maxWidth="xl">
@@ -357,6 +424,15 @@ export const MaintenanceTree = () => {
             </Box>
 
             {/* Statistics */}
+            {EquipmentLoading ? (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                    <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
+                  </Box>
+                ))}
+              </Box>
+            ) : (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
                 <StatsCard>
@@ -431,12 +507,82 @@ export const MaintenanceTree = () => {
                 </StatsCard>
               </Box>
             </Box>
+            )}
+          </Box>
+        </Paper>
+
+        {/* Filters */}
+        <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
+            <Box sx={{ flex: "1 1 250px", minWidth: "250px" }}>
+              <TextField
+                fullWidth
+                placeholder="Search equipment..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
+              <FormControl fullWidth>
+                <InputLabel>Task Status</InputLabel>
+                <Select value={statusFilter} label="Task Status" onChange={(e) => setStatusFilter(e.target.value)}>
+                  <MenuItem value="All">All Status</MenuItem>
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Completed">Completed</MenuItem>
+                  <MenuItem value="OverDue">Overdue</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
+              <FormControl fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select value={priorityFilter} label="Priority" onChange={(e) => setPriorityFilter(e.target.value)}>
+                  <MenuItem value="All">All Priorities</MenuItem>
+                  <MenuItem value="Low">Low</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="High">High</MenuItem>
+                  <MenuItem value="Urgent">Urgent</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
+              <FormControl fullWidth>
+                <InputLabel>Date Range</InputLabel>
+                <Select value={dateFilter} label="Date Range" onChange={(e) => setDateFilter(e.target.value)}>
+                  <MenuItem value="All">All Dates</MenuItem>
+                  <MenuItem value="This Week">This Week</MenuItem>
+                  <MenuItem value="This Month">This Month</MenuItem>
+                  <MenuItem value="Last 3 Months">Last 3 Months</MenuItem>
+                  <MenuItem value="Ongoing">Ongoing</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: "1 1 120px", minWidth: "120px" }}>
+              <Typography variant="body2" color="textSecondary">
+                {filteredEquipmentList?.length || 0} of {EquipmentList?.length || 0} equipment
+              </Typography>
+            </Box>
           </Box>
         </Paper>
 
         {/* Equipment Cards */}
         <Box>
-          {EquipmentList?.map((equipment, equipmentIndex) => (
+          {EquipmentLoading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <Paper key={i} sx={{ p: 2, mb: 2 }}>
+                <Skeleton variant="text" width="20%" />
+                <Skeleton variant="rectangular" height={80} sx={{ borderRadius: 2, mt: 1 }} />
+              </Paper>
+            ))
+          ) : (
+          filteredEquipmentList?.map((equipment, equipmentIndex) => (
             <EquipmentCard key={equipment.equipmentId}>
               <CardHeader
                 sx={{
@@ -501,11 +647,13 @@ export const MaintenanceTree = () => {
               <Collapse in={expandedEquipment === equipment.equipmentId}>
                 <CardContent sx={{ backgroundColor: "#f8f9fa", p: 2 }}>
                   {MaintenanceHistoryLoading ? (
-                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
-                      <CircularProgress size={48} sx={{ mb: 2 }} />
-                      <Typography variant="body1" sx={{ color: "#666" }}>
-                        Loading maintenance history...
-                      </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <Paper key={i} sx={{ p: 2 }}>
+                          <Skeleton variant="text" width="30%" />
+                          <Skeleton variant="rectangular" height={64} sx={{ borderRadius: 2, mt: 1 }} />
+                        </Paper>
+                      ))}
                     </Box>
                   ) : equipment.maintenances?.length > 0 ? (
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -644,7 +792,16 @@ export const MaintenanceTree = () => {
                           />
                           <Collapse in={expandedMaintenance === mh.historyId}>
                             <CardContent sx={{ backgroundColor: "#f8f9fa", p: 2 }}>
-                              {mh.tasks?.length > 0 ? (
+                              {TaskLoading ? (
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                  {Array.from({ length: 2 }).map((_, i) => (
+                                    <Paper key={i} sx={{ p: 2 }}>
+                                      <Skeleton variant="text" width="30%" />
+                                      <Skeleton variant="rectangular" height={64} sx={{ borderRadius: 2, mt: 1 }} />
+                                    </Paper>
+                                  ))}
+                                </Box>
+                              ) : mh.tasks?.length > 0 ? (
                                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                                   {mh.tasks.map((task, taskIndex) => (
                                     <TaskCard key={task.taskId}>
@@ -815,7 +972,16 @@ export const MaintenanceTree = () => {
                                           </Button>
                                         </Box>
                                         <CardContent sx={{ backgroundColor: "#f8f9fa", p: 2 }}>
-                                          {task.logs?.length > 0 ? (
+                                          {TaskLoading ? (
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                              {Array.from({ length: 2 }).map((_, i) => (
+                                                <Paper key={i} sx={{ p: 2 }}>
+                                                  <Skeleton variant="text" width="30%" />
+                                                  <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 2, mt: 1 }} />
+                                                </Paper>
+                                              ))}
+                                            </Box>
+                                          ) : task.logs?.length > 0 ? (
                                             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                                               {task.logs.map((log, logIndex) => (
                                                 <LogCard key={log.logId}>
@@ -927,43 +1093,14 @@ export const MaintenanceTree = () => {
                                                     }
                                                   />
                                                   <Collapse in={expandedLog === log.logId}>
-                                                    {log.attachments && log.attachments.length > 0 && (
+                                                    {log.attachments && log.attachments.length > 0 ? (
                                                       <CardContent sx={{ borderTop: "1px solid #e0e0e0", p: 2 }}>
                                                         <Box
                                                           sx={{
                                                             display: "flex",
-                                                            justifyContent: "space-between",
-                                                            alignItems: "center",
-                                                            mb: 2,
+                                                            flexDirection: 'column',
+                                                            gap: 1,
                                                           }}
-                                                        >
-                                                          <Typography
-                                                            variant="subtitle2"
-                                                            sx={{
-                                                              fontWeight: "bold",
-                                                              display: "flex",
-                                                              alignItems: "center",
-                                                              gap: 1,
-                                                            }}
-                                                          >
-                                                            <Folder sx={{ color: "#ff9800", fontSize: 18 }} />
-                                                            Attachments
-                                                          </Typography>
-                                                          <Button
-                                                            size="small"
-                                                            variant="contained"
-                                                            startIcon={<Add />}
-                                                            onClick={() => handleAddAttachment(log.logId)}
-                                                            sx={{
-                                                              bgcolor: "#9c27b0",
-                                                              "&:hover": { bgcolor: "#7b1fa2" },
-                                                            }}
-                                                          >
-                                                            Add Attachment
-                                                          </Button>
-                                                        </Box>
-                                                        <Box
-                                                          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
                                                         >
                                                           {log.attachments.map((attachment, attachmentIndex) => (
                                                             <Paper
@@ -1049,6 +1186,12 @@ export const MaintenanceTree = () => {
                                                           ))}
                                                         </Box>
                                                       </CardContent>
+                                                    ) : (
+                                                      <CardContent sx={{ p: 2 }}>
+                                                        <Typography variant="body2" color="textSecondary" sx={{ textAlign: "center", py: 1 }}>
+                                                          No attachments found for this log entry
+                                                        </Typography>
+                                                      </CardContent>
                                                     )}
                                                   </Collapse>
                                                 </LogCard>
@@ -1080,18 +1223,21 @@ export const MaintenanceTree = () => {
                         </MaintenanceCard>
                       ))}
                     </Box>
-                  ) : (
-                    <Box sx={{ textAlign: "center", py: 4 }}>
-                      <Schedule sx={{ fontSize: 48, color: "#ccc", mb: 1 }} />
-                      <Typography variant="body1" sx={{ color: "#666" }}>
-                        No maintenance history available
-                      </Typography>
-                    </Box>
-                  )}
+                            ) : (
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <Schedule sx={{ fontSize: 48, color: "#ccc", mb: 1 }} />
+              <Typography variant="body1" sx={{ color: "#666" }}>
+                {searchTerm || statusFilter !== "All" || priorityFilter !== "All" || dateFilter !== "All"
+                  ? "No equipment found matching the current filters"
+                  : "No maintenance history available"}
+              </Typography>
+            </Box>
+          )}
                 </CardContent>
               </Collapse>
             </EquipmentCard>
-          ))}
+          ))
+          )}
         </Box>
 
         <TaskLogsModal
