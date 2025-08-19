@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import type { Equipment } from "../../Models/EquipmentModels/EquipmentModel";
 import type { WorkShop } from "../../Models/WorkShopModel/WorkShop";
-import { Close, Save, Assignment, Category,Business } from "@mui/icons-material"
+import { Close, Save, Assignment, Category, Business } from "@mui/icons-material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, IconButton, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
-type AssignModalProps = {
+ type AssignModalProps = {
   show: boolean;
   mode: "assignType" | "assignWorkshop";
   equipment: Equipment;
@@ -36,8 +37,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
     }
   }, [show, equipment]);
 
-  useEffect(() => 
-  {
+  useEffect(() => {
     if (mode === "assignWorkshop") {
       const ws = workshops.find((w) => w.name === workShopName);
       setWorkShopLocation(ws?.location || "");
@@ -58,17 +58,11 @@ export const AssignModal: React.FC<AssignModalProps> = ({
     return true;
   };
 
-  const handleSubmit = () => 
-  {
-
-      if (mode === "assignType") 
-      {
-        const isValid = validateType(type);
-        if (!isValid)
-        {
-          return;
-        }
-      }
+  const handleSubmit = () => {
+    if (mode === "assignType") {
+      const isValid = validateType(type);
+      if (!isValid) return;
+    }
 
     let updated: Equipment = { ...equipment };
 
@@ -87,344 +81,96 @@ export const AssignModal: React.FC<AssignModalProps> = ({
     onClose();
   };
 
- if (!show) return null
+  if (!show) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000,
-        padding: "20px",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-          maxWidth: "500px",
-          width: "100%",
-          maxHeight: "90vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        
-        <div
-          style={{
-            background:
-              mode === "assignType"
-                ? "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)"
-                : "linear-gradient(135deg, #2196f3 0%, #1976d2 100%)",
-            padding: "20px 24px",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {mode === "assignType" ? <Category style={{ fontSize: 24 }} /> : <Business style={{ fontSize: 24 }} />}
-            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "bold" }}>
-              {mode === "assignType" ? "Assign Equipment Type" : "Assign Workshop"}
-            </h2>
-          </div>
-          <button
-            style={{
-              background: "rgba(255,255,255,0.2)",
-              border: "none",
-              borderRadius: "50%",
-              width: "36px",
-              height: "36px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "white",
-            }}
-            onClick={onClose}
-          >
-            <Close style={{ fontSize: 20 }} />
-          </button>
-        </div>
+    <Dialog open={show} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {mode === "assignType" ? <Category /> : <Business />}
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {mode === "assignType" ? "Assign Equipment Type" : "Assign Workshop"}
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose}>
+          <Close />
+        </IconButton>
+      </DialogTitle>
 
-        {/* Body */}
-        <div
-          style={{
-            padding: "24px",
-            flex: 1,
-            overflowY: "auto",
-          }}
-        >
-          {/* Equipment Information */}
-          <div
-            style={{
-              padding: "20px",
-              backgroundColor: "#f8f9fa",
-              borderRadius: "8px",
-              border: "1px solid #e9ecef",
-              marginBottom: "24px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "16px",
+      <DialogContent dividers sx={{ pt: 2 }}>
+        <Box sx={{ p: 2, mb: 2, bgcolor: '#f8f9fa', border: '1px solid #e5e7eb', borderRadius: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Assignment sx={{ fontSize: 18, color: '#64748b' }} />
+            <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 700 }}>EQUIPMENT INFORMATION</Typography>
+          </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2 }}>
+            <Box>
+              <Typography variant="caption" color="textSecondary">ID</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{equipment.equipmentId}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">NAME</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{equipment.name}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">LOCATION</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{equipment.location}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">SERIAL NUMBER</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{equipment.serialNumber}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">MODEL</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{equipment.model}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">CURRENT TYPE</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{equipment.type}</Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {mode === "assignType" ? (
+          <Box>
+            <TextField
+              label="New Equipment Type"
+              fullWidth
+              value={type}
+              onChange={(e) => {
+                const value = e.target.value;
+                setType(value);
+                validateType(value);
               }}
-            >
-              <Assignment style={{ fontSize: 20, color: "#6c757d" }} />
-              <div style={{ fontSize: "14px", color: "#6c757d", fontWeight: "bold" }}>EQUIPMENT INFORMATION</div>
-            </div>
+              error={!!typeError}
+              helperText={typeError}
+            />
+          </Box>
+        ) : (
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>New Workshop</InputLabel>
+              <Select label="New Workshop" value={workShopName} onChange={(e) => setWorkShopName(e.target.value)}>
+                <MenuItem value=""><em>None</em></MenuItem>
+                {workshops.map((w) => (
+                  <MenuItem key={w.workShopId} value={w.name}>{w.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "16px",
-              }}
-            >
-              <div>
-                <div style={{ fontSize: "12px", color: "#6c757d", fontWeight: "bold", marginBottom: "4px" }}>ID</div>
-                <div style={{ fontSize: "16px", fontWeight: "medium" }}>{equipment.equipmentId}</div>
-              </div>
+            <TextField label="Workshop Location" value={workShopLocation} disabled fullWidth />
+          </Box>
+        )}
+      </DialogContent>
 
-              <div>
-                <div style={{ fontSize: "12px", color: "#6c757d", fontWeight: "bold", marginBottom: "4px" }}>NAME</div>
-                <div style={{ fontSize: "16px", fontWeight: "medium" }}>{equipment.name}</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "12px", color: "#6c757d", fontWeight: "bold", marginBottom: "4px" }}>
-                  LOCATION
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "medium" }}>{equipment.location}</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "12px", color: "#6c757d", fontWeight: "bold", marginBottom: "4px" }}>
-                  SERIAL NUMBER
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "medium" }}>{equipment.serialNumber}</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "12px", color: "#6c757d", fontWeight: "bold", marginBottom: "4px" }}>MODEL</div>
-                <div style={{ fontSize: "16px", fontWeight: "medium" }}>{equipment.model}</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "12px", color: "#6c757d", fontWeight: "bold", marginBottom: "4px" }}>
-                  CURRENT TYPE
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "medium" }}>{equipment.type}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Assignment Section */}
-          <div
-            style={{
-              padding: "20px",
-              backgroundColor: mode === "assignType" ? "#fff3e0" : "#e3f2fd",
-              borderRadius: "8px",
-              border: mode === "assignType" ? "1px solid #ffcc02" : "1px solid #bbdefb",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "16px",
-              }}
-            >
-              {mode === "assignType" ? (
-                <Category style={{ fontSize: 20, color: "#f57c00" }} />
-              ) : (
-                <Business style={{ fontSize: 20, color: "#1976d2" }} />
-              )}
-              <div
-                style={{
-                  fontSize: "14px",
-                  color: mode === "assignType" ? "#f57c00" : "#1976d2",
-                  fontWeight: "bold",
-                }}
-              >
-                {mode === "assignType" ? "ASSIGN NEW TYPE" : "ASSIGN NEW WORKSHOP"}
-              </div>
-            </div>
-
-            {mode === "assignType" && (
-            <div>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", fontSize: "14px" }}>
-                New Equipment Type
-              </label>
-              <input
-                type="text"
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  border: `2px solid ${typeError ? "#f44336" : "#ffcc02"}`,
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  transition: "border-color 0.2s",
-                  backgroundColor: "white",
-                }}
-                value={type}
-                onChange={(e) => {
-                      const value = e.target.value;
-                      setType(value);
-                      validateType(value);
-                    }}
-                onFocus={(e) => (e.target.style.borderColor = typeError ? "#f44336" : "#f57c00")}
-                onBlur={(e) => (e.target.style.borderColor = typeError ? "#f44336" : "#ffcc02")}
-                placeholder="Enter new equipment type"
-              />
-              {typeError && (
-                <div style={{
-                  color: "#f44336",
-                  fontSize: "12px",
-                  marginTop: "4px",
-                  fontWeight: "500"
-                }}>
-                  {typeError}
-                </div>
-              )}
-            </div>
-          )}
-
-            {mode === "assignWorkshop" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div>
-                  <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", fontSize: "14px" }}>
-                    New Workshop
-                  </label>
-                  <select
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      border: "2px solid #bbdefb",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      backgroundColor: "white",
-                      transition: "border-color 0.2s",
-                    }}
-                    value={workShopName}
-                    onChange={(e) => setWorkShopName(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#1976d2")}
-                    onBlur={(e) => (e.target.style.borderColor = "#bbdefb")}
-                  >
-                    <option value="">Select Workshop</option>
-                    {workshops.map((w) => (
-                      <option key={w.workShopId} value={w.name}>
-                        {w.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", fontSize: "14px" }}>
-                    Workshop Location
-                  </label>
-                  <input
-                    type="text"
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      border: "2px solid #e9ecef",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      backgroundColor: "#f8f9fa",
-                      color: "#6c757d",
-                    }}
-                    value={workShopLocation}
-                    disabled
-                    placeholder="Location will be auto-filled"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div
-          style={{
-            padding: "20px 24px",
-            backgroundColor: "#f8f9fa",
-            borderTop: "1px solid #e9ecef",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-                    <button
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              transition: "background-color 0.2s",
-            }}
-            onClick={onClose}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#5a6268")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6c757d")}
-          >
-            <Close style={{ fontSize: 16 }} />
-            Cancel
-          </button>
-
-          <button
-            style={{
-              padding: "10px 20px",
-              backgroundColor: mode === "assignType" ? "#ff9800" : "#2196f3",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              transition: "background-color 0.2s",
-            }}
-            onClick={handleSubmit}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = mode === "assignType" ? "#f57c00" : "#1976d2")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = mode === "assignType" ? "#ff9800" : "#2196f3")
-            }
-          >
-            <Save style={{ fontSize: 16 }} />
-            Assign
-          </button>
-
-        </div>
-      </div>
-    </div>
+      <DialogActions>
+        <Button onClick={onClose} variant="outlined" color="inherit">
+          <Close sx={{ fontSize: 16 }} /> Cancel
+        </Button>
+        <Button onClick={handleSubmit} variant="contained">
+          <Save sx={{ fontSize: 16 }} /> Assign
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 };

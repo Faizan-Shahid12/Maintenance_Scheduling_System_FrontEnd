@@ -420,15 +420,6 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
               variant="contained"
               startIcon={<PlusIcon />}
               onClick={() => handleOpenModal("create")}
-              sx={{
-                bgcolor: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                color: "white",
-                "&:hover": {
-                  bgcolor: "rgba(255,255,255,0.3)",
-                },
-              }}
             >
               Add New Equipment
             </Button>

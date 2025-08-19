@@ -399,58 +399,24 @@ export const ScheduleTaskModal: React.FC<ScheduleTaskModalProps> = ({
         },
       }}
     >
-      <Box
-        sx={{
-          background: modalConfig.submitColor,
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <Box sx={{ position: "absolute", top: -20, right: -20, opacity: 0.1 }}>
-          <AssignmentIcon sx={{ fontSize: 120 }} />
-        </Box>
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontWeight: 600,
-            fontSize: "1.5rem",
-            position: "relative",
-            zIndex: 1,
-            pb: 1,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Paper
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 2,
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {modalConfig.icon}
-            </Paper>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                {modalConfig.title}
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, fontSize: "0.875rem" }}>
+      <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <AssignmentIcon color="primary" />
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              {modalConfig.title}
+            </Typography>
+            {modalConfig.subtitle && (
+              <Typography variant="body2" color="text.secondary">
                 {modalConfig.subtitle}
               </Typography>
-            </Box>
+            )}
           </Box>
-          <IconButton onClick={handleClose} sx={{ color: "white" }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-      </Box>
+        </Box>
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
       <DialogContent sx={{ p: 0 }}>
         {(mode === "edit" || mode === "delete" || mode === "assign") && task && (
@@ -466,7 +432,7 @@ export const ScheduleTaskModal: React.FC<ScheduleTaskModalProps> = ({
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <EngineeringIcon sx={{ color: "#64748b", fontSize: 20 }} />
               <Box>
-                <Typography variant="body2" color="textSecondary" sx={{ fontSize: "0.75rem" }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
                   Current Task
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600, color: "#1e293b" }}>
@@ -474,7 +440,7 @@ export const ScheduleTaskModal: React.FC<ScheduleTaskModalProps> = ({
                 </Typography>
               </Box>
               <Box sx={{ ml: "auto" }}>
-                <Typography variant="body2" color="textSecondary" sx={{ fontSize: "0.75rem" }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
                   Current Assignment
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600, color: "#1e293b" }}>
@@ -855,10 +821,6 @@ export const ScheduleTaskModal: React.FC<ScheduleTaskModalProps> = ({
           }
           sx={{
             minWidth: "120px",
-            background: modalConfig.submitColor,
-            "&:hover": {
-              opacity: 0.9,
-            },
             "&:disabled": {
               background: "#e5e7eb",
               color: "#9ca3af",

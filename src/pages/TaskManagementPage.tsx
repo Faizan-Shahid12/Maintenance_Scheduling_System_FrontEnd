@@ -50,6 +50,7 @@ import {
   PriorityChip,
   StatusChip,
   TechnicianAvatar,
+  HeaderCard,
 } from "../Components/ui/task-management-components"
 import TaskLogsModal from "../Components/Task/TaskLogModal"
 import EnhancedAssignModal from "../Components/Task/AssignTaskModal"
@@ -282,10 +283,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -305,10 +306,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -329,10 +330,10 @@ export const TaskManagementPage = () => {
                 minWidth: "auto",
                 px: 1,
                 py: 0.5,
-                color: "#4a90e2",
+                color: "#2563eb",
                 "&:hover": {
-                  bgcolor: "#f0f7ff",
-                  color: "#2c5aa0",
+                  bgcolor: "#eff6ff",
+                  color: "#1d4ed8",
                 },
               }}
             >
@@ -353,10 +354,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -376,10 +377,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -399,10 +400,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#ef4444",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#fef2f2",
+                color: "#dc2626",
               },
             }}
           >
@@ -436,10 +437,10 @@ export const TaskManagementPage = () => {
                 minWidth: "auto",
                 px: 1,
                 py: 0.5,
-                color: "#4a90e2",
+                color: "#2563eb",
                 "&:hover": {
-                  bgcolor: "#f0f7ff",
-                  color: "#2c5aa0",
+                  bgcolor: "#eff6ff",
+                  color: "#1d4ed8",
                 },
               }}
             >
@@ -460,10 +461,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -483,10 +484,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -498,24 +499,10 @@ export const TaskManagementPage = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
       <Container maxWidth="xl">
         {/* Header */}
-        <Paper
-          sx={{
-            background: "linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-            color: "white",
-            p: 4,
-            mb: 3,
-            borderRadius: 3,
-            position: "relative",
-            overflow: "hidden",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-          }}
-        >
-          <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.08 }}>
-            <Engineering sx={{ fontSize: 120 }} />
-          </Box>
+        <HeaderCard>
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -524,22 +511,21 @@ export const TaskManagementPage = () => {
                     width: 56,
                     height: 56,
                     borderRadius: 2,
-                    background: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
+                    background: "#e0e7ff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     mr: 2,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                    boxShadow: "none",
                   }}
                 >
-                  <Assignment sx={{ fontSize: 28, color: "white" }} />
+                  <Assignment sx={{ fontSize: 28, color: "#2563eb" }} />
                 </Paper>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5, color: "white" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
                     Task Management
                   </Typography>
-                  <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  <Typography variant="body1" color="textSecondary">
                     {userRole?.includes("Admin")
                       ? "Manage and track maintenance tasks"
                       : "View and update your assigned tasks"}
@@ -549,8 +535,8 @@ export const TaskManagementPage = () => {
                     size="small"
                     sx={{
                       mt: 1,
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
+                      bgcolor: "#eef2ff",
+                      color: "#2563eb",
                       fontWeight: "bold",
                     }}
                   />
@@ -561,15 +547,6 @@ export const TaskManagementPage = () => {
                   variant="contained"
                   startIcon={<Add />}
                   onClick={handleCreateClick}
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.3)",
-                    },
-                  }}
                 >
                   Create Task
                 </Button>
@@ -584,10 +561,10 @@ export const TaskManagementPage = () => {
                     <Assignment sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.total}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Total Tasks
                     </Typography>
                   </Box>
@@ -599,10 +576,10 @@ export const TaskManagementPage = () => {
                     <CheckCircle sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.completed}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Completed
                     </Typography>
                   </Box>
@@ -614,10 +591,10 @@ export const TaskManagementPage = () => {
                     <Warning sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.overdue}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Overdue
                     </Typography>
                   </Box>
@@ -629,10 +606,10 @@ export const TaskManagementPage = () => {
                     <PauseCircle sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.pending}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Pending
                     </Typography>
                   </Box>
@@ -640,7 +617,7 @@ export const TaskManagementPage = () => {
               </Box>
             </Box>
           </Box>
-        </Paper>
+        </HeaderCard>
 
         {/* Filters */}
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>

@@ -12,23 +12,23 @@ import {
 
 // Styled Components
 export const GradientBox = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  backgroundColor: "#ffffff",
   borderRadius: theme.spacing(2),
   padding: theme.spacing(4),
-  color: "white",
+  color: "inherit",
   position: "relative",
   overflow: "hidden",
   marginBottom: theme.spacing(4),
-  boxShadow: "0 10px 30px rgba(102, 126, 234, 0.3)",
+  border: "1px solid #e5e7eb",
+  boxShadow: "0 8px 24px rgba(15,23,42,0.06)",
 }))
 
 export const StatsCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
   borderRadius: theme.spacing(2),
-  background: "rgba(255,255,255,0.15)",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(255,255,255,0.2)",
-  color: "white",
+  backgroundColor: "#ffffff",
+  border: "1px solid #e5e7eb",
+  color: "inherit",
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(2),
@@ -36,21 +36,21 @@ export const StatsCard = styled(Paper)(({ theme }) => ({
 
 export const EquipmentCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(2),
-  boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-  border: "none",
+  boxShadow: "0 6px 20px rgba(15,23,42,0.06)",
+  border: "1px solid #e5e7eb",
   overflow: "hidden",
   marginBottom: theme.spacing(3),
-  transition: "all 0.3s ease",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
   "&:hover": {
     transform: "translateY(-2px)",
-    boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+    boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
   },
 }))
 
 export const MaintenanceCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(2),
-  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-  border: "none",
+  boxShadow: "0 4px 20px rgba(15,23,42,0.06)",
+  border: "1px solid #e5e7eb",
   overflow: "hidden",
   marginBottom: theme.spacing(2),
   borderLeft: `4px solid #4caf50`,
@@ -58,8 +58,8 @@ export const MaintenanceCard = styled(Card)(({ theme }) => ({
 
 export const TaskCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(2),
-  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-  border: "none",
+  boxShadow: "0 4px 20px rgba(15,23,42,0.06)",
+  border: "1px solid #e5e7eb",
   overflow: "hidden",
   marginBottom: theme.spacing(2),
   borderLeft: `4px solid #00bcd4`,
@@ -67,8 +67,8 @@ export const TaskCard = styled(Card)(({ theme }) => ({
 
 export const LogCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(2),
-  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-  border: "none",
+  boxShadow: "0 4px 20px rgba(15,23,42,0.06)",
+  border: "1px solid #e5e7eb",
   overflow: "hidden",
   marginBottom: theme.spacing(2),
   borderLeft: `4px solid #ff9800`,

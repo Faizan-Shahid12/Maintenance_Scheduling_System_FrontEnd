@@ -73,16 +73,17 @@ const NavigationSidebar: React.FC = () => {
     <Box
       sx={{
         height: "100vh",
-        background: "linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-        color: "white",
+        backgroundColor: "#ffffff",
+        color: theme.palette.text.primary,
         display: "flex",
         flexDirection: "column",
         width: mobile ? SIDEBAR_WIDTH : isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH,
         transition: "width 0.3s ease",
+        borderRight: "1px solid #e5e7eb",
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 2, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+      <Box sx={{ p: 2, borderBottom: "1px solid #e5e7eb" }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Paper
@@ -90,19 +91,19 @@ const NavigationSidebar: React.FC = () => {
                 width: 40,
                 height: 40,
                 borderRadius: 2,
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
+                background: theme.palette.primary.main,
+                color: "white",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 mr: isCollapsed && !mobile ? 0 : 1.5,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                boxShadow: "0 4px 12px rgba(37,99,235,0.3)",
               }}
             >
-              <Engineering sx={{ fontSize: 20, color: "white" }} />
+              <Engineering sx={{ fontSize: 20 }} />
             </Paper>
             {(!isCollapsed || mobile) && (
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 0.2 }}>
                 MainSync
               </Typography>
             )}
@@ -112,8 +113,8 @@ const NavigationSidebar: React.FC = () => {
             <IconButton
               onClick={handleToggle}
               sx={{
-                color: "white",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.1)" },
+                color: theme.palette.text.secondary,
+                "&:hover": { bgcolor: "#f1f5f9" },
               }}
             >
               {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
@@ -126,9 +127,9 @@ const NavigationSidebar: React.FC = () => {
             label={`${role} Dashboard`}
             size="small"
             sx={{
-              bgcolor: "rgba(255,255,255,0.2)",
-              color: "white",
-              fontWeight: "bold",
+              bgcolor: "#f1f5f9",
+              color: theme.palette.text.secondary,
+              fontWeight: 700,
               mt: 2,
             }}
           />
@@ -137,7 +138,7 @@ const NavigationSidebar: React.FC = () => {
 
       {/* Navigation Items */}
       <Box sx={{ flex: 1, py: 2 }}>
-        <List sx={{ p: 0 }}>
+        <List sx={{ p: 1 }}>
           {filteredNavItems.map((item) => (
             <ListItem key={item.path} sx={{ p: 0, mb: 0.5 }}>
               <Button
@@ -146,26 +147,28 @@ const NavigationSidebar: React.FC = () => {
                 startIcon={item.icon}
                 onClick={() => mobile && setMobileOpen(false)}
                 sx={{
-                  color: "white",
+                  color: theme.palette.text.primary,
                   textTransform: "none",
-                  fontWeight: 500,
-                  px: 2,
-                  py: 1.5,
+                  fontWeight: 600,
+                  px: 1.5,
+                  py: 1.25,
                   width: "100%",
                   justifyContent: isCollapsed && !mobile ? "center" : "flex-start",
                   minWidth: 0,
                   textDecoration: "none",
+                  borderRadius: 2,
                   "&:hover": {
-                    bgcolor: "rgba(255,255,255,0.1)",
-                    transform: "translateX(4px)",
+                    bgcolor: "#f1f5f9",
+                    transform: "none",
                   },
                   "&.active": {
-                    bgcolor: "rgba(33, 150, 243, 0.8)",
-                    color: "white",
-                    fontWeight: 600,
-                    borderRight: "3px solid #2196f3",
+                    bgcolor: "#e8f0fe",
+                    color: theme.palette.primary.main,
+                    fontWeight: 700,
+                    borderRight: "3px solid",
+                    borderColor: theme.palette.primary.main,
                   },
-                  transition: "all 0.2s ease",
+                  transition: "background-color 0.2s ease",
                   "& .MuiButton-startIcon": {
                     mr: isCollapsed && !mobile ? 0 : 1,
                   },
@@ -179,14 +182,14 @@ const NavigationSidebar: React.FC = () => {
       </Box>
 
       {/* User Profile & Logout */}
-      <Box sx={{ p: 2, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+      <Box sx={{ p: 2, borderTop: "1px solid #e5e7eb" }}>
         {(!isCollapsed || mobile) && (
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Avatar
               sx={{
                 width: 36,
                 height: 36,
-                bgcolor: "rgba(255,255,255,0.2)",
+                bgcolor: theme.palette.primary.main,
                 color: "white",
                 fontWeight: "bold",
                 fontSize: "0.9rem",
@@ -196,10 +199,10 @@ const NavigationSidebar: React.FC = () => {
               {role?.charAt(0)}
             </Avatar>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
               {Name}
               </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
+              <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
                 Online
               </Typography>
             </Box>
@@ -211,17 +214,13 @@ const NavigationSidebar: React.FC = () => {
           startIcon={<Logout />}
           onClick={handleLogout}
           sx={{
-            color: "white",
+            color: theme.palette.text.primary,
             textTransform: "none",
-            fontWeight: 500,
-            py: 1.5,
+            fontWeight: 600,
+            py: 1.25,
             justifyContent: isCollapsed && !mobile ? "center" : "flex-start",
-            "&:hover": {
-              bgcolor: "rgba(255,255,255,0.1)",
-            },
-            "& .MuiButton-startIcon": {
-              mr: isCollapsed && !mobile ? 0 : 1,
-            },
+            "&:hover": { bgcolor: "#f1f5f9" },
+            "& .MuiButton-startIcon": { mr: isCollapsed && !mobile ? 0 : 1 },
           }}
         >
           {(!isCollapsed || mobile) && "Logout"}
@@ -243,6 +242,7 @@ const NavigationSidebar: React.FC = () => {
             height: "100vh",
             width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH,
             transition: "width 0.3s ease",
+            backgroundColor: "#ffffff",
           }}
           data-sidebar-collapsed={isCollapsed}
         >
@@ -261,11 +261,9 @@ const NavigationSidebar: React.FC = () => {
               top: 16,
               left: 16,
               zIndex: 1300,
-              bgcolor: "rgba(102, 126, 234, 0.9)",
+              bgcolor: theme.palette.primary.main,
               color: "white",
-              "&:hover": {
-                bgcolor: "rgba(102, 126, 234, 1)",
-              },
+              "&:hover": { bgcolor: theme.palette.primary.dark },
             }}
           >
             <MenuIcon />
@@ -275,9 +273,7 @@ const NavigationSidebar: React.FC = () => {
             variant="temporary"
             open={mobileOpen}
             onClose={() => setMobileOpen(false)}
-            ModalProps={{
-              keepMounted: true,
-            }}
+            ModalProps={{ keepMounted: true }}
             sx={{
               "& .MuiDrawer-paper": {
                 width: SIDEBAR_WIDTH,

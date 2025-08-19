@@ -155,19 +155,19 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ children, isSelect
   <Card 
     sx={{
       cursor: 'pointer',
-      transition: 'all 0.2s ease-in-out',
-      border: '1px solid #e0e0e0',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      border: '1px solid #e5e7eb',
       borderRadius: 2,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      boxShadow: '0 6px 20px rgba(15,23,42,0.06)',
       '&:hover': {
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        transform: 'translateY(-1px)',
-        borderColor: '#d0d0d0'
+        boxShadow: '0 10px 30px rgba(15,23,42,0.08)',
+        transform: 'translateY(-2px)',
+        borderColor: '#cbd5e1'
       },
       ...(isSelected && {
-        border: '2px solid #2196f3',
-        backgroundColor: '#f8fbff',
-        boxShadow: '0 4px 12px rgba(33,150,243,0.2)'
+        border: '2px solid #2563eb',
+        backgroundColor: '#eff6ff',
+        boxShadow: '0 10px 30px rgba(37,99,235,0.18)'
       })
     }}
     onClick={onClick}
@@ -281,12 +281,11 @@ export const FieldValue: React.FC<FieldValueProps> = ({ children, className = ""
   </Typography>
 )
 
-export const StatCard: React.FC<StatCardProps> = ({ icon, value, label, color = "#2196f3" }) => (
+export const StatCard: React.FC<StatCardProps> = ({ icon, value, label, color = "#2563eb" }) => (
   <Paper
     sx={{
-      background: "rgba(255,255,255,0.15)",
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.2)",
+      backgroundColor: "#ffffff",
+      border: "1px solid #e5e7eb",
       borderRadius: 2,
       p: 2,
       display: "flex",
@@ -298,10 +297,10 @@ export const StatCard: React.FC<StatCardProps> = ({ icon, value, label, color = 
       {icon}
     </Avatar>
     <Box>
-      <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
         {value}
       </Typography>
-      <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+      <Typography variant="caption" color="textSecondary">
         {label}
       </Typography>
     </Box>
@@ -311,18 +310,19 @@ export const StatCard: React.FC<StatCardProps> = ({ icon, value, label, color = 
 export const HeaderCard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Paper
     sx={{
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      backgroundColor: "#ffffff",
       borderRadius: 3,
       p: 4,
       mb: 3,
       position: "relative",
       overflow: "hidden",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-      color: "white"
+      boxShadow: "0 8px 24px rgba(15,23,42,0.06)",
+      border: "1px solid #e5e7eb",
+      color: "inherit"
     }}
   >
-    <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.08 }}>
-      <Business sx={{ fontSize: 120 }} />
+    <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.06 }}>
+      <Business sx={{ fontSize: 120, color: "#2563eb" }} />
     </Box>
     <Box sx={{ position: "relative", zIndex: 1 }}>
       {children}
@@ -376,7 +376,7 @@ export const GridContainer: React.FC<GridContainerProps> = ({ children, classNam
 )
 
 export const MainContainer: React.FC<MainContainerProps> = ({ children }) => (
-  <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
+  <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
     <Container maxWidth="xl">
       {children}
     </Container>
@@ -391,22 +391,21 @@ export const HeaderContent: React.FC<HeaderContentProps> = ({ title, subtitle, b
           width: 56,
           height: 56,
           borderRadius: 2,
-          background: "rgba(255,255,255,0.2)",
-          backdropFilter: "blur(10px)",
+          background: "#e0e7ff",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           mr: 2,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+          boxShadow: "none",
         }}
       >
-        <Business sx={{ fontSize: 28, color: "white" }} />
+        <Business sx={{ fontSize: 28, color: "#2563eb" }} />
       </Paper>
       <Box>
-        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5, color: "white" }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
           {title}
         </Typography>
-        <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.8)", mb: 1 }}>
+        <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
           {subtitle}
         </Typography>
         {badge && (
@@ -414,8 +413,8 @@ export const HeaderContent: React.FC<HeaderContentProps> = ({ title, subtitle, b
             label={badge}
             size="small"
             sx={{
-              bgcolor: "rgba(255,255,255,0.2)",
-              color: "white",
+              bgcolor: "#eef2ff",
+              color: "#2563eb",
               fontWeight: "bold"
             }}
           />

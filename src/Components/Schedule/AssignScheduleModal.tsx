@@ -1,7 +1,6 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import {
-  Modal,
   Box,
   Typography,
   TextField,
@@ -103,8 +102,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     }
   }, [equipId, dispatch])
 
-  const resetForm = () => 
-  {
+  const resetForm = () => {
     setScheduleName("")
     setScheduleType("")
     setActiveScheduleOption("active")
@@ -162,9 +160,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
 
   const [errors, setErrors] = useState<FormErrors>({})
 
-
-  const validateField = (field: string, value: any) =>
-  {
+  const validateField = (field: string, value: any) => {
     let message = ""
 
     const today = new Date()
@@ -199,14 +195,13 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
           message = "At least one task is required."
         }
         break
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: message }))
+    return message === ""
   }
 
-  setErrors((prev) => ({ ...prev, [field]: message }))
-  return message === ""
-  }
-
-  const validateAll = () => 
-  {
+  const validateAll = () => {
     return (
       validateField("scheduleName", scheduleName) &&
       validateField("scheduleType", scheduleType) &&
@@ -218,8 +213,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     )
   }
 
-  const handleSubmit = () =>
-  {
+  const handleSubmit = () => {
     if (!validateAll()) return
 
     const scheduleData: CreateScheduleModel = {
@@ -249,12 +243,10 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   }
 
   const handleSelectExistingTask = (task: Task) => {
-    if (!selectedTasks.find((t) => t.taskName === task.taskName)) 
-    {
+    if (!selectedTasks.find((t) => t.taskName === task.taskName)) {
       let techid : string | null = technicianOptions.filter((t) => t.fullName === task.assignedTo)[0]?.id
-      
-      if (techid === "")
-      {
+
+      if (techid === "") {
         techid = null;
       }
 
@@ -304,7 +296,6 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     return match ? Number.parseInt(match, 10) : 0
   }
 
-
   function addDaysToDate(startDate: Date | string, interval: string): string {
     const date = typeof startDate === "string" ? new Date(startDate) : startDate
     const days = parseInvertalFromDays(interval)
@@ -349,65 +340,33 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   if (!show) return null
 
   return (
-    <Modal
-      open={show}
-      onClose={onClose}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        p: 2,
-      }}
-    >
-      <Paper
-        sx={{
-          backgroundColor: "white",
-          borderRadius: "16px",
-          width: "100%",
-          maxWidth: "800px",
-          maxHeight: "90vh",
-          overflow: "hidden",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-          outline: 0,
-        }}
+    <>
+      <Dialog
+        open={show}
+        onClose={onClose}
+        fullWidth
+        maxWidth="md"
+        PaperProps={{ sx: { borderRadius: 3 } }}
       >
-        {/* Header */}
-        <Box
-          sx={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            p: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <AssignmentIcon sx={{ fontSize: 28 }} />
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 600, mb: 0.5 }}>
-                Create New Schedule
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Set up automated maintenance schedules
-              </Typography>
-            </Box>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <AssignmentIcon color="primary" />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>Create New Schedule</Typography>
           </Box>
-          <IconButton onClick={onClose} sx={{ color: "white" }}>
+          <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
-        </Box>
+        </DialogTitle>
 
-        {/* Content */}
-        <Box sx={{ p: 3, maxHeight: "calc(90vh - 200px)", overflowY: "auto" }}>
+        <DialogContent sx={{ pt: 0 }}>
           {/* Schedule Information Section */}
-          <Card sx={{ mb: 3, border: "1px solid #e5e7eb" }}>
+          <Card sx={{ mb: 3, border: '1px solid #e5e7eb' }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ mb: 2.5, fontWeight: 600, color: "#374151" }}>
                 Schedule Information
               </Typography>
 
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 3 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
                 <TextField
                   fullWidth
                   label="Schedule Name"
@@ -441,18 +400,18 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                 </FormControl>
               </Box>
 
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 3 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
                 <FormControl fullWidth required error={!!errors.equipment}>
                   <InputLabel>Equipment</InputLabel>
                   <Select
                     value={equipmentName}
                     label="Equipment"
                     onChange={(e) => {
-                        setEquipmentName(e.target.value);
-                        validateField("equipment", e.target.value);
-                        const equipment = equipmentOptions.find((eq) => eq.name === e.target.value);
-                        if (equipment) setEquipId(equipment.equipmentId);
-                        setSelectedTasks([]);
+                      setEquipmentName(e.target.value);
+                      validateField("equipment", e.target.value);
+                      const equipment = equipmentOptions.find((eq) => eq.name === e.target.value);
+                      if (equipment) setEquipId(equipment.equipmentId);
+                      setSelectedTasks([]);
                     }}
                   >
                     {equipmentOptions.map((equipment) => (
@@ -471,26 +430,25 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                   placeholder="e.g., 7 days"
                   value={interval}
                   onChange={(e) => {
-                  if (scheduleType === "Custom") 
-                  {
-                    setInterval(e.target.value);
-                    validateField("interval", e.target.value);
-                  }}}
+                    if (scheduleType === "Custom") {
+                      setInterval(e.target.value);
+                      validateField("interval", e.target.value);
+                    }
+                  }}
                   disabled={scheduleType !== "Custom"}
                   error={!!errors.interval}
                   helperText={errors.interval}
                 />
               </Box>
 
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
                 <TextField
                   fullWidth
                   label="Start Date"
                   type="date"
                   required
                   value={startDate}
-                  onChange={(e) =>
-                  {
+                  onChange={(e) => {
                     setStartDate(e.target.value);
                     validateField("startDate", e.target.value);
                   }}
@@ -504,8 +462,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                   label="End Date (Optional)"
                   type="date"
                   value={endDate}
-                  onChange={(e) => 
-                  {
+                  onChange={(e) => {
                     setEndDate(e.target.value);
                     validateField("endDate", e.target.value);
                   }}
@@ -533,41 +490,40 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
               {errors.scheduleTasks}
             </Typography>
           )}
-          <Card sx={{ border: "1px solid #e5e7eb" }}>
+          <Card sx={{ border: '1px solid #e5e7eb' }}>
             <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: "#374151" }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#374151' }}>
                   Schedule Tasks ({selectedTasks.length})
                 </Typography>
-                <Box sx={{ display: "flex", gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button
                     variant="contained"
                     size="small"
                     startIcon={<AddIcon />}
                     onClick={handleAddNewTask}
-                    sx={{ bgcolor: "#3b82f6", "&:hover": { bgcolor: "#2563eb" } }}
                   >
                     New Task
                   </Button>
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => setTaskSelectionMode(taskSelectionMode === "create" ? "select" : "create")}
+                    onClick={() => setTaskSelectionMode(taskSelectionMode === 'create' ? 'select' : 'create')}
                   >
-                    {taskSelectionMode === "create" ? "Select Existing" : "Create New"}
+                    {taskSelectionMode === 'create' ? 'Select Existing' : 'Create New'}
                   </Button>
                 </Box>
               </Box>
 
               {/* Existing Tasks Selection */}
-              {taskSelectionMode === "select" && (
+              {taskSelectionMode === 'select' && (
                 <Box sx={{ mb: 3 }}>
                   <Divider sx={{ mb: 2 }} />
                   <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 500 }}>
                     Available Tasks
                   </Typography>
 
-                  <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 2, mb: 2 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2, mb: 2 }}>
                     <TextField
                       fullWidth
                       size="small"
@@ -601,18 +557,18 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
 
                   <Box
                     sx={{
-                      maxHeight: "200px",
-                      overflowY: "auto",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      backgroundColor: "#f9fafb",
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: '#f9fafb',
                     }}
                   >
                     {filteredExistingTasks.length === 0 ? (
-                      <Box sx={{ p: 3, textAlign: "center", color: "#6b7280" }}>
-                        {taskFilter || priorityFilter !== "All"
-                          ? "No tasks match your filters"
-                          : "No tasks available for this equipment"}
+                      <Box sx={{ p: 3, textAlign: 'center', color: '#6b7280' }}>
+                        {taskFilter || priorityFilter !== 'All'
+                          ? 'No tasks match your filters'
+                          : 'No tasks available for this equipment'}
                       </Box>
                     ) : (
                       filteredExistingTasks.map((task) => {
@@ -622,19 +578,19 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                             key={task.taskId}
                             sx={{
                               p: 2,
-                              borderBottom: "1px solid #e5e7eb",
-                              cursor: isAlreadySelected ? "not-allowed" : "pointer",
-                              backgroundColor: isAlreadySelected ? "#f3f4f6" : "white",
-                              "&:hover": {
-                                backgroundColor: isAlreadySelected ? "#f3f4f6" : "#f0f9ff",
+                              borderBottom: '1px solid #e5e7eb',
+                              cursor: isAlreadySelected ? 'not-allowed' : 'pointer',
+                              backgroundColor: isAlreadySelected ? '#f3f4f6' : 'white',
+                              '&:hover': {
+                                backgroundColor: isAlreadySelected ? '#f3f4f6' : '#f0f9ff',
                               },
-                              "&:last-child": { borderBottom: "none" },
+                              '&:last-child': { borderBottom: 'none' },
                               opacity: isAlreadySelected ? 0.6 : 1,
                             }}
                             onClick={() => !isAlreadySelected && handleSelectExistingTask(task)}
                           >
-                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                                   {task.taskName}
                                 </Typography>
@@ -643,17 +599,17 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                                     label="Added"
                                     size="small"
                                     sx={{
-                                      height: "18px",
-                                      fontSize: "10px",
-                                      backgroundColor: "#dcfce7",
-                                      color: "#166534",
+                                      height: '18px',
+                                      fontSize: '10px',
+                                      backgroundColor: '#dcfce7',
+                                      color: '#166534',
                                     }}
                                   />
                                 )}
                               </Box>
                               {getPriorityBadge(task.priority)}
                             </Box>
-                            <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                            <Typography variant="caption" sx={{ color: '#6b7280' }}>
                               {task.equipmentName} • {task.assignedTo}
                             </Typography>
                           </Box>
@@ -675,52 +631,52 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                   <Paper
                     sx={{
                       p: 4,
-                      textAlign: "center",
-                      backgroundColor: "#f8f9fa",
-                      border: "2px dashed #d1d5db",
-                      borderRadius: "12px",
+                      textAlign: 'center',
+                      backgroundColor: '#f8f9fa',
+                      border: '2px dashed #d1d5db',
+                      borderRadius: '12px',
                     }}
                   >
-                    <AssignmentIcon sx={{ fontSize: 48, color: "#9ca3af", mb: 2 }} />
-                    <Typography variant="body2" sx={{ color: "#6b7280", mb: 1 }}>
+                    <AssignmentIcon sx={{ fontSize: 48, color: '#9ca3af', mb: 2 }} />
+                    <Typography variant="body2" sx={{ color: '#6b7280', mb: 1 }}>
                       No tasks selected
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#9ca3af" }}>
+                    <Typography variant="caption" sx={{ color: '#9ca3af' }}>
                       Use "New Task" or "Select Existing" to add tasks to this schedule
                     </Typography>
                   </Paper>
                 ) : (
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     {selectedTasks.map((task, index) => (
                       <Paper
                         key={index}
                         sx={{
                           p: 2,
-                          border: "1px solid #e5e7eb",
-                          borderRadius: "8px",
-                          backgroundColor: "white",
-                          "&:hover": { boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          backgroundColor: 'white',
+                          '&:hover': { boxShadow: '0 2px 8px rgba(0,0,0,0.1)' },
                         }}
                       >
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="body2" sx={{ fontWeight: 500, mb: 1 }}>
                               {task.taskName}
                             </Typography>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                               {getPriorityBadge(task.priority)}
-                              <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                              <Typography variant="caption" sx={{ color: '#6b7280' }}>
                                 {task.equipmentName}
                               </Typography>
                             </Box>
-                            <Typography variant="caption" sx={{ color: "#6b7280" }}>
-                              Interval: {task.interval} • {task.technicianName || "Unassigned"}
+                            <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                              Interval: {task.interval} • {task.technicianName || 'Unassigned'}
                             </Typography>
                           </Box>
                           <IconButton
                             size="small"
                             onClick={() => handleDeleteTask(index)}
-                            sx={{ color: "#ef4444", "&:hover": { bgcolor: "#fef2f2" } }}
+                            sx={{ color: '#ef4444', '&:hover': { bgcolor: '#fef2f2' } }}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
@@ -732,20 +688,10 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
               </Box>
             </CardContent>
           </Card>
-        </Box>
+        </DialogContent>
 
-        {/* Footer */}
-        <Box
-          sx={{
-            p: 3,
-            borderTop: "1px solid #e5e7eb",
-            backgroundColor: "#f8f9fa",
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 2,
-          }}
-        >
-          <Button variant="outlined" onClick={onClose} sx={{ minWidth: "100px" }}>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button variant="outlined" onClick={onClose} sx={{ minWidth: '100px' }}>
             Cancel
           </Button>
           <Button
@@ -753,103 +699,92 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
             onClick={handleSubmit}
             startIcon={<SaveIcon />}
             disabled={!scheduleName || !scheduleType || !startDate || !interval}
-            sx={{
-              bgcolor: "#3b82f6",
-              "&:hover": { bgcolor: "#2563eb" },
-              minWidth: "120px",
-            }}
+            sx={{ minWidth: '120px' }}
           >
             Save Schedule
           </Button>
-        </Box>
+        </DialogActions>
+      </Dialog>
 
-        {/* Create Task Modal */}
-        <CreateTaskModal
-          open={showTaskModal}
-          onClose={() => setShowTaskModal(false)}
-          onSubmit={handleTaskModalSubmit}
-          StartDate={startDate}
-          equipmentName={equipmentName}
-          technicianOptions={technicianOptions}
-        />
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        open={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
+        onSubmit={handleTaskModalSubmit}
+        StartDate={startDate}
+        equipmentName={equipmentName}
+        technicianOptions={technicianOptions}
+      />
 
-        {/* Interval Assignment Dialog */}
-        <Dialog
-          open={showIntervalInput}
-          onClose={handleIntervalCancel}
-          maxWidth="sm"
-          fullWidth
-          PaperProps={{
-            sx: { borderRadius: "12px" },
-          }}
-        >
-          <DialogTitle sx={{ fontWeight: 600, color: "#1f2937" }}>Set Task Interval</DialogTitle>
-          <DialogContent>
-            <Box sx={{ pt: 1 }}>
-              <Typography variant="body2" sx={{ mb: 2, color: "#6b7280" }}>
-                Set the interval for "{selectedTaskForInterval?.taskName}"
-              </Typography>
-              <TextField
-                fullWidth
-                label="Interval (days)"
-                type="number"
-                inputProps={{ min: 1, max: 99 }}
-                placeholder="e.g., 2"
-                value={intervalValue}
-                onChange={(e) => {
-                  let value = e.target.value;
+      {/* Interval Assignment Dialog */}
+      <Dialog
+        open={showIntervalInput}
+        onClose={handleIntervalCancel}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, color: '#1f2937' }}>Set Task Interval</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <Typography variant="body2" sx={{ mb: 2, color: '#6b7280' }}>
+              Set the interval for "{selectedTaskForInterval?.taskName}"
+            </Typography>
+            <TextField
+              fullWidth
+              label="Interval (days)"
+              type="number"
+              inputProps={{ min: 1, max: 99 }}
+              placeholder="e.g., 2"
+              value={intervalValue}
+              onChange={(e) => {
+                let value = e.target.value;
 
-                  if (value === "") {
-                    setIntervalValue("");
-                    return;
-                  }
-
-                  let num = parseInt(value, 10);
-
-                  if (isNaN(num)) {
-                    setIntervalValue("");
-                    return;
-                  }
-
-                  if (num >= 1000) {
-                    num = 99;
-                  }
-
-                  setIntervalValue(num.toString());
-                }}
-                autoFocus
-                error={
-                  intervalValue !== "" &&
-                  (parseInt(intervalValue, 10) < 1 || parseInt(intervalValue, 10) > 99)
+                if (value === "") {
+                  setIntervalValue("");
+                  return;
                 }
-                helperText={
-                  intervalValue !== "" &&
-                  (parseInt(intervalValue, 10) < 1 || parseInt(intervalValue, 10) > 99)
-                    ? "Interval must be between 1 and 99."
-                    : ""
-                }
-              />
 
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ p: 2.5, gap: 1 }}>
-            <Button onClick={handleIntervalCancel} variant="outlined">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleIntervalSubmit}
-              variant="contained"
-              disabled={!intervalValue.trim()}
-              sx={{
-                bgcolor: "#3b82f6",
-                "&:hover": { bgcolor: "#2563eb" },
+                let num = parseInt(value, 10);
+
+                if (isNaN(num)) {
+                  setIntervalValue("");
+                  return;
+                }
+
+                if (num >= 1000) {
+                  num = 99;
+                }
+
+                setIntervalValue(num.toString());
               }}
-            >
-              Add Task
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Paper>
-    </Modal>
+              autoFocus
+              error={
+                intervalValue !== "" &&
+                (parseInt(intervalValue, 10) < 1 || parseInt(intervalValue, 10) > 99)
+              }
+              helperText={
+                intervalValue !== "" &&
+                (parseInt(intervalValue, 10) < 1 || parseInt(intervalValue, 10) > 99)
+                  ? "Interval must be between 1 and 99."
+                  : ""
+              }
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+          <Button onClick={handleIntervalCancel} variant="outlined">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleIntervalSubmit}
+            variant="contained"
+            disabled={!intervalValue.trim()}
+          >
+            Add Task
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   )
 }

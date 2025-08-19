@@ -47,6 +47,7 @@ import {
   Collapse,
   Tooltip,
   ButtonGroup,
+  Chip
 } from "@mui/material"
 
 // Import our custom components
@@ -307,13 +308,22 @@ export const MaintenanceTree = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
-      <Container maxWidth="lg">
-        {/* Compact Header */}
-        <GradientBox>
-          <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.08 }}>
-            <Engineering sx={{ fontSize: 120 }} />
-          </Box>
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
+      <Container maxWidth="xl">
+        {/* Header */}
+        <Paper
+          sx={{
+            backgroundColor: "#ffffff",
+            color: "inherit",
+            p: 3,
+            mb: 3,
+            borderRadius: 2,
+            position: "relative",
+            overflow: "hidden",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
+          }}
+        >
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
               <Paper
@@ -321,83 +331,89 @@ export const MaintenanceTree = () => {
                   width: 56,
                   height: 56,
                   borderRadius: 2,
-                  background: "rgba(255,255,255,0.2)",
-                  backdropFilter: "blur(10px)",
+                  background: "#e0e7ff",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   mr: 2,
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                  boxShadow: "none",
                 }}
               >
-                <Build sx={{ fontSize: 28, color: "white" }} />
+                <Engineering sx={{ fontSize: 28, color: "#2563eb" }} />
               </Paper>
               <Box>
-                <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5, color: "white" }}>
-                  Equipment Maintenance
+                <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
+                  Maintenance History
                 </Typography>
-                <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                  Complete hierarchy management system
+                <Typography variant="body1" color="textSecondary">
+                  Review historical maintenance, tasks, and logs
                 </Typography>
+                <Chip
+                  label="Admin Dashboard"
+                  size="small"
+                  sx={{ mt: 1, bgcolor: "#eef2ff", color: "#2563eb", fontWeight: "bold" }}
+                />
               </Box>
             </Box>
+
+            {/* Statistics */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard elevation={0}>
+                <StatsCard>
                   <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
                     <Build sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {EquipmentList?.length || 0}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Equipment
                     </Typography>
                   </Box>
                 </StatsCard>
               </Box>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard elevation={0}>
+                <StatsCard>
                   <Avatar sx={{ bgcolor: "#4caf50", width: 36, height: 36 }}>
                     <Schedule sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {EquipmentList?.reduce((acc, eq) => acc + (eq.maintenances?.length || 0), 0) || 0}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Maintenances
                     </Typography>
                   </Box>
                 </StatsCard>
               </Box>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard elevation={0}>
+                <StatsCard>
                   <Avatar sx={{ bgcolor: "#00bcd4", width: 36, height: 36 }}>
                     <Assignment sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {EquipmentList?.reduce(
                         (acc, eq) =>
                           acc + (eq.maintenances?.reduce((acc2, m) => acc2 + (m.tasks?.length || 0), 0) || 0),
                         0,
                       ) || 0}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Tasks
                     </Typography>
                   </Box>
                 </StatsCard>
               </Box>
               <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <StatsCard elevation={0}>
+                <StatsCard>
                   <Avatar sx={{ bgcolor: "#ff9800", width: 36, height: 36 }}>
                     <Description sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {EquipmentList?.reduce(
                         (acc, eq) =>
                           acc +
@@ -408,7 +424,7 @@ export const MaintenanceTree = () => {
                         0,
                       ) || 0}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Logs
                     </Typography>
                   </Box>
@@ -416,7 +432,7 @@ export const MaintenanceTree = () => {
               </Box>
             </Box>
           </Box>
-        </GradientBox>
+        </Paper>
 
         {/* Equipment Cards */}
         <Box>

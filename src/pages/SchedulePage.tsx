@@ -53,18 +53,19 @@ import { GetAllTechOptions } from "../Redux/Thunks/TechnicianThunk"
 import { GetAllTask } from "../Redux/Thunks/TaskThunk"
 import { ScheduleTaskView } from "../Components/Schedule/ScheduleTaskView"
 
-// Styled Components matching the Task Management design
+// Styled Components modernized for light theme
 const HeaderCard = ({ children }: { children: React.ReactNode }) => (
   <Paper
     sx={{
-      background: "linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-      color: "white",
-      p: 4,
+      backgroundColor: "#ffffff",
+      color: "inherit",
+      p: 3,
       mb: 3,
-      borderRadius: 3,
+      borderRadius: 2,
       position: "relative",
       overflow: "hidden",
-      boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+      border: "1px solid #e5e7eb",
+      boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
     }}
   >
     {children}
@@ -75,19 +76,13 @@ const StatsCard = ({ children }: { children: React.ReactNode }) => (
   <Paper
     elevation={0}
     sx={{
-      background: "rgba(255,255,255,0.2)",
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.3)",
+      backgroundColor: "#ffffff",
+      border: "1px solid #e5e7eb",
       borderRadius: 2,
       p: 2,
       display: "flex",
       alignItems: "center",
       gap: 2,
-      transition: "all 0.3s ease",
-      "&:hover": {
-        transform: "translateY(-2px)",
-        boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
-      },
     }}
   >
     {children}
@@ -98,13 +93,13 @@ const ScheduleCard = ({ children, isOverdue = false }: { children: React.ReactNo
   <Card
     sx={{
       borderRadius: 3,
-      boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      border: isOverdue ? "2px solid #f44336" : "2px solid transparent",
+      boxShadow: "0 8px 32px rgba(15,23,42,0.06)",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+      border: isOverdue ? "2px solid #f44336" : "1px solid #e5e7eb",
       "&:hover": {
-        transform: "translateY(-4px)",
-        boxShadow: "0 16px 48px rgba(0,0,0,0.15)",
-        borderColor: isOverdue ? "#f44336" : "#4caf50",
+        transform: "translateY(-2px)",
+        boxShadow: "0 16px 48px rgba(15,23,42,0.08)",
+        borderColor: isOverdue ? "#f44336" : "#cbd5e1",
       },
     }}
   >
@@ -357,10 +352,10 @@ if (selectedSchedule) {
             minWidth: "auto",
             px: 1,
             py: 0.5,
-            color: "#4a90e2",
+            color: "#2563eb",
             "&:hover": {
-              bgcolor: "#f0f7ff",
-              color: "#2c5aa0",
+              bgcolor: "#eff6ff",
+              color: "#1d4ed8",
             },
           }}
         >
@@ -379,10 +374,10 @@ if (selectedSchedule) {
             minWidth: "auto",
             px: 1,
             py: 0.5,
-            color: "#4a90e2",
+            color: "#2563eb",
             "&:hover": {
-              bgcolor: "#f0f7ff",
-              color: "#2c5aa0",
+              bgcolor: "#eff6ff",
+              color: "#1d4ed8",
             },
           }}
         >
@@ -401,9 +396,9 @@ if (selectedSchedule) {
             minWidth: "auto",
             px: 1,
             py: 0.5,
-            color: schedule.isActive ? "#ff9800" : "#4caf50",
+            color: schedule.isActive ? "#f59e0b" : "#22c55e",
             "&:hover": {
-              bgcolor: schedule.isActive ? "#fff3e0" : "#e8f5e8",
+              bgcolor: schedule.isActive ? "#fff7ed" : "#ecfdf5",
             },
           }}
         >
@@ -422,10 +417,10 @@ if (selectedSchedule) {
             minWidth: "auto",
             px: 1,
             py: 0.5,
-            color: "#f44336",
+            color: "#ef4444",
             "&:hover": {
-              bgcolor: "#ffebee",
-              color: "#d32f2f",
+              bgcolor: "#fef2f2",
+              color: "#dc2626",
             },
           }}
         >
@@ -437,13 +432,10 @@ if (selectedSchedule) {
 
   // Main Schedule List View
   return (
-    <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
       <Container maxWidth="xl">
         {/* Header */}
         <HeaderCard>
-          <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.08 }}>
-            <Engineering sx={{ fontSize: 120 }} />
-          </Box>
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -452,22 +444,21 @@ if (selectedSchedule) {
                     width: 56,
                     height: 56,
                     borderRadius: 2,
-                    background: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
+                    background: "#e0e7ff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     mr: 2,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                    boxShadow: "none",
                   }}
                 >
-                  <Schedule sx={{ fontSize: 28, color: "white" }} />
+                  <Schedule sx={{ fontSize: 28, color: "#2563eb" }} />
                 </Paper>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5, color: "white" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
                     Schedule Management
                   </Typography>
-                  <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  <Typography variant="body1" color="textSecondary">
                     {userRole?.includes("Admin")
                       ? "Manage and track maintenance schedules"
                       : "View your assigned schedules"}
@@ -477,8 +468,8 @@ if (selectedSchedule) {
                     size="small"
                     sx={{
                       mt: 1,
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
+                      bgcolor: "#eef2ff",
+                      color: "#2563eb",
                       fontWeight: "bold",
                     }}
                   />
@@ -489,15 +480,6 @@ if (selectedSchedule) {
                   variant="contained"
                   startIcon={<Add />}
                   onClick={handleAddClick}
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.3)",
-                    },
-                  }}
                 >
                   Create Schedule
                 </Button>
@@ -512,10 +494,10 @@ if (selectedSchedule) {
                     <Schedule sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.total}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Total Schedules
                     </Typography>
                   </Box>
@@ -527,10 +509,10 @@ if (selectedSchedule) {
                     <PlayArrow sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.active}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Active
                     </Typography>
                   </Box>
@@ -542,10 +524,10 @@ if (selectedSchedule) {
                     <Pause sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.inactive}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Inactive
                     </Typography>
                   </Box>
@@ -557,10 +539,10 @@ if (selectedSchedule) {
                     <Task sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {stats.tasks}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="textSecondary">
                       Total Tasks
                     </Typography>
                   </Box>
