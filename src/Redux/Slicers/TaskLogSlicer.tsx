@@ -73,6 +73,7 @@ const TaskLogSlice = createSlice(
             {
                 state.Log = action.payload;
                 state.HistoryLog = action.payload;
+                state.loading = false;
             })
             .addCase(GetAllTaskLogs.rejected,(state,action) =>
             {

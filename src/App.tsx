@@ -1,7 +1,7 @@
 import AppRoutes from './routes/route'
-import { Provider } from 'react-redux'
-import store from './Redux/Store'
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
+import { Provider, useSelector } from 'react-redux'
+import store, { type RootState } from './Redux/Store'
+import { ThemeProvider, createTheme, CssBaseline, Backdrop, CircularProgress } from '@mui/material'
 
 const theme = createTheme({
 	typography: {
@@ -37,6 +37,24 @@ const theme = createTheme({
 	}
 })
 
+function GlobalLoader() {
+	const loading = useSelector((state: RootState) =>
+		state.Equipment.loading ||
+		state.WorkShop.loading ||
+		state.MaintenanceHistory.loading ||
+		state.AppTask.loading ||
+		state.TaskLog.loading ||
+		state.LogAttachment.loading ||
+		state.Technicians.loading ||
+		state.Schedule.loading
+	)
+	return (
+		<Backdrop open={!!loading} sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.modal + 1 }}>
+			<CircularProgress color="inherit" />
+		</Backdrop>
+	)
+}
+
 function App() {
 
 	return (
@@ -44,6 +62,7 @@ function App() {
 			<Provider store={store}>
 				<ThemeProvider theme={theme}>
 					<CssBaseline />
+					<GlobalLoader />
 					<AppRoutes />
 				</ThemeProvider>
 			</Provider>
