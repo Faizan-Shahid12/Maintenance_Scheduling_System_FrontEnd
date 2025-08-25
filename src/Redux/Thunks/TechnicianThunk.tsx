@@ -1,23 +1,29 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { type TechnicianOptionModel, type Technician, type CreateTechnicianModel } from "../../Models/Technician/TechnicianModel";
 import { ChangePassword_Api, CreateNewTechnician_api, DeleteTechnician_api, GetAllTechnicians_api, GetAllTechniciansWithoutTask_api, GetTechniciansById_api, UpdateTechnician_api } from "../Api/TechnicianApis";
+import type { RootState } from "../Store";
 
 
 
 export const GetAllTechnicians = createAsyncThunk<Technician[]>(
     "technician/getAllTechnicians",
     
-    async (_, { rejectWithValue }) =>
+    async (_, { rejectWithValue, getState }) =>
     {
         try 
         {
+            
+            var State = getState() as RootState
+            
+            if(State.Technicians.Technicians.length > 0) return rejectWithValue("Technicians Already Loaded");
+
             const response = await GetAllTechnicians_api();
             return response.data;
         } 
         catch (error: any) 
         {
-            console.error("Failed to get workshop locations:", error);
-            return rejectWithValue("Unable to load workshop locations.");
+            console.error("Failed to get Technicians :", error);
+            return rejectWithValue("Unable to load Technicians.");
         }
     }
 );
@@ -25,17 +31,22 @@ export const GetAllTechnicians = createAsyncThunk<Technician[]>(
 export const GetAllTechniciansWithoutTask = createAsyncThunk<Technician[]>(
     "technician/getAllTechnicianswithoutTask",
     
-    async (_, { rejectWithValue }) =>
+    async (_, { rejectWithValue, getState }) =>
     {
         try 
         {
+            var State = getState() as RootState
+            
+            if(State.Technicians.TechniciansWithoutTask.length > 0) return rejectWithValue("Technicians without Tasks Already Loaded");
+
             const response = await GetAllTechniciansWithoutTask_api();
             return response.data;
         } 
         catch (error: any) 
         {
-            console.error("Failed to get workshop locations:", error);
-            return rejectWithValue("Unable to load workshop locations.");
+            
+            console.error("Failed to get technician Without Task:", error);
+            return rejectWithValue("Unable to load technician Without Task.");
         }
     }
 );
@@ -52,18 +63,23 @@ export const GetTechniciansById = createAsyncThunk<Technician, string >(
         } 
         catch (error: any) 
         {
-            console.error("Failed to get workshop locations:", error);
-            return rejectWithValue("Unable to load workshop locations.");
+            
+            console.error("Failed to get technician by Id:", error);
+            return rejectWithValue("Unable to load technician by Id.");
         }
     }
 );
 
 export const GetAllTechOptions = createAsyncThunk<TechnicianOptionModel[]>(
     "technician/getAllTechOptions",
-    async (_, { rejectWithValue }) =>
+    async (_, { rejectWithValue, getState }) =>
     {
         try
         {
+             var State = getState() as RootState
+            
+            if(State.Technicians.TechOptions.length > 0) return rejectWithValue("TechOptions Already Loaded");
+
             const response = await GetAllTechnicians_api();
             return response.data.map((technician: Technician) => ({
                 id: technician.id,

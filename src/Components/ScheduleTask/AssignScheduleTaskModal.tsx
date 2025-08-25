@@ -14,7 +14,6 @@ import {
   MenuItem,
   Button,
   Box,
-  Paper,
   Typography,
   Chip,
   IconButton,
@@ -26,7 +25,6 @@ import {
   Assignment as AssignmentIcon,
   Person as PersonIcon,
   Schedule as ScheduleIcon,
-  Engineering as EngineeringIcon,
 } from "@mui/icons-material"
 import type { CreateScheduleTaskModel } from "../../Models/ScheduleTaskModels/ScheduleTaskModel"
 import type { TechnicianOptionModel } from "../../Models/Technician/TechnicianModel"
@@ -100,9 +98,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
             error = "Interval cannot be greater than 99";
           } 
-          else if (num <= 0) 
+          else if (num < 0) 
           {
-            error = "Interval must be greater than 0";
+            error = "Interval must be positive";
           }
         }
         break;
@@ -169,104 +167,32 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "16px",
-          overflow: "hidden",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-        },
-      }}
-    >
-      <Box
-        sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <Box sx={{ position: "absolute", top: -20, right: -20, opacity: 0.1 }}>
-          <AssignmentIcon sx={{ fontSize: 120 }} />
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <AssignmentIcon />
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Create Task
+          </Typography>
         </Box>
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontWeight: 600,
-            fontSize: "1.5rem",
-            position: "relative",
-            zIndex: 1,
-            pb: 1,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Paper
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 2,
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <AssignmentIcon sx={{ fontSize: 24 }} />
-            </Paper>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                Create New Task
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, fontSize: "0.875rem" }}>
-                Add a maintenance task to the schedule
-              </Typography>
-            </Box>
-          </Box>
-          <IconButton onClick={handleClose} sx={{ color: "white" }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-      </Box>
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-      <DialogContent sx={{ p: 0 }}>
-        <Paper
-          sx={{
-            m: 3,
-            mb: 2,
-            p: 2,
-            background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-            border: "1px solid #e2e8f0",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <EngineeringIcon sx={{ color: "#64748b", fontSize: 20 }} />
-            <Box>
-              <Typography variant="body2" color="textSecondary" sx={{ fontSize: "0.75rem" }}>
-                Target Equipment
-              </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 600, color: "#1e293b" }}>
-                {equipmentName}
-              </Typography>
-            </Box>
-            <Box sx={{ ml: "auto" }}>
-              <Typography variant="body2" color="textSecondary" sx={{ fontSize: "0.75rem" }}>
-                Schedule Start
-              </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 600, color: "#1e293b" }}>
-                {new Date(StartDate).toLocaleDateString()}
-              </Typography>
-            </Box>
+      <DialogContent dividers sx={{ pt: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Box>
+            <Typography variant="caption" color="textSecondary">Equipment</Typography>
+            <Typography variant="body2">{equipmentName}</Typography>
           </Box>
-        </Paper>
+          <Box>
+            <Typography variant="caption" color="textSecondary">Schedule Start</Typography>
+            <Typography variant="body2">{new Date(StartDate).toLocaleDateString()}</Typography>
+          </Box>
+        </Box>
 
-        <Box sx={{ px: 3, pb: 2 }}>
+        <Box sx={{ display: 'grid', gap: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <TextField
               fullWidth
@@ -372,8 +298,8 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               value={formData.interval}
               onChange={(e) => handleInputChange("interval", e.target.value)}
               error={!!errors.interval}
-              helperText={errors.interval || "e.g., 7 days, 2 weeks, 1 month"}
-              placeholder="e.g., 7 days"
+              helperText={errors.interval || "Number of days (1-99)"}
+              placeholder="e.g., 7"
               sx={{
                 mb: 3,
                 "& .MuiOutlinedInput-root": {
@@ -431,45 +357,14 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         </Box>
       </DialogContent>
 
-      <DialogActions
-        sx={{
-          p: 3,
-          pt: 2,
-          backgroundColor: "#f8fafc",
-          borderTop: "1px solid #e2e8f0",
-          gap: 1.5,
-        }}
-      >
-        <Button
-          onClick={handleClose}
-          variant="outlined"
-          sx={{
-            minWidth: "100px",
-            borderColor: "#d1d5db",
-            color: "#6b7280",
-            "&:hover": {
-              borderColor: "#9ca3af",
-              backgroundColor: "#f9fafb",
-            },
-          }}
-        >
-          Cancel
+      <DialogActions>
+        <Button onClick={handleClose} color="inherit" variant="outlined">
+          <CloseIcon sx={{ fontSize: 16 }} /> Close
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={!formData.taskName.trim() || !formData.priority || !formData.interval.trim()}
-          sx={{
-            minWidth: "120px",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            "&:hover": {
-              background: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
-            },
-            "&:disabled": {
-              background: "#e5e7eb",
-              color: "#9ca3af",
-            },
-          }}
         >
           Create Task
         </Button>

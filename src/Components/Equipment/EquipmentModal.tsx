@@ -47,8 +47,8 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
   //  Added validation functions
   const validateLettersOnly = (value: string) => {
-    const lettersOnlyRegex = /^[a-zA-Z\s]*$/;
-    return lettersOnlyRegex.test(value);
+  const lettersNumbersSpacesRegex = /^[a-zA-Z0-9\s]*$/;
+    return lettersNumbersSpacesRegex.test(value);
   };
 
   const validateRequired = (value: string) => {
@@ -110,6 +110,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       setWorkShopName(equipment.workShopName || "");
       setWorkShopLocation(equipment.workShopLocation || "");
     } else {
+      // Reset form when no equipment (create mode) or when modal closes
       setName("");
       setType("");
       setLocation("");
@@ -126,7 +127,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       serialNumber: "",
       model: "",
     });
-  }, [equipment, show]);
+  }, [equipment, show, view]);
 
   const handleWorkshopChange = (name: string) => {
     handleWorkShopNameChange(name);
@@ -174,13 +175,34 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
     onClose();
   };
 
+  const handleClose = () => {
+    // Reset form when closing modal
+    if (view === "create") {
+      setName("");
+      setType("");
+      setLocation("");
+      setSerialNumber("");
+      setModel("");
+      setWorkShopName("");
+      setWorkShopLocation("");
+      setErrors({
+        name: "",
+        type: "",
+        location: "",
+        serialNumber: "",
+        model: "",
+      });
+    }
+    onClose();
+  };
+
   const handleArchiveClick = () => {
     onArchiveToggle();
     onClose();
   };
 
   return (
-    <Dialog open={show} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog open={show} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {view === "view" ? <Visibility /> : view === "edit" ? <Edit /> : <Add />}
@@ -188,7 +210,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
             {view === "view" ? "Equipment Details" : view === "edit" ? "Edit Equipment" : "Create Equipment"}
           </Typography>
         </Box>
-        <IconButton onClick={onClose}>
+        <IconButton onClick={handleClose}>
           <Close />
         </IconButton>
       </DialogTitle>
@@ -257,7 +279,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ gap: 1 }}>
-        <Button onClick={onClose} variant="outlined" color="inherit">
+        <Button onClick={handleClose} variant="outlined" color="inherit">
           <Close sx={{ fontSize: 16 }} /> Close
         </Button>
 

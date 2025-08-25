@@ -177,13 +177,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
 
   let scheduleTask = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask.find(s => s.scheduleId === schedule.scheduleId)?.scheduleTasks)
 
-  if(scheduleTask === undefined)
-  {
-    scheduleTask = schedule.scheduleTasks
-  }
-
   // Filter tasks based on search and filters
-  const filteredTasks = scheduleTask.filter((task) => {
+  const filteredTasks = scheduleTask?.filter((task) => {
     const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesPriority = priorityFilter === "All" || task.priority === priorityFilter
     const matchesTechnician = technicianFilter === "All" || task.assignedTo === technicianFilter
@@ -191,10 +186,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
   })
 
   const taskStats = {
-    total: scheduleTask.length,
-    high: scheduleTask.filter((t) => t.priority === "High").length,
-    medium: scheduleTask.filter((t) => t.priority === "Medium").length,
-    low: scheduleTask.filter((t) => t.priority === "Low").length,
+    total: scheduleTask?.length,
+    high: scheduleTask?.filter((t) => t.priority === "High").length,
+    medium: scheduleTask?.filter((t) => t.priority === "Medium").length,
+    low: scheduleTask?.filter((t) => t.priority === "Low").length,
   }
 
   const formatDate = (dateString?: string) => {
@@ -565,7 +560,7 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
             </Box>
             <Box sx={{ flex: "1 1 120px", minWidth: "120px" }}>
               <Typography variant="body2" color="text.secondary">
-                {filteredTasks.length} of {scheduleTask.length} tasks
+                {filteredTasks?.length} of {scheduleTask?.length} tasks
               </Typography>
             </Box>
           </Box>
@@ -573,8 +568,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
 
         {/* Task Cards */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          {filteredTasks.length > 0 ? (
-            filteredTasks.sort((a,b) => b.scheduleTaskId - a.scheduleTaskId).map((task) => (
+          {(filteredTasks?.length ?? 0) > 0 ? (
+            filteredTasks?.sort((a,b) => b.scheduleTaskId - a.scheduleTaskId).map((task) => (
               <Box key={task.scheduleTaskId} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
                 <TaskCard>
                   <CardHeader

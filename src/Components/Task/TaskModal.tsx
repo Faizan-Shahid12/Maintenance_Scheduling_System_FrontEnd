@@ -106,7 +106,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   };
 
   //  Added field blur handler
-  const handleFieldBlur = (fieldName: string, value: any) => {
+  const handleFieldBlur = (fieldName: string, value: any) =>
+  {
     setTouched(prev => ({ ...prev, [fieldName]: true }));
     const error = validateField(fieldName, value);
     setErrors(prev => ({ ...prev, [fieldName]: error }));
@@ -114,14 +115,17 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
   useEffect(() => 
    {
-    if (task) {
+    if (task) 
+    {
       setTaskName(task.taskName || "");
       setEquipmentName(task.equipmentName || "");
       setPriority(task.priority || "Low");
       setStatus(task.status || "Pending");
       setDueDate(task.dueDate?.split("T")[0] || "");
       setAssignedTo(task.assignedTo || "");
-    } else {
+    } 
+    else
+    {
       setTaskName("");
       setEquipmentName("");
       setPriority("Low");
@@ -131,6 +135,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     }
     setErrors({});
     setTouched({});
+
   }, [task, show]);
 
 useEffect(() => {
@@ -145,15 +150,15 @@ useEffect(() => {
   }
 }, [task?.equipmentName, equipmentOptions]);
 
-
-
-  useEffect(() => {
-
+useEffect(() => 
+{
     if(technicianOptions)
     {
-      if (task && technicianOptions.length > 0) {
+      if (task && technicianOptions.length > 0) 
+      {
         const tech = technicianOptions.find(t => t.fullName === task.assignedTo);
-        if (tech) {
+        if (tech) 
+        {
           setTechnicianId(tech.id);       
           setoldTechId(tech.id);          
           setSelectedTechnicianName(tech.fullName);
@@ -163,7 +168,8 @@ useEffect(() => {
 }, [task, technicianOptions]);
 
 //  Updated handleSubmit with validation
-const handleSubmit = () => {
+const handleSubmit = () => 
+{
   const validationErrors = validateAllFields();
   setErrors(validationErrors);
   
@@ -175,7 +181,8 @@ const handleSubmit = () => {
   });
   
   // Don't submit if there are validation errors
-  if (Object.keys(validationErrors).length > 0) {
+  if (Object.keys(validationErrors).length > 0) 
+  {
     return;
   }
 
@@ -190,7 +197,9 @@ const handleSubmit = () => {
       dueDate,
     };
     onSubmitCreate(newTask);
-  }  else if (view === "edit" && task && onSubmitEdit) {
+  }  
+  else if (view === "edit" && task && onSubmitEdit) 
+  {
       const updatedTask: Task = {
         ...task,
         taskName,
@@ -206,7 +215,8 @@ const handleSubmit = () => {
   onClose();
 };
 
-const handleDelete = () => {
+const handleDelete = () => 
+{
   if(task && onSubmitDelete) onSubmitDelete(task);
 };
 
@@ -277,16 +287,21 @@ return (
             <InputLabel>Equipment</InputLabel>
             <Select
               label="Equipment"
-              value={equipId === -1 ? '' : equipId}
-              onChange={(e) => {
+              value={equipId === -1 ? "" : equipId}
+              onChange={(e) => 
+              {
                 const selected = equipmentOptions?.find(eq => eq.equipmentId === Number(e.target.value));
-                if (selected) {
+                if (selected) 
+                {
                   setEquipId(selected.equipmentId);
                   setEquipmentName(selected.name);
-                } else {
+                } 
+                else 
+                {
                   setEquipId(-1);
                   setEquipmentName("");
                 }
+
                 if (touched.equipId) setErrors(prev => ({ ...prev, equipId: validateField('equipId', selected?.equipmentId || -1) }));
               }}
               onBlur={() => handleFieldBlur('equipId', equipId)}
@@ -294,7 +309,14 @@ return (
             >
               <MenuItem value="">Select Equipment</MenuItem>
               {equipmentOptions?.map(eq => (
-                <MenuItem key={eq.equipmentId} value={eq.equipmentId}>{eq.name}</MenuItem>
+                <MenuItem
+                  key={eq.equipmentId}
+                  value={eq.equipmentId}
+                  disabled={eq.isArchived && eq.equipmentId !== equipId}
+                  style={eq.isArchived ? { color: "gray" } : {}}
+                >
+                  {eq.name} {eq.isArchived ? "(Archived)" : ""}
+                </MenuItem>
               ))}
             </Select>
             <Typography variant="caption" color="error">{touched.equipId && errors.equipId}</Typography>

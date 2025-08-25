@@ -59,9 +59,9 @@ export const EquipmentPage: React.FC = () => {
   const dispatch = useDispatch<MyDispatch>();
   const equipmentData = useSelector((state: RootState) => state.Equipment.equipmentList);
   const archivedEquipment = useSelector((state: RootState) => state.Equipment.archivedEquipment);
+  const WorkShops = useSelector((state:RootState) => state.WorkShop.WorkShopList);
   const loading = useSelector((state: RootState) => state.Equipment.loading);
 
-  const [workshops, setWorkshops] = useState<WorkShop[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState<"create" | "edit" | "view">("view");
   
@@ -77,9 +77,7 @@ export const EquipmentPage: React.FC = () => {
   useEffect(() => {
     dispatch(GetAllEquipment());
     dispatch(GetArchivedEquipment());
-    dispatch(GetWorkShopLocation())
-      .unwrap()
-      .then((result) => setWorkshops(result));
+    dispatch(GetWorkShopLocation());
   }, [dispatch]);
 
   const ArchiveOrUnarchive = () => {
@@ -103,6 +101,7 @@ export const EquipmentPage: React.FC = () => {
   const CreateEquipment = (newEquipment: CreateEquipmentModel) => {
     dispatch(CreateNewEquipment(newEquipment));
     setSelectedEquipmentTable(null);
+    setShowModal(false); // Close the modal after creating
   };
 
   const updatedEquipment = (updatedData: Equipment) => {
@@ -113,7 +112,7 @@ export const EquipmentPage: React.FC = () => {
       };
       dispatch(EditEquipment(updatedEquipment));
 
-      let WorkShopId = workshops.find((w) => w.name === updatedEquipment.workShopName)?.workShopId || null;
+      let WorkShopId = WorkShops.find((w) => w.name === updatedEquipment.workShopName)?.workShopId || null;
 
       dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShopId: WorkShopId || 0}));
       setSelectedEquipmentTable(null);
@@ -472,7 +471,7 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
               value={filterWorkshop}
               onChange={(e) => setFilterWorkshop(e.target.value)}
               label="Workshop"
-              options={workshops.map(w => w.name)}
+              options={WorkShops.map(w => w.name)}
             />
           </FilterItem>
           <FilterItem>
@@ -560,7 +559,7 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
          onSubmitCreate={CreateEquipment}
          onSubmitEdit={updatedEquipment}
          view={viewMode}
-         workshops={workshops}
+         workshops={WorkShops}
        />
 
        {selectedEquipmentTable && (
@@ -569,7 +568,7 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
              onClose={() => setShowAssignModal(false)}
              equipment={selectedEquipmentTable}
              mode={assignMode}
-             workshops={workshops}
+             workshops={WorkShops}
              HandleType={AssignType}
              HandleWorkShop={AssignWorkShop}
          />

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { MyDispatch, RootState } from "../../Redux/Store";
 import type { EquipmentHistory } from "../../Models/EquipmentModels/EquipmentHistoryModel";
 import { GetAllEquipment } from "../../Redux/Thunks/EquipmentThunk";
-import { GetHistoryByEquipmentId } from "../../Redux/Thunks/HistoryThunk";
+import { GetAllCount, GetHistoryByEquipmentId } from "../../Redux/Thunks/HistoryThunk";
 import {addMaintenanceToEquipment,clearMaintenanceFromEquipment } from "../../Redux/Slicers/EquipmentSlicer";
 import { addTaskToMaintenance, clearEquipmentHistory, clearTaskFromMaintenance } from "../../Redux/Slicers/HistorySlicer";
 import type MaintenanceHistory from "../../Models/HistoryModels/HistoryModel";
@@ -102,6 +102,8 @@ export const MaintenanceTree = () => {
     (state: RootState) => state.AppTask.loading
   );
 
+  const Count = useSelector((state:RootState) => state.MaintenanceHistory.Count);
+
   const dispatch = useDispatch<MyDispatch>();
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentHistory | null>(null);
   const [selectedMaintenance, setSelectedMaintenance] = useState<MaintenanceHistory | null>(null);
@@ -166,6 +168,7 @@ export const MaintenanceTree = () => {
 
   useEffect(() => {
     dispatch(GetAllEquipment());
+    dispatch(GetAllCount());
   }, [dispatch]);
 
   useEffect(() => 
@@ -270,23 +273,7 @@ export const MaintenanceTree = () => {
    const handleDownload = (attachmentId: number) => {
     dispatch(DownloadAttachment(attachmentId))
   }
-  // Action handlers
-  
-  const handleEditMaintenance = (maintenanceId: number) => {
-    console.log("Edit Maintenance", maintenanceId)
-  }
-
-  const handleDeleteMaintenance = (maintenanceId: number) => {
-    console.log("Delete Maintenance", maintenanceId)
-  }
-
-  const handleEditTask = (taskId: number) => {
-    console.log("Edit Task", taskId)
-  }
-
-  const handleDeleteTask = (taskId: number) => {
-    console.log("Delete Task", taskId)
-  }
+  // Action handlers - Only for logs and attachments
 
   const handleAddLog = () => 
   {
@@ -456,7 +443,7 @@ export const MaintenanceTree = () => {
                   </Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {EquipmentList?.reduce((acc, eq) => acc + (eq.maintenances?.length || 0), 0) || 0}
+                     {Count[0]}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
                       Maintenances
@@ -471,11 +458,7 @@ export const MaintenanceTree = () => {
                   </Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {EquipmentList?.reduce(
-                        (acc, eq) =>
-                          acc + (eq.maintenances?.reduce((acc2, m) => acc2 + (m.tasks?.length || 0), 0) || 0),
-                        0,
-                      ) || 0}
+                      {Count[1]}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
                       Tasks
@@ -490,15 +473,7 @@ export const MaintenanceTree = () => {
                   </Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {EquipmentList?.reduce(
-                        (acc, eq) =>
-                          acc +
-                          (eq.maintenances?.reduce(
-                            (acc2, m) => acc2 + (m.tasks?.reduce((acc3, t) => acc3 + (t.logs?.length || 0), 0) || 0),
-                            0,
-                          ) || 0),
-                        0,
-                      ) || 0}
+                     {Count[2]}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
                       Logs
@@ -511,7 +486,7 @@ export const MaintenanceTree = () => {
           </Box>
         </Paper>
 
-        {/* Filters */}
+        {/* Filters (equipment only) */}
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
             <Box sx={{ flex: "1 1 250px", minWidth: "250px" }}>
@@ -528,41 +503,6 @@ export const MaintenanceTree = () => {
                   ),
                 }}
               />
-            </Box>
-            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
-              <FormControl fullWidth>
-                <InputLabel>Task Status</InputLabel>
-                <Select value={statusFilter} label="Task Status" onChange={(e) => setStatusFilter(e.target.value)}>
-                  <MenuItem value="All">All Status</MenuItem>
-                  <MenuItem value="Pending">Pending</MenuItem>
-                  <MenuItem value="Completed">Completed</MenuItem>
-                  <MenuItem value="OverDue">Overdue</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
-              <FormControl fullWidth>
-                <InputLabel>Priority</InputLabel>
-                <Select value={priorityFilter} label="Priority" onChange={(e) => setPriorityFilter(e.target.value)}>
-                  <MenuItem value="All">All Priorities</MenuItem>
-                  <MenuItem value="Low">Low</MenuItem>
-                  <MenuItem value="Medium">Medium</MenuItem>
-                  <MenuItem value="High">High</MenuItem>
-                  <MenuItem value="Urgent">Urgent</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
-              <FormControl fullWidth>
-                <InputLabel>Date Range</InputLabel>
-                <Select value={dateFilter} label="Date Range" onChange={(e) => setDateFilter(e.target.value)}>
-                  <MenuItem value="All">All Dates</MenuItem>
-                  <MenuItem value="This Week">This Week</MenuItem>
-                  <MenuItem value="This Month">This Month</MenuItem>
-                  <MenuItem value="Last 3 Months">Last 3 Months</MenuItem>
-                  <MenuItem value="Ongoing">Ongoing</MenuItem>
-                </Select>
-              </FormControl>
             </Box>
             <Box sx={{ flex: "1 1 120px", minWidth: "120px" }}>
               <Typography variant="body2" color="textSecondary">
@@ -582,7 +522,7 @@ export const MaintenanceTree = () => {
               </Paper>
             ))
           ) : (
-          filteredEquipmentList?.map((equipment, equipmentIndex) => (
+          filteredEquipmentList?.map((equipment: EquipmentHistory, equipmentIndex: number) => (
             <EquipmentCard key={equipment.equipmentId}>
               <CardHeader
                 sx={{
@@ -622,13 +562,6 @@ export const MaintenanceTree = () => {
                 }
                 action={
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                    <CountChip
-                      bgcolor="linear-gradient(135deg, #2196f3 0%, #1976d2 100%)"
-                      icon={<Schedule />}
-                      label={`${equipment.maintenances?.length || 0} Maintenance${
-                        (equipment.maintenances?.length || 0) !== 1 ? "s" : ""
-                      }`}
-                    />
                     <IconButton
                       size="small"
                       sx={{
@@ -657,7 +590,7 @@ export const MaintenanceTree = () => {
                     </Box>
                   ) : equipment.maintenances?.length > 0 ? (
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      {equipment.maintenances.map((mh, maintenanceIndex) => (
+                      {equipment.maintenances.map((mh: MaintenanceHistory, maintenanceIndex: number) => (
                         <MaintenanceCard key={mh.historyId}>
                           <CardHeader
                             sx={{
@@ -736,45 +669,6 @@ export const MaintenanceTree = () => {
                             }
                             action={
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                                <CountChip
-                                  bgcolor="linear-gradient(135deg, #4caf50 0%, #388e3c 100%)"
-                                  icon={<Assignment />}
-                                  label={`${mh.tasks?.length || 0} Task${(mh.tasks?.length || 0) !== 1 ? "s" : ""}`}
-                                />
-                                <ButtonGroup size="small" sx={{ mr: 1 }}>
-                                  <Tooltip title="Edit Maintenance">
-                                    <IconButton
-                                      size="small"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleEditMaintenance(mh.historyId)
-                                      }}
-                                      sx={{
-                                        bgcolor: "#f5f5f5",
-                                        color: "#666",
-                                        "&:hover": { bgcolor: "#e0e0e0" },
-                                      }}
-                                    >
-                                      <Edit sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                  </Tooltip>
-                                  <Tooltip title="Delete Maintenance">
-                                    <IconButton
-                                      size="small"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleDeleteMaintenance(mh.historyId)
-                                      }}
-                                      sx={{
-                                        bgcolor: "#f5f5f5",
-                                        color: "#f44336",
-                                        "&:hover": { bgcolor: "#ffebee" },
-                                      }}
-                                    >
-                                      <Delete sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                  </Tooltip>
-                                </ButtonGroup>
                                 <IconButton
                                   size="small"
                                   sx={{
@@ -803,7 +697,7 @@ export const MaintenanceTree = () => {
                                 </Box>
                               ) : mh.tasks?.length > 0 ? (
                                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                  {mh.tasks.map((task, taskIndex) => (
+                                  {mh.tasks.map((task: Task, taskIndex: number) => (
                                     <TaskCard key={task.taskId}>
                                       <CardHeader
                                         sx={{
@@ -905,45 +799,6 @@ export const MaintenanceTree = () => {
                                         }
                                         action={
                                           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                                            <CountChip
-                                              bgcolor="linear-gradient(135deg, #00bcd4 0%, #0097a7 100%)"
-                                              icon={<Description />}
-                                              label={`${task.logs?.length || 0} Log${(task.logs?.length || 0) !== 1 ? "s" : ""}`}
-                                            />
-                                            <ButtonGroup size="small" sx={{ mr: 1 }}>
-                                              <Tooltip title="Edit Task">
-                                                <IconButton
-                                                  size="small"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    handleEditTask(task.taskId)
-                                                  }}
-                                                  sx={{
-                                                    bgcolor: "#f5f5f5",
-                                                    color: "#666",
-                                                    "&:hover": { bgcolor: "#e0e0e0" },
-                                                  }}
-                                                >
-                                                  <Edit sx={{ fontSize: 16 }} />
-                                                </IconButton>
-                                              </Tooltip>
-                                              <Tooltip title="Delete Task">
-                                                <IconButton
-                                                  size="small"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    handleDeleteTask(task.taskId)
-                                                  }}
-                                                  sx={{
-                                                    bgcolor: "#f5f5f5",
-                                                    color: "#f44336",
-                                                    "&:hover": { bgcolor: "#ffebee" },
-                                                  }}
-                                                >
-                                                  <Delete sx={{ fontSize: 16 }} />
-                                                </IconButton>
-                                              </Tooltip>
-                                            </ButtonGroup>
                                             <IconButton
                                               size="small"
                                               sx={{
@@ -983,7 +838,7 @@ export const MaintenanceTree = () => {
                                             </Box>
                                           ) : task.logs?.length > 0 ? (
                                             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                              {task.logs.map((log, logIndex) => (
+                                              {task.logs.map((log: TaskLog, logIndex: number) => (
                                                 <LogCard key={log.logId}>
                                                   <CardHeader
                                                     sx={{ cursor: "pointer", py: 1.5 }}
@@ -1043,53 +898,69 @@ export const MaintenanceTree = () => {
                                                               </Box>
                                                             </Box>
                                                           </Box>
-                                                          <Box sx={{ flex: "1 1 140px", minWidth: "140px" }}>
-                                                            <CountChip
-                                                              bgcolor="linear-gradient(135deg, #ff9800 0%, #f57c00 100%)"
-                                                              icon={<Folder />}
-                                                              label={`${log.attachments?.length || 0} File${
-                                                                (log.attachments?.length || 0) !== 1 ? "s" : ""
-                                                              }`}
-                                                            />
-                                                          </Box>
+                                                          
                                                         </Box>
                                                       </Box>
                                                     }
                                                     action={
-                                                      <ButtonGroup size="small" sx={{ mr: 1 }}>
-                                                        <Tooltip title="Edit Log">
-                                                          <IconButton
-                                                            size="small"
-                                                            onClick={(e) => {
-                                                              e.stopPropagation()
-                                                              handleEditLog(log.logId)
-                                                            }}
-                                                            sx={{
-                                                              bgcolor: "#f5f5f5",
-                                                              color: "#666",
-                                                              "&:hover": { bgcolor: "#e0e0e0" },
-                                                            }}
-                                                          >
-                                                            <Edit sx={{ fontSize: 16 }} />
-                                                          </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="Delete Log">
-                                                          <IconButton
-                                                            size="small"
-                                                            onClick={(e) => {
-                                                              e.stopPropagation()
-                                                              handleDeleteLog(log.logId)
-                                                            }}
-                                                            sx={{
-                                                              bgcolor: "#f5f5f5",
-                                                              color: "#f44336",
-                                                              "&:hover": { bgcolor: "#ffebee" },
-                                                            }}
-                                                          >
-                                                            <Delete sx={{ fontSize: 16 }} />
-                                                          </IconButton>
-                                                        </Tooltip>
-                                                      </ButtonGroup>
+                                                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                        <Button
+                                                          size="small"
+                                                          variant="outlined"
+                                                          startIcon={<Add />}
+                                                          onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleAddAttachment(log.logId)
+                                                          }}
+                                                          sx={{
+                                                            fontSize: "0.75rem",
+                                                            py: 0.5,
+                                                            px: 1,
+                                                            color: "#4caf50",
+                                                            borderColor: "#4caf50",
+                                                            "&:hover": {
+                                                              borderColor: "#388e3c",
+                                                              bgcolor: "#e8f5e8",
+                                                            },
+                                                          }}
+                                                        >
+                                                          Add Attachment
+                                                        </Button>
+                                                        <ButtonGroup size="small" sx={{ mr: 1 }}>
+                                                          <Tooltip title="Edit Log">
+                                                            <IconButton
+                                                              size="small"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleEditLog(log.logId)
+                                                              }}
+                                                              sx={{
+                                                                bgcolor: "#f5f5f5",
+                                                                color: "#666",
+                                                                "&:hover": { bgcolor: "#e0e0e0" },
+                                                              }}
+                                                            >
+                                                              <Edit sx={{ fontSize: 16 }} />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                          <Tooltip title="Delete Log">
+                                                            <IconButton
+                                                              size="small"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleDeleteLog(log.logId)
+                                                              }}
+                                                              sx={{
+                                                                bgcolor: "#f5f5f5",
+                                                                color: "#f44336",
+                                                                "&:hover": { bgcolor: "#ffebee" },
+                                                              }}
+                                                            >
+                                                              <Delete sx={{ fontSize: 16 }} />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </ButtonGroup>
+                                                      </Box>
                                                     }
                                                   />
                                                   <Collapse in={expandedLog === log.logId}>
@@ -1102,7 +973,7 @@ export const MaintenanceTree = () => {
                                                             gap: 1,
                                                           }}
                                                         >
-                                                          {log.attachments.map((attachment, attachmentIndex) => (
+                                                          {log.attachments.map((attachment: Attachment, attachmentIndex: number) => (
                                                             <Paper
                                                               key={attachment.id}
                                                               sx={{
@@ -1227,7 +1098,7 @@ export const MaintenanceTree = () => {
             <Box sx={{ textAlign: "center", py: 4 }}>
               <Schedule sx={{ fontSize: 48, color: "#ccc", mb: 1 }} />
               <Typography variant="body1" sx={{ color: "#666" }}>
-                {searchTerm || statusFilter !== "All" || priorityFilter !== "All" || dateFilter !== "All"
+                {searchTerm
                   ? "No equipment found matching the current filters"
                   : "No maintenance history available"}
               </Typography>

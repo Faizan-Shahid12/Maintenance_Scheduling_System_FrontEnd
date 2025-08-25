@@ -2,12 +2,17 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { CreateEquipmentModel } from "../../Models/EquipmentModels/CreateEquipmentModel";
 import type { Equipment } from "../../Models/EquipmentModels/EquipmentModel";
 import { ArchiveEquipments_api, AssignEquipmentToWorkShop_api, AssignEquipmentType_api, CreateNewEquipment_api, DeleteEquipments_api, EditEquipments_api, GetAllEquipments_api, GetArchivedEquipments_api, GetEquipmentById_api, GetEquipmentByName_api, UnArchiveEquipments_api } from "../Api/EquipmentApis";
+import type { RootState } from "../Store";
 
 export const GetAllEquipment = createAsyncThunk<Equipment[]>(
     "Equipment/getAllEquipment",
-    async (state, { rejectWithValue }) => {
+    async (state, { rejectWithValue,getState }) => {
         try 
         {
+            var State = getState() as RootState
+
+            if(State.Equipment.equipmentList.length > 0) return rejectWithValue("Equipment Already Loaded");
+
             const response = await GetAllEquipments_api();
             return response.data;
         } catch (error: any)
@@ -57,10 +62,14 @@ export const GetEquipmentByName = createAsyncThunk<Equipment[], string>(
 
 export const GetArchivedEquipment = createAsyncThunk<Equipment[]>(
     "Equipment/getArchivedEquipment",
-    async (state, { rejectWithValue}) =>
+    async (state, { rejectWithValue, getState}) =>
     {
         try
         {
+            var State = getState() as RootState
+
+            if(State.Equipment.archivedEquipment.length > 0) return rejectWithValue("Equipment Already Loaded");
+
             const response = await GetArchivedEquipments_api();
             return response.data;
         }

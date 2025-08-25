@@ -115,6 +115,11 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     setErrors({})
   }
 
+  const handleClose = () => {
+    resetForm()
+    onClose()
+  }
+
   // Auto-set interval based on schedule type
   useEffect(() => {
     switch (scheduleType) {
@@ -175,7 +180,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
         if (!value) message = "Type of Schedule is required."
         break
       case "equipment":
-        if (!value || equipId === -1) message = "Equipment is required."
+        if (value === "" || value === -1 || value == null) message = "Equipment is required."
         break
       case "interval":
         if (!value) message = "Interval is required."
@@ -205,7 +210,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     return (
       validateField("scheduleName", scheduleName) &&
       validateField("scheduleType", scheduleType) &&
-      validateField("equipment", equipmentName) &&
+      validateField("equipment", equipId) &&
       validateField("interval", interval) &&
       validateField("startDate", startDate) &&
       validateField("endDate", endDate) &&
@@ -343,7 +348,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     <>
       <Dialog
         open={show}
-        onClose={onClose}
+        onClose={handleClose}
         fullWidth
         maxWidth="md"
         PaperProps={{ sx: { borderRadius: 3 } }}
@@ -353,7 +358,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
             <AssignmentIcon color="primary" />
             <Typography variant="h6" sx={{ fontWeight: 700 }}>Create New Schedule</Typography>
           </Box>
-          <IconButton onClick={onClose} size="small">
+          <IconButton onClick={handleClose} size="small">
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -404,18 +409,19 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                 <FormControl fullWidth required error={!!errors.equipment}>
                   <InputLabel>Equipment</InputLabel>
                   <Select
-                    value={equipmentName}
+                    value={equipId === -1 ? "" : String(equipId)}
                     label="Equipment"
-                    onChange={(e) => {
-                      setEquipmentName(e.target.value);
-                      validateField("equipment", e.target.value);
-                      const equipment = equipmentOptions.find((eq) => eq.name === e.target.value);
-                      if (equipment) setEquipId(equipment.equipmentId);
-                      setSelectedTasks([]);
+                    onChange={(e: SelectChangeEvent) => {
+                      const selectedId = Number(e.target.value)
+                      setEquipId(selectedId)
+                      const equipment = equipmentOptions.find((eq) => eq.equipmentId === selectedId)
+                      if (equipment) setEquipmentName(equipment.name)
+                      validateField("equipment", selectedId)
+                      setSelectedTasks([])
                     }}
                   >
                     {equipmentOptions.map((equipment) => (
-                      <MenuItem key={equipment.equipmentId} value={equipment.name}>
+                      <MenuItem key={equipment.equipmentId} value={String(equipment.equipmentId)}>
                         {equipment.name}
                       </MenuItem>
                     ))}
@@ -691,7 +697,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
         </DialogContent>
 
         <DialogActions sx={{ p: 2.5 }}>
-          <Button variant="outlined" onClick={onClose} sx={{ minWidth: '100px' }}>
+          <Button variant="outlined" onClick={handleClose} sx={{ minWidth: '100px' }}>
             Cancel
           </Button>
           <Button

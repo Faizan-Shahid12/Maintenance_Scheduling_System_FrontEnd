@@ -2,6 +2,8 @@ import AppRoutes from './routes/route'
 import { Provider } from 'react-redux'
 import store from './Redux/Store'
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
+import { useEffect } from 'react'
+import { RegisterTaskHandlers, StartConnection } from './services/TaskSignalR'
 
 const theme = createTheme({
 	typography: {
@@ -38,6 +40,7 @@ const theme = createTheme({
 })
 
 function App() {
+
 
 	return (
 		<>

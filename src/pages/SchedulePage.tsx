@@ -212,7 +212,7 @@ export const SchedulePage = () => {
   const dispatch = useDispatch<MyDispatch>()
   const ScheduleList = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask)
   const scheduleLoading = useSelector((state: RootState) => state.Schedule.loading)
-  const equipmentOptions = useSelector((state: RootState) => state.Equipment.equipmentList)
+  const equipmentOptions = useSelector((state: RootState) => state.Equipment.equipmentList.filter(e => !e.isArchived ))
   const technicianOptions = useSelector((state: RootState) => state.Technicians.TechOptions)
 
   const [showModal, setShowModal] = useState(false)

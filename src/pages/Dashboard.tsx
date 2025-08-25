@@ -40,7 +40,7 @@ import {
 } from "@mui/icons-material"
 import { ScheduleModal } from "../Components/Schedule/ScheduleModal"
 import { TaskModal } from "../Components/Task/TaskModal"
-import type { DisplayScheduleModel } from "../Models/MainScheduleModels/MainScheduleModel"
+import type { DashboardScheduleModel, DisplayScheduleModel } from "../Models/MainScheduleModels/MainScheduleModel"
 import type { Task } from "../Models/TaskModels/TaskModel"
 
 // Styled Components modernized for light theme
@@ -184,9 +184,9 @@ const getStatusColor = (status: string) => {
 
 export const AdminDashboard: React.FC = () => {
   const dispatch = useDispatch<MyDispatch>()
-  const schedules = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask)
+  const schedules = useSelector((state: RootState) => state.Schedule.SortedSchedules)
   const technicians = useSelector((state: RootState) => state.Technicians.Technicians)
-  const overdueTask = useSelector((state: RootState) => state.AppTask.MainTask || [])
+  const overdueTask = useSelector((state: RootState) => state.AppTask.OverDueTask || [])
   const loadingSchedules = useSelector((state: RootState) => state.Schedule.loading)
   const loadingTasks = useSelector((state: RootState) => state.AppTask.loading)
 
@@ -248,7 +248,7 @@ export const AdminDashboard: React.FC = () => {
     }
   })
 
-  const handleViewSchedule = (schedule: DisplayScheduleModel) => {
+  const handleViewSchedule = (schedule: DisplayScheduleModel | DashboardScheduleModel) => {
     setSelectedSchedule(schedule)
     setModalView("view")
     setShowScheduleModal(true)

@@ -4,9 +4,13 @@ import {  Card, Paper, Avatar, Chip } from "@mui/material"
 import { styled } from "@mui/material/styles"
 
 // Styled Components for Task Management
-export const TaskCard = styled(Card)<{ isOverdue?: boolean }>(({ theme, isOverdue }) => ({
+export const TaskCard = styled(Card, {
+  shouldForwardProp: (prop) => prop !== "isOverdue",
+})<{ isOverdue?: boolean }>(({ theme, isOverdue }) => ({
   borderRadius: theme.spacing(2),
-  boxShadow: isOverdue ? "0 6px 20px rgba(244, 67, 54, 0.18)" : "0 6px 20px rgba(15,23,42,0.06)",
+  boxShadow: isOverdue
+    ? "0 6px 20px rgba(244, 67, 54, 0.18)"
+    : "0 6px 20px rgba(15,23,42,0.06)",
   border: isOverdue ? "2px solid #f44336" : "1px solid #e5e7eb",
   overflow: "hidden",
   marginBottom: theme.spacing(2),
@@ -14,19 +18,23 @@ export const TaskCard = styled(Card)<{ isOverdue?: boolean }>(({ theme, isOverdu
   position: "relative",
   "&:hover": {
     transform: "translateY(-2px)",
-    boxShadow: isOverdue ? "0 10px 30px rgba(244, 67, 54, 0.24)" : "0 10px 30px rgba(15,23,42,0.08)",
+    boxShadow: isOverdue
+      ? "0 10px 30px rgba(244, 67, 54, 0.24)"
+      : "0 10px 30px rgba(15,23,42,0.08)",
   },
-  "&::before": isOverdue ? {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    background: "linear-gradient(90deg, #f44336 0%, #d32f2f 100%)",
-    zIndex: 1,
-  } : {},
-}))
+  "&::before": isOverdue
+    ? {
+        content: '""',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        background: "linear-gradient(90deg, #f44336 0%, #d32f2f 100%)",
+        zIndex: 1,
+      }
+    : {},
+}));
 
 export const HeaderCard = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ffffff",

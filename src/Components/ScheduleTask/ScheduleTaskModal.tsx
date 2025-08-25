@@ -163,8 +163,8 @@ export const ScheduleTaskModal: React.FC<ScheduleTaskModalProps> = ({
         {
           return { isValid: false, error: "Interval cannot exceed 99 days" }
         }
-        if (totalDays < 1) {
-          return { isValid: false, error: "Interval must be at least 1 day" }
+        if (totalDays < 0) {
+          return { isValid: false, error: "Interval must be less than 0 days" }
         }
 
 

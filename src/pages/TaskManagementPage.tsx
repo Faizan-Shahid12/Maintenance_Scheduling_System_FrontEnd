@@ -94,17 +94,14 @@ export const TaskManagementPage = () => {
     } 
     else if (userRole?.includes("Technician"))
     {
-      if (userId !== null) dispatch(GetTechniciansById(userId))
+      if (userId !== null) dispatch(GetTechniciansById(userId)).unwrap().then((tech) => 
+      {
+        if(tech.assignedTasks)
+        dispatch(StoreTechTask(tech.assignedTasks));
+      })
     }
   }, [dispatch, userRole])
-
-  useEffect(() =>
-  {
-    if(currentTech?.assignedTasks)
-    dispatch(StoreTechTask(currentTech.assignedTasks))
-
-  }, [currentTech,dispatch])
-
+  
   const taskDataSource = TaskList
 
   const handleSelectedTask = (task: Task) => {

@@ -170,10 +170,15 @@ const validateFullName = (name: string): string | undefined => {
         break;
     }
 
-    setErrors(prev => ({
-      ...prev,
-      [field]: error
-    }));
+    setErrors(prev => {
+      if (field === 'email' && !error && prev.email === 'This email is already taken.') {
+        return prev; 
+      }
+      return {
+        ...prev,
+        [field]: error,
+      };
+    });
   };
   const getModalTitle = () => {
     switch (mode) {
@@ -192,6 +197,14 @@ const validateFullName = (name: string): string | undefined => {
   }
   
   const handleBlur = (field: keyof CreateTechnicianModel, value: string) => {
+    if (field === 'email') {
+      const formatError = validateEmail(value)
+      if (formatError) {
+        setErrors((prev) => ({ ...prev, email: formatError }))
+      }
+      // If format is valid, do not overwrite a potential async uniqueness error here
+      return
+    }
     validateField(field, value)
   }
 
@@ -210,7 +223,14 @@ const validateFullName = (name: string): string | undefined => {
   if (debounceRef.current) {
     clearTimeout(debounceRef.current);
   }
-
+  if (isEditMode && user && formData.email === user.email) {
+    setErrors(prev => ({
+      ...prev,
+      email: undefined,
+    }));
+    return;
+  }
+  
   if (formData.email && !validateEmail(formData.email)) {
     debounceRef.current = setTimeout(async () => 
     {
@@ -227,7 +247,7 @@ const validateFullName = (name: string): string | undefined => {
       {
         setErrors((prev) => ({
           ...prev,
-          email: "",
+          email: undefined,
         }));
       }
 
@@ -251,9 +271,12 @@ const validateFullName = (name: string): string | undefined => {
     newErrors.password = validatePassword(formData.password)
    }
   
-   setErrors(newErrors)
+   setErrors(prev => ({
+    ...newErrors,
+    email: prev.email === "This email is already taken." ? prev.email : newErrors.email,
+  }))
   
-   const hasErrors = Object.values(newErrors).some(error => error !== undefined)
+   const hasErrors = Object.values(newErrors).some(error => error !== undefined) || !!errors.email
   
    if (hasErrors) {
     return

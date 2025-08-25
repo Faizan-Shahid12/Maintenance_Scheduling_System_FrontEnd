@@ -1,9 +1,23 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../settings/axios";
-import { DeleteHistory_api, EditHistory_api, GetAllHistory_api, GetHistoryById_api } from "../Api/MaintenanceHistoryApis";
+import { DeleteHistory_api, EditHistory_api, GetAllHistory_api, GetHistoryById_api, CreateMaintenanceHistory_api, GetAllCount_Api } from "../Api/MaintenanceHistoryApis";
 import type MaintenanceHistory from "../../Models/HistoryModels/HistoryModel";
 
-
+export const GetAllCount = createAsyncThunk<number[]>(
+    "history/getAllCounts",
+    async(_, thunkAPI) =>
+    {
+        try
+        {
+            const response = await GetAllCount_Api()
+            return response.data;
+        }
+        catch (error: any)
+        {
+            return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch Count")
+        }
+    }
+)
 
 export const GetAllHistory = createAsyncThunk<MaintenanceHistory[]>(
   'history/getAll',
@@ -33,6 +47,28 @@ export const GetHistoryByEquipmentId = createAsyncThunk<MaintenanceHistory[], nu
             catch (error: any) 
             {
              return thunkAPI.rejectWithValue(error.response?.data || 'Failed to fetch history by equipment id');
+            }
+        }
+)
+
+export const CreateMaintenanceHistory = createAsyncThunk<MaintenanceHistory, {
+    equipmentId: number;
+    equipmentName: string;
+    equipmentType: string;
+    startDate: string;
+    endDate: string;
+}>(
+    'history/create',
+    async (maintenanceHistory, thunkAPI) => 
+        {
+            try
+            {
+             const response = await CreateMaintenanceHistory_api(maintenanceHistory);
+             return response.data;
+            } 
+            catch (error: any) 
+            {
+             return thunkAPI.rejectWithValue(error.response?.data || 'Failed to create maintenance history');
             }
         }
 )

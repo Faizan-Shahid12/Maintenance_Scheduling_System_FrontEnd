@@ -27,6 +27,7 @@ import {
     CircularProgress,
     Alert,
 } from "@mui/material";
+import { RegisterTaskHandlers, StartConnection } from "../services/TaskSignalR";
 
 export default function LoginPage() 
 {
@@ -53,9 +54,19 @@ export default function LoginPage()
 
           dispatch(LoginThunk(Request))
             .unwrap()
-            .then(() => 
+            .then( async () => 
             {
               const role = localStorage.getItem("Role");
+
+               await StartConnection().then(async ()=>
+               {
+                   await RegisterTaskHandlers(dispatch);
+               })
+               .catch((error : any) => 
+                {
+                    console.log(error);    
+                })
+
               if (role === "Admin") {
                 navigate("/Dashboard");
               } else if (role === "Technician") {

@@ -142,7 +142,7 @@ export const UserManagementPage = () =>
   const [selectedUser, setSelectedUser] = useState<Technician | null>(null)
   const [showPassword, setShowPassword] = useState(false)
 
-  const users = useSelector((state:RootState) => state.Technicians.Technicians)
+  const users = useSelector((state:RootState) => state.Technicians.TechniciansWithoutTask)
   const loading = useSelector((state:RootState) => state.Technicians.loading)
   const dispatch = useDispatch<MyDispatch>();
 
