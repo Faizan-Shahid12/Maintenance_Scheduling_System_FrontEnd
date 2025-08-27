@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.env
+.192.168.50.163-key.perm
+.192.168.50.163.perm
