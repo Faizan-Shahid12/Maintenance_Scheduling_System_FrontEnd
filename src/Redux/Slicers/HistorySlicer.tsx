@@ -1,12 +1,13 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type MaintenanceHistory from "../../Models/HistoryModels/HistoryModel";
-import { GetAllHistory, GetHistoryByEquipmentId } from "../Thunks/HistoryThunk";
+import { GetAllCount, GetAllHistory, GetHistoryByEquipmentId } from "../Thunks/HistoryThunk";
 import type { Task } from "../../Models/TaskModels/TaskModel";
 
 
 interface MaintenanceHistoryState {
   MaintenanceHistoryList: MaintenanceHistory[];
   EquipHistory: MaintenanceHistory[];
+  Count: number[];
   loading: boolean;
   error: string | undefined | null;
 }
@@ -15,6 +16,7 @@ const initialState: MaintenanceHistoryState =
 {
   MaintenanceHistoryList: [],
   EquipHistory: [],
+  Count: [],
   loading: false,
   error: null,
 };
@@ -85,6 +87,19 @@ export const MaintenanceHistorySlice = createSlice({
         {
             state.loading = false;
             state.error = action.error.message;
+        })
+        .addCase(GetAllCount.pending, (state) =>
+        {
+            state.loading = true;
+        })
+        .addCase(GetAllCount.fulfilled,(state,action) => {
+            state.loading = false;
+            state.Count = action.payload;
+        })
+        .addCase(GetAllCount.rejected, (state, action) =>
+        {
+            state.loading = false;
+            state.error = action.payload as string;
         })
 
     }

@@ -8,6 +8,7 @@ import UserManagementPage from "../pages/UserManagementPage";
 import SchedulePage from "../pages/SchedulePage";
 import AdminDashboard from "../pages/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
+import BarQrDecoderPage from "../pages/BarQrDecoderPage";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,8 @@ const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["Technician", "Admin"]} />,
         children: [
           { path: "/TaskManagement", element: <TaskManagementPage /> },
+          { path: "/BarCodeScannerPage", element: <BarQrDecoderPage />}
+
         ],
       },
     ],

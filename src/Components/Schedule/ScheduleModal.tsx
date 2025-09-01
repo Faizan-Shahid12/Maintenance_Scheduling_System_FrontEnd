@@ -2,8 +2,9 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { Close, Save, Add, Visibility, Edit, Delete } from "@mui/icons-material"
 import type { DisplayScheduleModel } from "../../Models/MainScheduleModels/MainScheduleModel"
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, IconButton, TextField, FormControl, InputLabel, Select, MenuItem, Chip } from "@mui/material"
 
-type ScheduleModalProps = {
+ type ScheduleModalProps = {
   show: boolean
   onClose: () => void
   schedule: DisplayScheduleModel | null
@@ -12,7 +13,7 @@ type ScheduleModalProps = {
   view: "view" | "edit" | "delete"
 }
 
-type ValidationErrors = {
+ type ValidationErrors = {
   scheduleName?: string
   startDate?: string
   endDate?: string
@@ -47,7 +48,6 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
     if (!name.trim()) {
       return "Schedule name is required"
     }
-    // Allow only letters, numbers, and spaces
     const specialCharRegex = /[^a-zA-Z0-9\s]/
     if (specialCharRegex.test(name)) {
       return "Schedule name cannot contain special characters except spaces"
@@ -56,65 +56,35 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   }
 
   const validateStartDate = (date: string): string | undefined => {
-    if (!date) {
-      return "Start date is required"
-    }
+    if (!date) return "Start date is required"
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const selectedDate = new Date(date)
 
-    if(schedule != undefined)
-    {
-
-      if(view === "edit" && new Date (schedule.startDate) <= selectedDate)
-      {
-        return undefined;
-      }
+    if(schedule != undefined) {
+      if(view === "edit" && new Date (schedule.startDate) <= selectedDate) return undefined
     }
 
-    if (selectedDate < today) {
-      return "Start date cannot be in the past"
-    }
+    if (selectedDate < today) return "Start date cannot be in the past"
     return undefined
   }
 
   const validateEndDate = (endDateValue: string, startDateValue: string): string | undefined => {
-    if (!endDateValue) {
-      return undefined // End date is optional
-    }
-    if (!startDateValue) {
-      return "Please set start date first"
-    }
-
+    if (!endDateValue) return undefined
+    if (!startDateValue) return "Please set start date first"
     const startDateObj = new Date(startDateValue)
     const endDateObj = new Date(endDateValue)
-
-    if (endDateObj < startDateObj) {
-      return "End date must be after start date"
-    }
+    if (endDateObj < startDateObj) return "End date must be after start date"
     return undefined
   }
 
   const validateInterval = (intervalValue: string): string | undefined => {
-    if (scheduleType !== "Custom") {
-      return undefined // Auto-generated intervals don't need validation
-    }
-
-    if (!intervalValue.trim()) {
-      return "Interval is required for custom schedule"
-    }
-
-    // Extract number from interval string
+    if (scheduleType !== "Custom") return undefined
+    if (!intervalValue.trim()) return "Interval is required for custom schedule"
     const match = intervalValue.match(/(\d+)/)
-    if (!match) {
-      return "Please enter a valid number"
-    }
-
+    if (!match) return "Please enter a valid number"
     const numericValue = Number.parseInt(match[1], 10)
-    if (numericValue > 99) {
-      return "Interval cannot exceed 99 days"
-    }
-
+    if (numericValue > 99) return "Interval cannot exceed 99 days"
     return undefined
   }
 
@@ -128,11 +98,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
     setStartDate(value)
     const startError = validateStartDate(value)
     const endError = validateEndDate(endDate, value)
-    setErrors((prev) => ({
-      ...prev,
-      startDate: startError,
-      endDate: endError,
-    }))
+    setErrors((prev) => ({ ...prev, startDate: startError, endDate: endError }))
   }
 
   const handleEndDateChange = (value: string) => {
@@ -149,7 +115,6 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
         value = value.replace(/\d+/, "99")
       }
     }
-
     setInterval(value)
     const error = validateInterval(value)
     setErrors((prev) => ({ ...prev, interval: error }))
@@ -160,7 +125,6 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
     const startError = validateStartDate(startDate)
     const endError = validateEndDate(endDate, startDate)
     const intervalError = validateInterval(interval)
-
     return !nameError && !startError && !endError && !intervalError
   }
 
@@ -185,7 +149,6 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   const handleSubmit = () => {
     if (!isFormValid()) {
-      // Trigger validation for all fields
       setErrors({
         scheduleName: validateScheduleName(scheduleName),
         startDate: validateStartDate(startDate),
@@ -211,540 +174,100 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   }
 
   const handleDelete = () => {
-    if (schedule && onSubmitDelete) {
-      onSubmitDelete(schedule)
-    }
+    if (schedule && onSubmitDelete) onSubmitDelete(schedule)
   }
 
   useEffect(() => {
     switch (scheduleType) {
-      case "Daily":
-        setInterval("1")
-        break
-      case "Weekly":
-        setInterval("7")
-        break
-      case "Monthly":
-        setInterval("30")
-        break
-      case "Yearly":
-        setInterval("365")
-        break
-      case "Custom":
-        if (view === "edit") {
-          setInterval("")
-        }
-        break
-      default:
-        setInterval("")
+      case "Daily": setInterval("1"); break
+      case "Weekly": setInterval("7"); break
+      case "Monthly": setInterval("30"); break
+      case "Yearly": setInterval("365"); break
+      case "Custom": if (view === "edit") setInterval(""); break
+      default: setInterval("")
     }
     setErrors((prev) => ({ ...prev, interval: undefined }))
   }, [scheduleType, view])
 
-  const ErrorMessage: React.FC<{ error?: string }> = ({ error }) => {
-    if (!error) return null
-    return (
-      <div
-        style={{
-          color: "#dc3545",
-          fontSize: "12px",
-          marginTop: "4px",
-          display: "flex",
-          alignItems: "center",
-          gap: "4px",
-        }}
-      >
-        <span>⚠</span>
-        {error}
-      </div>
-    )
-  }
-
   if (!show) return null
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000,
-        padding: "20px",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          maxWidth: "600px",
-          width: "100%",
-          maxHeight: "90vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            padding: "20px 24px",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {view === "view" ? <Visibility /> : view === "edit" ? <Edit /> : <Add />}
-            <h2 style={{ margin: 0 }}>
-              {view === "view" ? "Schedule Details" : view === "edit" ? "Edit Schedule" : "Delete Schedule"}
-            </h2>
-          </div>
-          <button onClick={onClose} style={{ border: "none", background: "transparent", color: "white" }}>
-            <Close />
-          </button>
-        </div>
+    <Dialog open={show} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {view === "view" ? <Visibility /> : view === "edit" ? <Edit /> : <Delete />}
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {view === "view" ? "Schedule Details" : view === "edit" ? "Edit Schedule" : "Delete Schedule"}
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose}><Close /></IconButton>
+      </DialogTitle>
 
-        {/* Body */}
-        <div style={{ padding: "24px", flex: 1, overflowY: "auto" }}>
-          {view === "view" || view === "delete" ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Schedule Name
-                </label>
-                <div
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    backgroundColor: "#f9fafb",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    color: "#111827",
-                    minHeight: "44px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {scheduleName}
-                </div>
-              </div>
+      <DialogContent dividers sx={{ pt: 2 }}>
+        {view === "view" || view === "delete" ? (
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            <Box>
+              <Typography variant="caption" color="textSecondary">Schedule Name</Typography>
+              <Typography variant="body1" sx={{ p: 1.5, border: '1px solid #e5e7eb', borderRadius: 1, bgcolor: '#f9fafb' }}>{scheduleName}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">Schedule Type</Typography>
+              <Typography variant="body1" sx={{ p: 1.5, border: '1px solid #e5e7eb', borderRadius: 1, bgcolor: '#f9fafb' }}>{scheduleType}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">Status</Typography>
+              <Typography variant="body1" sx={{ p: 1.5, border: '1px solid #e5e7eb', borderRadius: 1, bgcolor: '#f9fafb' }}>{isActive ? 'Active' : 'Inactive'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="textSecondary">Start Date</Typography>
+              <Typography variant="body1" sx={{ p: 1.5, border: '1px solid #e5e7eb', borderRadius: 1, bgcolor: '#f9fafb' }}>{startDate}</Typography>
+            </Box>
+            {endDate && (
+              <Box>
+                <Typography variant="caption" color="textSecondary">End Date</Typography>
+                <Typography variant="body1" sx={{ p: 1.5, border: '1px solid #e5e7eb', borderRadius: 1, bgcolor: '#f9fafb' }}>{endDate}</Typography>
+              </Box>
+            )}
+            <Box>
+              <Typography variant="caption" color="textSecondary">Interval</Typography>
+              <TextField value={parseDaysFromInterval(interval)} onChange={(e) => { if (scheduleType === 'Custom') setInterval(e.target.value) }} InputProps={{ readOnly: scheduleType !== 'Custom' }} fullWidth />
+            </Box>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            <TextField label="Schedule Name" value={scheduleName} onChange={(e) => handleScheduleNameChange(e.target.value)} error={!!errors.scheduleName} helperText={errors.scheduleName} fullWidth />
+            <FormControl fullWidth>
+              <InputLabel>Schedule Type</InputLabel>
+              <Select label="Schedule Type" value={scheduleType} onChange={(e) => setScheduleType(e.target.value)}>
+                <MenuItem value="Daily">Daily</MenuItem>
+                <MenuItem value="Weekly">Weekly</MenuItem>
+                <MenuItem value="Monthly">Monthly</MenuItem>
+                <MenuItem value="Yearly">Yearly</MenuItem>
+                <MenuItem value="Custom">Custom</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select label="Status" value={isActive ? 'true' : 'false'} onChange={(e) => setIsActive(e.target.value === 'true')}>
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField label="Start Date" type="date" value={startDate} onChange={(e) => handleStartDateChange(e.target.value)} error={!!errors.startDate} helperText={errors.startDate} fullWidth InputLabelProps={{ shrink: true }} />
+            <TextField label="End Date (Optional)" type="date" value={endDate} onChange={(e) => handleEndDateChange(e.target.value)} error={!!errors.endDate} helperText={errors.endDate} fullWidth InputLabelProps={{ shrink: true }} />
+            <TextField label="Interval" placeholder="e.g., 3 days" value={parseDaysFromInterval(interval)} onChange={(e) => handleIntervalChange(e.target.value)} error={!!errors.interval} helperText={errors.interval} fullWidth />
+          </Box>
+        )}
+      </DialogContent>
 
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Schedule Type
-                </label>
-                <div
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    backgroundColor: "#f9fafb",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    color: "#111827",
-                    minHeight: "44px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {scheduleType}
-                </div>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Status
-                </label>
-                <div
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    backgroundColor: "#f9fafb",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    color: "#111827",
-                    minHeight: "44px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {isActive ? "Active" : "Inactive"}
-                </div>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Start Date
-                </label>
-                <div
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    backgroundColor: "#f9fafb",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    color: "#111827",
-                    minHeight: "44px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {startDate}
-                </div>
-              </div>
-
-              {endDate && (
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      color: "#374151",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    End Date
-                  </label>
-                  <div
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      backgroundColor: "#f9fafb",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      color: "#111827",
-                      minHeight: "44px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {endDate}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Interval
-                </label>
-                <input
-                  type="text"
-                  value={parseDaysFromInterval(interval)}
-                  onChange={(e) => {
-                    if (scheduleType === "Custom") 
-                    {
-                      setInterval(e.target.value)
-                    }
-                  }}
-                  readOnly={true}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "8px",
-                    outline: "none",
-                    backgroundColor: scheduleType === "Custom" ? "white" : "#f9fafb",
-                    color: scheduleType === "Custom" ? "#111827" : "#6b7280",
-                  }}
-                  placeholder={
-                    scheduleType === "Custom"
-                      ? "Enter custom interval (e.g., 15 days)"
-                      : "Auto-generated based on schedule type"
-                  }
-                />
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Schedule Name
-                </label>
-                <input
-                  type="text"
-                  value={scheduleName}
-                  onChange={(e) => handleScheduleNameChange(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: `1px solid ${errors.scheduleName ? "#dc3545" : "#d1d5db"}`,
-                    borderRadius: "8px",
-                    outline: "none",
-                  }}
-                  placeholder="Enter schedule name"
-                />
-                <ErrorMessage error={errors.scheduleName} />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Schedule Type
-                </label>
-                <select
-                  value={scheduleType}
-                  onChange={(e) => setScheduleType(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "8px",
-                    outline: "none",
-                  }}
-                >
-                  <option value="">Select Schedule Type</option>
-                  <option value="Daily">Daily</option>
-                  <option value="Weekly">Weekly</option>
-                  <option value="Monthly">Monthly</option>
-                  <option value="Yearly">Yearly</option>
-                  <option value="Custom">Custom</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Status
-                </label>
-                <select
-                  value={isActive ? "true" : "false"}
-                  onChange={(e) => setIsActive(e.target.value === "true")}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "8px",
-                    outline: "none",
-                  }}
-                >
-                  <option value="true">Active</option>
-                  <option value="false">Inactive</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => handleStartDateChange(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: `1px solid ${errors.startDate ? "#dc3545" : "#d1d5db"}`,
-                    borderRadius: "8px",
-                    outline: "none",
-                  }}
-                />
-                <ErrorMessage error={errors.startDate} />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  End Date (Optional)
-                </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => handleEndDateChange(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: `1px solid ${errors.endDate ? "#dc3545" : "#d1d5db"}`,
-                    borderRadius: "8px",
-                    outline: "none",
-                  }}
-                />
-                <ErrorMessage error={errors.endDate} />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Interval
-                </label>
-                <input
-                  type="text"
-                  value={parseDaysFromInterval(interval)}
-                  onChange={(e) => handleIntervalChange(e.target.value)}
-                  readOnly={scheduleType === "Custom" ? false : true}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: `1px solid ${errors.interval ? "#dc3545" : "#d1d5db"}`,
-                    borderRadius: "8px",
-                    backgroundColor: scheduleType === "Custom" ? "white" : "#f9fafb",
-                    outline: "none",
-                  }}
-                  placeholder="e.g., 3 days"
-                />
-                <ErrorMessage error={errors.interval} />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div
-          style={{
-            padding: "20px 24px",
-            backgroundColor: "#f8f9fa",
-            borderTop: "1px solid #e9ecef",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <button
-            onClick={onClose}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            <Close style={{ fontSize: 16 }} /> Close
-          </button>
-
-          {view === "edit" ? (
-            <button
-              onClick={handleSubmit}
-              disabled={!isFormValid()}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: isFormValid() ? "#667eea" : "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                fontWeight: "bold",
-                cursor: isFormValid() ? "pointer" : "not-allowed",
-                opacity: isFormValid() ? 1 : 0.6,
-              }}
-            >
-              {view === "edit" ? <Save style={{ fontSize: 16 }} /> : <Add style={{ fontSize: 16 }} />}
-              {view === "edit" ? "Save Changes" : ""}
-            </button>
-          ) : userRole?.includes("Admin") && view === "delete" ? (
-            <button
-              onClick={handleDelete}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              <Delete style={{ fontSize: 16 }} /> Delete
-            </button>
-          ) : (
-            <></>
-          )}
-        </div>
-      </div>
-    </div>
+      <DialogActions>
+        <Button onClick={onClose} variant="outlined" color="inherit"><Close sx={{ fontSize: 16 }} /> Close</Button>
+        {view === 'edit' ? (
+          <Button onClick={handleSubmit} variant="contained" disabled={!isFormValid()}><Save sx={{ fontSize: 16 }} /> Save Changes</Button>
+        ) : userRole?.includes('Admin') && view === 'delete' ? (
+          <Button onClick={handleDelete} color="error" variant="contained"><Delete sx={{ fontSize: 16 }} /> Delete</Button>
+        ) : null}
+      </DialogActions>
+    </Dialog>
   )
 }

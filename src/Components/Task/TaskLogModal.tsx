@@ -316,6 +316,7 @@ const LogCard = ({
                         primary={
                           <Typography
                             variant="body2"
+                            component="div"
                             sx={{
                               fontWeight: "medium",
                               overflow: "hidden",
@@ -462,16 +463,16 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
     }
   }
 
-  const handleDeleteLog = (logId: number) => {
-    if (window.confirm("Are you sure you want to delete this log entry?")) {
+  const handleDeleteLog = (logId: number) => 
+  {
       dispatch(DeleteTaskLog(logId))
-    }
+    
   }
 
   const handleDeleteAttachment = (attachmentId: number) => {
-    if (window.confirm("Are you sure you want to delete this attachment?")) {
+    
       dispatch(DeleteAttachment(attachmentId))
-    }
+    
   }
 
   const handleUploadAttachment = (logId: number) => {

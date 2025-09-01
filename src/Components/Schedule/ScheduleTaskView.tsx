@@ -44,18 +44,18 @@ import { type MyDispatch, type RootState } from "../../Redux/Store"
 import { AddScheduleTask, AssignTechnicianToScheduleTask, DeleteScheduleTask, EditScheduleTask } from "../../Redux/Thunks/ScheduleThunk"
 import type { CreateScheduleTaskModel } from "../../Models/ScheduleTaskModels/ScheduleTaskModel"
 
-// Styled Components
 const HeaderCard = ({ children }: { children: React.ReactNode }) => (
   <Paper
     sx={{
-      background: "linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-      color: "white",
-      p: 4,
+      backgroundColor: "#ffffff",
+      color: "inherit",
+      p: 3,
       mb: 3,
-      borderRadius: 3,
+      borderRadius: 2,
       position: "relative",
       overflow: "hidden",
-      boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+      border: "1px solid #e5e7eb",
+      boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
     }}
   >
     {children}
@@ -66,19 +66,13 @@ const StatsCard = ({ children }: { children: React.ReactNode }) => (
   <Paper
     elevation={0}
     sx={{
-      background: "rgba(255,255,255,0.2)",
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.3)",
+      backgroundColor: "#ffffff",
+      border: "1px solid #e5e7eb",
       borderRadius: 2,
       p: 2,
       display: "flex",
       alignItems: "center",
       gap: 2,
-      transition: "all 0.3s ease",
-      "&:hover": {
-        transform: "translateY(-2px)",
-        boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
-      },
     }}
   >
     {children}
@@ -89,13 +83,13 @@ const TaskCard = ({ children }: { children: React.ReactNode }) => (
   <Card
     sx={{
       borderRadius: 3,
-      boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      border: "2px solid transparent",
+      border: "1px solid #e5e7eb",
       "&:hover": {
-        transform: "translateY(-4px)",
-        boxShadow: "0 16px 48px rgba(0,0,0,0.15)",
-        borderColor: "#4caf50",
+        transform: "translateY(-2px)",
+        boxShadow: "0 16px 48px rgba(0,0,0,0.08)",
+        borderColor: "#cbd5e1",
       },
     }}
   >
@@ -183,13 +177,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
 
   let scheduleTask = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask.find(s => s.scheduleId === schedule.scheduleId)?.scheduleTasks)
 
-  if(scheduleTask === undefined)
-  {
-    scheduleTask = schedule.scheduleTasks
-  }
-
   // Filter tasks based on search and filters
-  const filteredTasks = scheduleTask.filter((task) => {
+  const filteredTasks = scheduleTask?.filter((task) => {
     const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesPriority = priorityFilter === "All" || task.priority === priorityFilter
     const matchesTechnician = technicianFilter === "All" || task.assignedTo === technicianFilter
@@ -197,10 +186,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
   })
 
   const taskStats = {
-    total: scheduleTask.length,
-    high: scheduleTask.filter((t) => t.priority === "High").length,
-    medium: scheduleTask.filter((t) => t.priority === "Medium").length,
-    low: scheduleTask.filter((t) => t.priority === "Low").length,
+    total: scheduleTask?.length,
+    high: scheduleTask?.filter((t) => t.priority === "High").length,
+    medium: scheduleTask?.filter((t) => t.priority === "Medium").length,
+    low: scheduleTask?.filter((t) => t.priority === "Low").length,
   }
 
   const formatDate = (dateString?: string) => {
@@ -355,16 +344,15 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
   }
 
   return (
-    <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
       <Container maxWidth="xl">
         <Box sx={{ mb: 2 }}>
           <Paper
             sx={{
               p: 2,
               borderRadius: 2,
-              backgroundColor: "rgba(255,255,255,0.9)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(0,0,0,0.1)",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e5e7eb",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -397,11 +385,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
           </Paper>
         </Box>
 
-        {/* Enhanced Header */}
+        {/* Header */}
         <HeaderCard>
-          <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.08 }}>
-            <Task sx={{ fontSize: 120 }} />
-          </Box>
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -410,22 +395,21 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     width: 56,
                     height: 56,
                     borderRadius: 2,
-                    background: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
+                    background: "#e0e7ff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     mr: 2,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                    boxShadow: "none",
                   }}
                 >
-                  <Task sx={{ fontSize: 28, color: "white" }} />
+                  <Task sx={{ fontSize: 28, color: "#2563eb" }} />
                 </Paper>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5, color: "white" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
                     {schedule.scheduleName} Tasks
                   </Typography>
-                  <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  <Typography variant="body1" color="text.secondary">
                     Manage tasks for {schedule.scheduleType} schedule
                   </Typography>
                   <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
@@ -433,8 +417,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                       label={schedule.isActive ? "Active Schedule" : "Inactive Schedule"}
                       size="small"
                       sx={{
-                        bgcolor: schedule.isActive ? "rgba(76,175,80,0.3)" : "rgba(255,255,255,0.2)",
-                        color: "white",
+                        bgcolor: "#eef2ff",
+                        color: "#2563eb",
                         fontWeight: "bold",
                       }}
                     />
@@ -442,8 +426,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                       label={`${schedule.scheduleType} Interval`}
                       size="small"
                       sx={{
-                        bgcolor: "rgba(255,255,255,0.2)",
-                        color: "white",
+                        bgcolor: "#eef2ff",
+                        color: "#2563eb",
                         fontWeight: "bold",
                       }}
                     />
@@ -455,15 +439,6 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                   variant="contained"
                   startIcon={<AddTask />}
                   onClick={handleAddTask}
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.3)",
-                    },
-                  }}
                 >
                   Add Task
                 </Button>
@@ -478,10 +453,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     <Task sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {taskStats.total}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="text.secondary">
                       Total Tasks
                     </Typography>
                   </Box>
@@ -493,10 +468,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     <FilterList sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {taskStats.high}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="text.secondary">
                       High Priority
                     </Typography>
                   </Box>
@@ -508,10 +483,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     <FilterList sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {taskStats.medium}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="text.secondary">
                       Medium Priority
                     </Typography>
                   </Box>
@@ -523,10 +498,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     <FilterList sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                       {taskStats.low}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                    <Typography variant="caption" color="text.secondary">
                       Low Priority
                     </Typography>
                   </Box>
@@ -536,7 +511,7 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
           </Box>
         </HeaderCard>
 
-        {/* Enhanced Filters */}
+        {/* Filters */}
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
             <Box sx={{ flex: "1 1 250px", minWidth: "250px" }}>
@@ -584,8 +559,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
               </FormControl>
             </Box>
             <Box sx={{ flex: "1 1 120px", minWidth: "120px" }}>
-              <Typography variant="body2" color="textSecondary">
-                {filteredTasks.length} of {scheduleTask.length} tasks
+              <Typography variant="body2" color="text.secondary">
+                {filteredTasks?.length} of {scheduleTask?.length} tasks
               </Typography>
             </Box>
           </Box>
@@ -593,8 +568,8 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
 
         {/* Task Cards */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          {filteredTasks.length > 0 ? (
-            filteredTasks.sort((a,b) => b.scheduleTaskId - a.scheduleTaskId).map((task) => (
+          {(filteredTasks?.length ?? 0) > 0 ? (
+            filteredTasks?.sort((a,b) => b.scheduleTaskId - a.scheduleTaskId).map((task) => (
               <Box key={task.scheduleTaskId} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
                 <TaskCard>
                   <CardHeader
@@ -608,7 +583,7 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     }
                     subheader={
                       <Box sx={{ mt: 1 }}>
-                        <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                           {task.equipmentName}
                         </Typography>
                         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
@@ -629,7 +604,7 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <CalendarToday sx={{ color: "#666", fontSize: 16 }} />
                         <Box>
-                          <Typography variant="caption" color="textSecondary">
+                          <Typography variant="caption" color="text.secondary">
                             Due Date
                           </Typography>
                           <Typography variant="body2" sx={{ fontWeight: "medium" }}>
@@ -640,7 +615,7 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <Person sx={{ color: "#666", fontSize: 16 }} />
                         <Box>
-                          <Typography variant="caption" color="textSecondary">
+                          <Typography variant="caption" color="text.secondary">
                             Assigned To
                           </Typography>
                           <Typography variant="body2" sx={{ fontWeight: "medium" }}>
@@ -657,10 +632,10 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
           ) : (
             <Paper sx={{ p: 6, textAlign: "center", mt: 3, width: "100%" }}>
               <Task sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
-              <Typography variant="h6" color="textSecondary" gutterBottom>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
                 No tasks found
               </Typography>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {searchTerm || priorityFilter !== "All" || technicianFilter !== "All"
                   ? "Try adjusting your filters or search terms"
                   : "This schedule doesn't have any tasks yet. Add your first task to get started."}

@@ -2,12 +2,18 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { CreateEquipmentModel } from "../../Models/EquipmentModels/CreateEquipmentModel";
 import type { Equipment } from "../../Models/EquipmentModels/EquipmentModel";
 import { ArchiveEquipments_api, AssignEquipmentToWorkShop_api, AssignEquipmentType_api, CreateNewEquipment_api, DeleteEquipments_api, EditEquipments_api, GetAllEquipments_api, GetArchivedEquipments_api, GetEquipmentById_api, GetEquipmentByName_api, UnArchiveEquipments_api } from "../Api/EquipmentApis";
+import type { RootState } from "../Store";
+import type { WorkShop } from "../../Models/WorkShopModel/WorkShop";
 
 export const GetAllEquipment = createAsyncThunk<Equipment[]>(
     "Equipment/getAllEquipment",
-    async (state, { rejectWithValue }) => {
+    async (state, { rejectWithValue,getState }) => {
         try 
         {
+            var State = getState() as RootState
+
+            if(State.Equipment.equipmentList.length > 0) return rejectWithValue("Equipment Already Loaded");
+
             const response = await GetAllEquipments_api();
             return response.data;
         } catch (error: any)
@@ -57,10 +63,14 @@ export const GetEquipmentByName = createAsyncThunk<Equipment[], string>(
 
 export const GetArchivedEquipment = createAsyncThunk<Equipment[]>(
     "Equipment/getArchivedEquipment",
-    async (state, { rejectWithValue}) =>
+    async (state, { rejectWithValue, getState}) =>
     {
         try
         {
+            var State = getState() as RootState
+
+            if(State.Equipment.archivedEquipment.length > 0) return rejectWithValue("Equipment Already Loaded");
+
             const response = await GetArchivedEquipments_api();
             return response.data;
         }
@@ -80,9 +90,9 @@ export const CreateNewEquipment = createAsyncThunk<Equipment, CreateEquipmentMod
         {
             const response = await CreateNewEquipment_api(equipment);
          
-            if (equipment?.WorkShopId && equipment.WorkShopId > 0 && response?.data?.equipmentId) 
+            if (equipment?.WorkShop.workShopId && equipment?.WorkShop.workShopId > 0 && response?.data?.equipmentId) 
             {
-                const response1 = await AssignEquipmentToWorkShop_api(response.data.equipmentId, equipment.WorkShopId);
+                const response1 = await AssignEquipmentToWorkShop_api(response.data.equipmentId, equipment.WorkShop);
                 return response1.data;
             }
 
@@ -159,13 +169,13 @@ export const UnArchiveEquipment = createAsyncThunk<Equipment, Equipment>(
         }
     });
 
-export const AssignEquipmentToWorkShop = createAsyncThunk<Equipment, { equipmentId: number; workShopId: number }>(
+export const AssignEquipmentToWorkShop = createAsyncThunk<Equipment, { equipmentId: number; workShop: WorkShop }>(
     "Equipment/AssignEquipmentToWorkShop",
-    async ({ equipmentId, workShopId }, { rejectWithValue }) => 
+    async ({ equipmentId, workShop }, { rejectWithValue }) => 
     {
         try 
         {
-            const response = await AssignEquipmentToWorkShop_api(equipmentId, workShopId);
+            const response = await AssignEquipmentToWorkShop_api(equipmentId, workShop);
             return response.data;
         } 
         catch (error: any) 

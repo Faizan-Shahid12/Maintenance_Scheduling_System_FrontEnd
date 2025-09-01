@@ -51,6 +51,7 @@ import {
   CategoryIcon
 } from "../Components/ui/equipment-tree-component"
 import { Box, Divider, Button } from "@mui/material"
+import { Skeleton, CircularProgress } from "@mui/material"
 
 
 
@@ -58,8 +59,9 @@ export const EquipmentPage: React.FC = () => {
   const dispatch = useDispatch<MyDispatch>();
   const equipmentData = useSelector((state: RootState) => state.Equipment.equipmentList);
   const archivedEquipment = useSelector((state: RootState) => state.Equipment.archivedEquipment);
+  const WorkShops = useSelector((state:RootState) => state.WorkShop.WorkShopList);
+  const loading = useSelector((state: RootState) => state.Equipment.loading);
 
-  const [workshops, setWorkshops] = useState<WorkShop[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState<"create" | "edit" | "view">("view");
   
@@ -75,9 +77,7 @@ export const EquipmentPage: React.FC = () => {
   useEffect(() => {
     dispatch(GetAllEquipment());
     dispatch(GetArchivedEquipment());
-    dispatch(GetWorkShopLocation())
-      .unwrap()
-      .then((result) => setWorkshops(result));
+    dispatch(GetWorkShopLocation());
   }, [dispatch]);
 
   const ArchiveOrUnarchive = () => {
@@ -101,6 +101,7 @@ export const EquipmentPage: React.FC = () => {
   const CreateEquipment = (newEquipment: CreateEquipmentModel) => {
     dispatch(CreateNewEquipment(newEquipment));
     setSelectedEquipmentTable(null);
+    setShowModal(false); // Close the modal after creating
   };
 
   const updatedEquipment = (updatedData: Equipment) => {
@@ -111,19 +112,35 @@ export const EquipmentPage: React.FC = () => {
       };
       dispatch(EditEquipment(updatedEquipment));
 
-      let WorkShopId = workshops.find((w) => w.name === updatedEquipment.workShopName)?.workShopId || null;
+      let WorkShopId = WorkShops.find((w) => w.name === updatedEquipment.workShopName)?.workShopId || null;
 
-      dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShopId: WorkShopId || 0}));
+      const TempWorkShop: WorkShop = {
+        workShopId: WorkShopId ? WorkShopId : 0,
+        name: updatedEquipment.workShopName,
+        location: updatedEquipment.workShopLocation,
+        latitude: updatedEquipment.workShopLatitude,
+        longitude: updatedEquipment.workShopLongitude
+      }
+
+      dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShop: TempWorkShop}));
       setSelectedEquipmentTable(null);
     }
   };
 
-  const AssignWorkShop = (EquipId: number, WorkShopId: number) => {
+  const AssignWorkShop = (EquipId: number, WorkShop: WorkShop) => {
     if (selectedEquipmentTable) 
-        {
-        dispatch(AssignEquipmentToWorkShop({ equipmentId: EquipId, workShopId: WorkShopId }));
+       {
+        const TempWorkShop: WorkShop = {
+          workShopId: WorkShop.workShopId ? WorkShop.workShopId : 0,
+          name: WorkShop.name,
+          location: WorkShop.location,
+          latitude: WorkShop.latitude,
+          longitude: WorkShop.longitude
+        }
+  
+        dispatch(AssignEquipmentToWorkShop({ equipmentId: EquipId, workShop: TempWorkShop }));
         setSelectedEquipmentTable(null);
-        }  
+       }  
     };
 
   const AssignType = (updatedEquipment: Equipment) => {
@@ -420,15 +437,6 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
               variant="contained"
               startIcon={<PlusIcon />}
               onClick={() => handleOpenModal("create")}
-              sx={{
-                bgcolor: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                color: "white",
-                "&:hover": {
-                  bgcolor: "rgba(255,255,255,0.3)",
-                },
-              }}
             >
               Add New Equipment
             </Button>
@@ -479,7 +487,7 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
               value={filterWorkshop}
               onChange={(e) => setFilterWorkshop(e.target.value)}
               label="Workshop"
-              options={workshops.map(w => w.name)}
+              options={WorkShops.map(w => w.name)}
             />
           </FilterItem>
           <FilterItem>
@@ -502,13 +510,25 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
       <Box sx={{ mb: 3 }}>
         <SectionTitle>Active Equipment</SectionTitle>
 
-        <GridContainer>
-          {filteredEquipment.sort((a, b) => b.equipmentId - a.equipmentId).map((equipment) => (
-            <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} />
-          ))}
-        </GridContainer>
+        {loading ? (
+          <GridContainer>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Box key={i} sx={{ p: 2 }}>
+                <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
+                <Skeleton variant="text" sx={{ mt: 1, width: '60%' }} />
+                <Skeleton variant="text" sx={{ width: '40%' }} />
+              </Box>
+            ))}
+          </GridContainer>
+        ) : (
+          <GridContainer>
+            {filteredEquipment.sort((a, b) => b.equipmentId - a.equipmentId).map((equipment) => (
+              <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} />
+            ))}
+          </GridContainer>
+        )}
 
-        {filteredEquipment.length === 0 && (
+        {filteredEquipment.length === 0 && !loading && (
           <EmptyState 
             message="No equipment found matching the current filters."
             icon={<SearchIcon sx={{ fontSize: 64, color: "#ccc" }} />}
@@ -520,13 +540,24 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
       <Box>
         <SectionTitle>Archived Equipment</SectionTitle>
         
-        <GridContainer>
-          {archivedEquipment.map((equipment) => (
-            <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} isArchived={true} />
-          ))}
-        </GridContainer>
+        {loading ? (
+          <GridContainer>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Box key={i} sx={{ p: 2 }}>
+                <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2 }} />
+                <Skeleton variant="text" sx={{ mt: 1, width: '50%' }} />
+              </Box>
+            ))}
+          </GridContainer>
+        ) : (
+          <GridContainer>
+            {archivedEquipment.map((equipment) => (
+              <EquipmentCardComponent key={equipment.equipmentId} equipment={equipment} isArchived={true} />
+            ))}
+          </GridContainer>
+        )}
 
-        {archivedEquipment.length === 0 && (
+        {archivedEquipment.length === 0 && !loading && (
           <EmptyState 
             message="No archived equipment found."
             icon={<ArchiveIcon sx={{ fontSize: 64, color: "#ccc" }} />}
@@ -544,7 +575,7 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
          onSubmitCreate={CreateEquipment}
          onSubmitEdit={updatedEquipment}
          view={viewMode}
-         workshops={workshops}
+         workshops={WorkShops}
        />
 
        {selectedEquipmentTable && (
@@ -553,7 +584,7 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
              onClose={() => setShowAssignModal(false)}
              equipment={selectedEquipmentTable}
              mode={assignMode}
-             workshops={workshops}
+             workshops={WorkShops}
              HandleType={AssignType}
              HandleWorkShop={AssignWorkShop}
          />

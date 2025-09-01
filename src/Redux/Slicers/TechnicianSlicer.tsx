@@ -1,11 +1,12 @@
 import type { Task } from "../../Models/TaskModels/TaskModel";
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, type PayloadAction } from "@reduxjs/toolkit";
 import type { Technician, TechnicianOptionModel } from "../../Models/Technician/TechnicianModel";
 import { ChangePassword, CreateNewTechnician, DeleteTechnician, GetAllTechnicians, GetAllTechniciansWithoutTask, GetAllTechOptions, GetTechniciansById, UpdateTechnician } from "../Thunks/TechnicianThunk";
 
 export interface TechnicianState
 {
     Technicians : Technician[],
+    TechniciansWithoutTask: Technician[],
     TechOptions: TechnicianOptionModel[],
     currentTechnician: Technician | null
     loading: boolean,
@@ -15,6 +16,7 @@ export interface TechnicianState
 const initialState : TechnicianState = 
 {
     Technicians: [],
+    TechniciansWithoutTask: [],
     TechOptions: [],
     currentTechnician: null,
     loading: false,
@@ -29,8 +31,9 @@ const TechnicianSlicer = createSlice(
         {
            clearTechnician: (state) =>
            {
-             state.Technicians = []
-             state.TechOptions = []
+                state.Technicians = []
+                state.TechOptions = []
+                state.TechniciansWithoutTask = []
            },
            AddTaskToTechnician: (state , action: PayloadAction<{TechId:string, NewTask:Task}> ) =>
            {
@@ -90,6 +93,7 @@ const TechnicianSlicer = createSlice(
             .addCase(CreateNewTechnician.fulfilled, (state, action: PayloadAction<Technician>) => {
             state.loading = false;
             state.Technicians.push(action.payload);
+            state.TechniciansWithoutTask.push(action.payload);
             state.TechOptions.push({id: action.payload.id, fullName: action.payload.fullName, email: action.payload.email})
 
             })
@@ -108,6 +112,10 @@ const TechnicianSlicer = createSlice(
             const index = state.Technicians.findIndex(t => t.id === action.payload.id);
             if (index !== -1) {
                 state.Technicians[index] = action.payload;
+            }
+            const index2 = state.TechniciansWithoutTask.findIndex(t => t.id === action.payload.id);
+            if (index2 !== -1) {
+                state.TechniciansWithoutTask[index2] = action.payload;
             }
             const index1 = state.TechOptions.findIndex(t => t.id === action.payload.id);
             if (index1 !== -1) {
@@ -128,6 +136,7 @@ const TechnicianSlicer = createSlice(
             state.loading = false;
             state.Technicians = state.Technicians.filter(t => t.id !== action.payload.id);
             state.TechOptions = state.TechOptions.filter(t => t.id !== action.payload.id);
+            state.TechniciansWithoutTask = state.TechniciansWithoutTask.filter(t => t.id !== action.payload.id);
             })
             .addCase(DeleteTechnician.rejected, (state, action) => {
             state.loading = false;
@@ -169,7 +178,7 @@ const TechnicianSlicer = createSlice(
             })
             .addCase(GetAllTechniciansWithoutTask.fulfilled, (state, action : PayloadAction<Technician[]>) =>
             {
-                state.Technicians = action.payload
+                state.TechniciansWithoutTask = action.payload
                 state.loading = false;
             })
             .addCase(GetAllTechniciansWithoutTask.rejected, (state, action) =>

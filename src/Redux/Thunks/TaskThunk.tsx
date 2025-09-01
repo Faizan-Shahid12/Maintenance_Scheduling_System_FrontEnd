@@ -12,6 +12,10 @@ export const GetAllTask = createAsyncThunk<Task[]>(
     {
         try 
         {
+            var State = thunkAPI.getState() as RootState
+
+            if (State.AppTask.MainTask.length > 0) return thunkAPI.rejectWithValue("Tasks are already Loaded"); 
+
             const response = await GetAllTask_api()
             return response.data;
         }
@@ -28,6 +32,10 @@ export const GetTaskByEquipId = createAsyncThunk<Task[],number>(
         {
             try
             {
+                var State = thunkAPI.getState() as RootState
+
+                if (State.AppTask.EquipmentTask.length > 0) return thunkAPI.rejectWithValue("Equipment Tasks are already Loaded"); 
+
                 const response = await GetTaskByEquipmentId_api(equipId);
                 return response.data;
             }
@@ -44,6 +52,10 @@ export const GetTaskByHistoryId = createAsyncThunk<Task[],number>(
         {
             try
             {
+                var State = thunkAPI.getState() as RootState
+
+                if (State.AppTask.HistoryTask.length > 0) return thunkAPI.rejectWithValue("History Tasks are already Loaded"); 
+
                 const response = await GetTaskByHistoryId_api(historyId);
                 return response.data;
             }
@@ -60,6 +72,10 @@ export const GetAllOverDueTasks = createAsyncThunk<Task[]>(
         {
             try
             {
+                var State = thunkAPI.getState() as RootState
+
+                if (State.AppTask.OverDueTask.length > 0) return thunkAPI.rejectWithValue("OverDue Tasks are already Loaded"); 
+
                 const response = await api.get("/MainTask/GetAllOverDueTasks");
                 return response.data;
             }
@@ -135,7 +151,9 @@ export const UpdateMainTask = createAsyncThunk<Task,{ task: Task; OldTechId: str
             else
             {
                 task1.assignedTo = "N/A";
-            }thunkAPI.dispatch(AssignTechnician({ taskId: task1.taskId, TechId: NewTechId }));
+            }
+            
+            thunkAPI.dispatch(AssignTechnician({ taskId: task1.taskId, TechId: NewTechId }));
 
         }
 
@@ -143,7 +161,7 @@ export const UpdateMainTask = createAsyncThunk<Task,{ task: Task; OldTechId: str
         } 
         catch (error: any)
         {
-            console.log(error.message);
+    
             return thunkAPI.rejectWithValue(error.message);
         }
   }

@@ -9,6 +9,7 @@ export interface TaskState
     MainTask: Task[],
     HistoryTask: Task[],
     EquipmentTask: Task[],
+    OverDueTask: Task[],
     CurrentTask: Task|null,
     TechTask: Task[],
     loading: boolean,
@@ -20,6 +21,7 @@ const initialState : TaskState =
     MainTask: [],
     HistoryTask: [],
     EquipmentTask: [],
+    OverDueTask: [],
     TechTask: [],
     CurrentTask: null,
     loading: false,
@@ -71,7 +73,73 @@ const TaskSlicer = createSlice(
                 {
                     HisTask.logs = [];
                 }
-            }
+            },
+            AddTaskToMain: (state, action: PayloadAction<Task>) =>
+            {
+                state.MainTask.push(action.payload);
+
+            },
+            ChangeTaskStatus: (state, action: PayloadAction<Task>) =>
+            {
+                let userRole = localStorage.getItem("Role");
+
+                let index : number = userRole?.includes("Admin") ? state.MainTask.findIndex(t => t.taskId === action.payload.taskId) : userRole?.includes("Technician") ? state.TechTask.findIndex(t => t.taskId === action.payload.taskId) : -1
+
+                if (index != -1)
+                {
+                    
+                    if (userRole?.includes("Admin"))
+                    {
+                        state.MainTask[index] = action.payload;
+                    }
+                    else if (userRole?.includes("Technician"))
+                    {
+                        state.TechTask[index] = action.payload
+                    }
+                }
+            },
+            AddTaskToTech: (state, action: PayloadAction<Task>) =>
+            {
+                const Tech = action.payload;
+
+                if(!Tech) return;
+
+                if(Tech.assignedTo && Tech.assignedTo !== "N/A")
+                {
+                    state.TechTask.push(Tech);
+                }
+
+            },
+            RemoveTaskFromTech: (state, action: PayloadAction<Task>) => 
+            {
+                const tech = state.TechTask.filter(t => t.taskId !== action.payload.taskId);
+                if (state.TechTask === null) 
+                {
+                    console.warn("Technician not found for email:", action.payload.techEmail);
+                    return;
+                }
+
+                state.TechTask = tech;
+
+            },
+            EditTaskinTechTask: (state, action: PayloadAction<Task>) => 
+            {
+
+                const index = state.TechTask.findIndex(t => t.taskId === action.payload.taskId);
+
+                if (state.TechTask === null) 
+                {
+                    console.warn("Technician not found:", action.payload.assignedTo);
+                    return;
+                }
+
+                if(index != -1)
+                {
+                    state.TechTask[index] = action.payload;
+                }
+
+            },
+
         },
         extraReducers(builder) 
         {
@@ -96,7 +164,7 @@ const TaskSlicer = createSlice(
             .addCase(GetAllOverDueTasks.fulfilled, (state, action) =>
             {
                 state.loading = false;
-                state.MainTask = action.payload;
+                state.OverDueTask = action.payload;
             })
             .addCase(GetAllOverDueTasks.rejected, (state, action) =>
             {
@@ -242,5 +310,5 @@ const TaskSlicer = createSlice(
     }
 )
 
-export const { clearHistoryTask,clearTaskLogsFromTask,addTaskLogsToTask, setCurrentTask,StoreTechTask } = TaskSlicer.actions;
+export const { clearHistoryTask,clearTaskLogsFromTask,addTaskLogsToTask, setCurrentTask,StoreTechTask,AddTaskToMain,AddTaskToTech,RemoveTaskFromTech,ChangeTaskStatus,EditTaskinTechTask} = TaskSlicer.actions;
 export default TaskSlicer.reducer;

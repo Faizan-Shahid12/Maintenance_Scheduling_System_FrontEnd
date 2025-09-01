@@ -22,9 +22,6 @@ const WorkshopSlice = createSlice({
     initialState,
     reducers:
     {
-        PlaceholderWorkShop: (state, action: PayloadAction<WorkShop[]>) => {
-            state.WorkShopList = action.payload;
-        },
         clearWorkShop: (state) => {
             state.WorkShopList = [];
             state.selectedWorkShop = null;
@@ -50,5 +47,5 @@ const WorkshopSlice = createSlice({
         }
 });
 
-export const { PlaceholderWorkShop, clearWorkShop } = WorkshopSlice.actions;
+export const {clearWorkShop } = WorkshopSlice.actions;
 export default WorkshopSlice.reducer;

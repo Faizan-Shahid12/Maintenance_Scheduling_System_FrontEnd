@@ -1,6 +1,7 @@
 import type React from "react"
 import { Outlet } from "react-router-dom"
 import Menu from "../Components/Menu"
+import { AppBar, Toolbar, Typography, Box, Container } from "@mui/material"
 
 const LayoutMenu: React.FC = () => {
   return (
@@ -11,34 +12,25 @@ const LayoutMenu: React.FC = () => {
       }}
     >
       <Menu />
-      <main
-        style={{
-          flex: 1,
-          marginLeft: "var(--sidebar-width, 280px)", // Default to expanded width
-          transition: "margin-left 0.3s ease",
-          minHeight: "100vh",
-          backgroundColor: "#f8f9fa",
-        }}
-      >
-        <Outlet />
-      </main>
+      <Box sx={{ flex: 1, ml: "var(--sidebar-width, 280px)" }}>
+        <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: "1px solid #e5e7eb", bgcolor: "background.paper" }}>
+          <Toolbar sx={{ minHeight: 64 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800 }}>
+              MainSync
+            </Typography>
+            <Box sx={{ flexGrow: 1 }} />
+          </Toolbar>
+        </AppBar>
 
-      <style>{`
-        @media (max-width: 960px) {
-          main {
-            margin-left: 0 !important;
-          }
-        }
-        
-        /* Detect collapsed sidebar state */
-        body:has([data-sidebar-collapsed="true"]) main {
-          margin-left: 70px;
-        }
-        
-        body:has([data-sidebar-collapsed="false"]) main {
-          margin-left: 280px;
-        }
-      `}</style>
+        <Box component="main" sx={{ minHeight: "100vh", bgcolor: "background.default", p: { xs: 2, md: 3 } }}>
+          <Container maxWidth="xl" sx={{ py: 2 }}>
+            <Outlet />
+          </Container>
+        </Box>
+      </Box>
+
+      {/* Remove desktop-app style margin hacks; handle responsiveness with MUI layout */}
+      {/* ... existing code ... */}
     </div>
   )
 }

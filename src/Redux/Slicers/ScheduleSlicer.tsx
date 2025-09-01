@@ -5,7 +5,7 @@ import { ActivateSchedule, AddScheduleTask, AssignTechnicianToScheduleTask, Crea
 
 interface MaintenanceScheduleState {
   ScheduleListWithTask: DisplayScheduleModel[];
-  ScheduleListWithoutTask: DashboardScheduleModel[];
+  SortedSchedules: DashboardScheduleModel[];
   loading: boolean;
   error: string | undefined | null;
 }
@@ -13,7 +13,7 @@ interface MaintenanceScheduleState {
 const initialState: MaintenanceScheduleState = 
 {
   ScheduleListWithTask: [],
-  ScheduleListWithoutTask: [],
+  SortedSchedules: [],
   loading: false,
   error: null,
 };
@@ -24,7 +24,7 @@ export const MaintenanceScheduleSlice = createSlice({
     reducers: {
         clearMainSchedule: (state) => {
             state.ScheduleListWithTask= [];
-            state.ScheduleListWithoutTask = [];
+            state.SortedSchedules = []
             state.loading = false;
             state.error = null;
             },
@@ -57,7 +57,7 @@ export const MaintenanceScheduleSlice = createSlice({
         .addCase(GetAllSortedByDates.fulfilled, (state, action: PayloadAction<DisplayScheduleModel[]>) => 
         {
             state.loading = false;
-            state.ScheduleListWithTask = action.payload;
+            state.SortedSchedules = action.payload;
         })
         .addCase(GetAllSortedByDates.rejected, (state, action) => 
         {

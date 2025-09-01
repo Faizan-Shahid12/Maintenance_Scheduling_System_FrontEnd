@@ -2,6 +2,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../settings/axios";
 import type { CreateScheduleModel, DisplayScheduleModel } from "../../Models/MainScheduleModels/MainScheduleModel";
 import type { CreateScheduleTaskModel, ScheduleTaskModel } from "../../Models/ScheduleTaskModels/ScheduleTaskModel";
+import { ActivateSchedule_api, AddScheduleTask_api, AssignTechnicianToScheduleTask_api, CreateSchedule_api, DeactivateSchedule_api, DeleteSchedule_api, DeleteScheduleTask_api, EditSchedule_api, EditScheduleTask_api, GetAllSchedules_api, GetAllSchedulesByEquipmentId_api, GetAllSortedByDates_api } from "../Api/ScheduleApis";
+import type { RootState } from "../Store";
 
 
 export const CreateNewSchedule = createAsyncThunk<DisplayScheduleModel, CreateScheduleModel>(
@@ -10,7 +12,7 @@ export const CreateNewSchedule = createAsyncThunk<DisplayScheduleModel, CreateSc
         try 
         {
             
-            const response = await api.post("/MaintenanceSchedule/CreateMaintenanceSchedule", data);
+            const response = await CreateSchedule_api(data)
             return response.data;
         }
         catch (error : any) 
@@ -26,7 +28,11 @@ export const GetAllSchedules = createAsyncThunk<DisplayScheduleModel[]>(
     {
         try 
         {
-            const response = await api.get("/MaintenanceSchedule/GetAllMaintenanceSchedules")
+            var State = thunkAPI.getState() as RootState
+
+            if(State.Schedule.ScheduleListWithTask.length > 0) return thunkAPI.rejectWithValue("Schedules already Loaded")
+
+            const response = await GetAllSchedules_api()
             return response.data;
         }
         catch (error: any)
@@ -42,7 +48,7 @@ export const GetAllSchedulesByEquipmentId = createAsyncThunk<DisplayScheduleMode
     {
         try
         {
-            const response = await api.get("/MaintenanceSchedule/GetAllMaintenanceSchedulesByEquipmentId?EquipId=" + Id)
+            const response = await GetAllSchedulesByEquipmentId_api(Id)
             return response.data;
         }
         catch (error: any)
@@ -58,7 +64,11 @@ export const GetAllSortedByDates = createAsyncThunk<DisplayScheduleModel[]>(
         {
             try
             {
-                const response = await api.get("/MaintenanceSchedule/GetAllSortedByStartDate")
+                var State = thunkAPI.getState() as RootState
+
+                if(State.Schedule.SortedSchedules.length > 0) return thunkAPI.rejectWithValue("Schedules already Loaded")
+
+                const response = await GetAllSortedByDates_api()
                 return response.data;
             }
             catch (error: any)
@@ -74,7 +84,7 @@ export const EditSchedule = createAsyncThunk<DisplayScheduleModel,DisplaySchedul
         {
             try
             {
-                const response = await api.put("/MaintenanceSchedule/UpdateMaintenanceSchedule", data)
+                const response = await EditSchedule_api(data)
                 return response.data;
             }
             catch (error: any)
@@ -90,7 +100,7 @@ export const DeleteSchedule = createAsyncThunk<DisplayScheduleModel, number>(
         {
             try
             {
-                const response = await api.delete("/MaintenanceSchedule/DeleteMaintenanceSchedule?ScheduleId=" + Id)
+                const response = await DeleteSchedule_api(Id)
                 return response.data;
             }
             catch (error: any)
@@ -106,7 +116,7 @@ export const ActivateSchedule = createAsyncThunk<DisplayScheduleModel, number>(
     {
         try
         {
-            const response = await api.put("/MaintenanceSchedule/ActivateSchedule?ScheduleId=" + Id)
+            const response = await ActivateSchedule_api(Id)
             return response.data;
         }
         catch (error: any)
@@ -122,7 +132,7 @@ export const DeactivateSchedule = createAsyncThunk<DisplayScheduleModel, number>
     {
         try
         {
-            const response = await api.put("/MaintenanceSchedule/UnActivateSchedule?ScheduleId=" + Id)
+            const response = await DeactivateSchedule_api(Id)
             return response.data;
         }
         catch (error: any)
@@ -138,7 +148,7 @@ export const AddScheduleTask = createAsyncThunk<DisplayScheduleModel, {ScheduleI
     {
         try
         {
-            const response = await api.post("/MaintenanceSchedule/AddNewTaskToSchedule?ScheduleId=" + ScheduleId, Task)
+            const response = await AddScheduleTask_api(ScheduleId, Task)
             return response.data;
         }
         catch (error: any)
@@ -154,7 +164,7 @@ export const DeleteScheduleTask = createAsyncThunk<DisplayScheduleModel, {Schedu
     {
         try
         {
-            const response = await api.delete("/MaintenanceSchedule/DeleteTaskFromSchedule?ScheduleId=" + ScheduleId + "&&TaskId=" + TaskId)
+            const response = await DeleteScheduleTask_api(ScheduleId, TaskId)
             return response.data;
         }
         catch (error: any)
@@ -171,7 +181,7 @@ export const EditScheduleTask = createAsyncThunk<DisplayScheduleModel, {Schedule
         {
             try
             {
-                const response = await api.put("/MaintenanceSchedule/EditScheduleTask?ScheduleId=" + ScheduleId, ScheduleTask1)
+                const response = await EditScheduleTask_api(ScheduleId, ScheduleTask1)
                     return response.data;
             }
             catch (error: any)
@@ -187,7 +197,7 @@ export const AssignTechnicianToScheduleTask = createAsyncThunk<DisplayScheduleMo
     {
         try
         {
-            const response = await api.put("/MaintenanceSchedule/AssignTechnicianToScheduleTask?ScheduleId="+ ScheduleId + "&ScheduleTaskId=" + ScheduleTaskId + "&TechId=" + TechId)
+            const response = await AssignTechnicianToScheduleTask_api(ScheduleId, ScheduleTaskId, TechId)
             return response.data;
         }
         catch (error: any)

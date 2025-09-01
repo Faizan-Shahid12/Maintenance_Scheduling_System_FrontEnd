@@ -8,4 +8,6 @@ export interface Equipment {
   isArchived: boolean;
   workShopName: string;
   workShopLocation: string;
+  workShopLatitude?: number;
+  workShopLongitude?: number;
 }

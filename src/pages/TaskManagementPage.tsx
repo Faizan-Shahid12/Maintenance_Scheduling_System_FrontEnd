@@ -50,11 +50,13 @@ import {
   PriorityChip,
   StatusChip,
   TechnicianAvatar,
+  HeaderCard,
 } from "../Components/ui/task-management-components"
 import TaskLogsModal from "../Components/Task/TaskLogModal"
 import EnhancedAssignModal from "../Components/Task/AssignTaskModal"
 import { DownloadAttachment } from "../Redux/Thunks/LogAttachmentThunk"
 import { StoreTechTask } from "../Redux/Slicers/TaskSlicer"
+import { Skeleton, CircularProgress } from "@mui/material"
 
 export const TaskManagementPage = () => {
   
@@ -62,6 +64,7 @@ export const TaskManagementPage = () => {
   const userId = localStorage.getItem("userId")
 
   const TaskList = useSelector((state: RootState) => userRole?.includes("Admin") ? state.AppTask.MainTask : state.AppTask.TechTask)
+  const taskLoading = useSelector((state: RootState) => state.AppTask.loading)
   const TechOptions = useSelector((state: RootState) => state.Technicians.TechOptions)
   const EquipmentList = useSelector((state: RootState) => state.Equipment.equipmentList)
   const currentTech = useSelector((state: RootState) => state.Technicians.currentTechnician)
@@ -91,17 +94,14 @@ export const TaskManagementPage = () => {
     } 
     else if (userRole?.includes("Technician"))
     {
-      if (userId !== null) dispatch(GetTechniciansById(userId))
+      if (userId !== null) dispatch(GetTechniciansById(userId)).unwrap().then((tech) => 
+      {
+        if(tech.assignedTasks)
+        dispatch(StoreTechTask(tech.assignedTasks));
+      })
     }
   }, [dispatch, userRole])
-
-  useEffect(() =>
-  {
-    if(currentTech?.assignedTasks)
-    dispatch(StoreTechTask(currentTech.assignedTasks))
-
-  }, [currentTech,dispatch])
-
+  
   const taskDataSource = TaskList
 
   const handleSelectedTask = (task: Task) => {
@@ -282,10 +282,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -305,10 +305,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -329,10 +329,10 @@ export const TaskManagementPage = () => {
                 minWidth: "auto",
                 px: 1,
                 py: 0.5,
-                color: "#4a90e2",
+                color: "#2563eb",
                 "&:hover": {
-                  bgcolor: "#f0f7ff",
-                  color: "#2c5aa0",
+                  bgcolor: "#eff6ff",
+                  color: "#1d4ed8",
                 },
               }}
             >
@@ -353,10 +353,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -376,10 +376,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -399,10 +399,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#ef4444",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#fef2f2",
+                color: "#dc2626",
               },
             }}
           >
@@ -436,10 +436,10 @@ export const TaskManagementPage = () => {
                 minWidth: "auto",
                 px: 1,
                 py: 0.5,
-                color: "#4a90e2",
+                color: "#2563eb",
                 "&:hover": {
-                  bgcolor: "#f0f7ff",
-                  color: "#2c5aa0",
+                  bgcolor: "#eff6ff",
+                  color: "#1d4ed8",
                 },
               }}
             >
@@ -460,10 +460,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -483,10 +483,10 @@ export const TaskManagementPage = () => {
               minWidth: "auto",
               px: 1,
               py: 0.5,
-              color: "#4a90e2",
+              color: "#2563eb",
               "&:hover": {
-                bgcolor: "#f0f7ff",
-                color: "#2c5aa0",
+                bgcolor: "#eff6ff",
+                color: "#1d4ed8",
               },
             }}
           >
@@ -498,24 +498,10 @@ export const TaskManagementPage = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh", py: 3 }}>
       <Container maxWidth="xl">
         {/* Header */}
-        <Paper
-          sx={{
-            background: "linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-            color: "white",
-            p: 4,
-            mb: 3,
-            borderRadius: 3,
-            position: "relative",
-            overflow: "hidden",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-          }}
-        >
-          <Box sx={{ position: "absolute", top: -30, right: -30, opacity: 0.08 }}>
-            <Engineering sx={{ fontSize: 120 }} />
-          </Box>
+        <HeaderCard>
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -524,22 +510,21 @@ export const TaskManagementPage = () => {
                     width: 56,
                     height: 56,
                     borderRadius: 2,
-                    background: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
+                    background: "#e0e7ff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     mr: 2,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                    boxShadow: "none",
                   }}
                 >
-                  <Assignment sx={{ fontSize: 28, color: "white" }} />
+                  <Assignment sx={{ fontSize: 28, color: "#2563eb" }} />
                 </Paper>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5, color: "white" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
                     Task Management
                   </Typography>
-                  <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  <Typography variant="body1" color="textSecondary">
                     {userRole?.includes("Admin")
                       ? "Manage and track maintenance tasks"
                       : "View and update your assigned tasks"}
@@ -549,8 +534,8 @@ export const TaskManagementPage = () => {
                     size="small"
                     sx={{
                       mt: 1,
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
+                      bgcolor: "#eef2ff",
+                      color: "#2563eb",
                       fontWeight: "bold",
                     }}
                   />
@@ -561,86 +546,88 @@ export const TaskManagementPage = () => {
                   variant="contained"
                   startIcon={<Add />}
                   onClick={handleCreateClick}
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.3)",
-                    },
-                  }}
+                  disabled={taskLoading}
                 >
-                  Create Task
+                  {taskLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Create Task'}
                 </Button>
               )}
             </Box>
 
             {/* Statistics */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
-                    <Assignment sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
-                      {stats.total}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                      Total Tasks
-                    </Typography>
+            {taskLoading ? (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                    <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
                   </Box>
-                </TaskStatsCard>
+                ))}
               </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#4caf50", width: 36, height: 36 }}>
-                    <CheckCircle sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
-                      {stats.completed}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                      Completed
-                    </Typography>
-                  </Box>
-                </TaskStatsCard>
+            ) : (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
+                      <Assignment sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.total}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Total Tasks
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#4caf50", width: 36, height: 36 }}>
+                      <CheckCircle sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.completed}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Completed
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#f44336", width: 36, height: 36 }}>
+                      <Warning sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.overdue}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Overdue
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
+                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                  <TaskStatsCard>
+                    <Avatar sx={{ bgcolor: "#9e9e9e", width: 36, height: 36 }}>
+                      <PauseCircle sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {stats.pending}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Pending
+                      </Typography>
+                    </Box>
+                  </TaskStatsCard>
+                </Box>
               </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#f44336", width: 36, height: 36 }}>
-                    <Warning sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
-                      {stats.overdue}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                      Overdue
-                    </Typography>
-                  </Box>
-                </TaskStatsCard>
-              </Box>
-              <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
-                <TaskStatsCard>
-                  <Avatar sx={{ bgcolor: "#9e9e9e", width: 36, height: 36 }}>
-                    <PauseCircle sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
-                      {stats.pending}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                      Pending
-                    </Typography>
-                  </Box>
-                </TaskStatsCard>
-              </Box>
-            </Box>
+            )}
           </Box>
-        </Paper>
+        </HeaderCard>
 
         {/* Filters */}
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
@@ -706,101 +693,109 @@ export const TaskManagementPage = () => {
 
         {/* Task Cards */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          {filteredTasks?.sort((a, b) => b.taskId - a.taskId).map((task, index) => {
-            const isOverdue = task.status === "OverDue"
-            const daysUntilDue = getDaysUntilDue(task.dueDate)
-            const assignedTechName = task.assignedTo || "Unassigned"
-
-            return (
-              <Box key={task.taskId || index} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
-                <TaskCard isOverdue={isOverdue}>
-                  <CardHeader
-                    avatar={<TechnicianAvatar name={assignedTechName} specialization="" />}
-                    title={
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1rem" }}>
-                          {task.taskName}
-                        </Typography>
-                        {isOverdue && <Warning sx={{ color: "#f44336", fontSize: 18 }} />}
-                      </Box>
-                    }
-                    subheader={
-                      <Box sx={{ mt: 1 }}>
-                        <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                          {task.equipmentName}
-                        </Typography>
-                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
-                          <PriorityChip priority={task.priority || "Medium"} />
-                          <StatusChip status={isOverdue ? "Overdue" : task.status || "Pending"} />
-                        </Box>
-                      </Box>
-                    }
-                  />
-                  <CardContent sx={{ pt: 0, cursor: "pointer" }}>
-                    {/* Task Details */}
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, mb: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <Schedule sx={{ color: "#666", fontSize: 16 }} />
-                        <Box>
-                          <Typography variant="caption" color="textSecondary">
-                            Due Date
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                            {formatDate(task.dueDate)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
-                        <Person sx={{ color: "#666", fontSize: 16 }} />
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography variant="caption" color="textSecondary">
-                            Assigned To
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                            {assignedTechName}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="textSecondary"
-                            sx={{
-                              display: "block",
-                              fontSize: "0.75rem",
-                              lineHeight: 1.2,
-                              mt: 0.25,
-                              wordBreak: "break-word",
-                            }}
-                          >
-                            {task.techEmail && assignedTechName !== "Unassigned" ? task.techEmail : "\u00A0"}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    {/* Due Date Warning */}
-                    {!isOverdue &&
-                      daysUntilDue !== null &&
-                      daysUntilDue <= 3 &&
-                      daysUntilDue > 0 &&
-                      task.status !== "Completed" && (
-                        <Chip
-                          label={`Due in ${daysUntilDue} day${daysUntilDue !== 1 ? "s" : ""}`}
-                          color="warning"
-                          size="small"
-                          sx={{ mt: 0, mb: 2 }}
-                        />
-                      )}
-
-                    {/* Action Buttons */}
-                    {renderActionButtons(task)}
-                  </CardContent>
-                </TaskCard>
+          {taskLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
+                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
               </Box>
-            )
-          })}
+            ))
+          ) : (
+            filteredTasks?.sort((a, b) => b.taskId - a.taskId).map((task, index) => {
+              const isOverdue = task.status === "OverDue"
+              const daysUntilDue = getDaysUntilDue(task.dueDate)
+              const assignedTechName = task.assignedTo || "Unassigned"
+
+              return (
+                <Box key={task.taskId || index} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
+                  <TaskCard isOverdue={isOverdue}>
+                    <CardHeader
+                      avatar={<TechnicianAvatar name={assignedTechName} specialization="" />}
+                      title={
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1rem" }}>
+                            {task.taskName}
+                          </Typography>
+                          {isOverdue && <Warning sx={{ color: "#f44336", fontSize: 18 }} />}
+                        </Box>
+                      }
+                      subheader={
+                        <Box sx={{ mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                            {task.equipmentName}
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+                            <PriorityChip priority={task.priority || "Medium"} />
+                            <StatusChip status={isOverdue ? "Overdue" : task.status || "Pending"} />
+                          </Box>
+                        </Box>
+                      }
+                    />
+                    <CardContent sx={{ pt: 0, cursor: "pointer" }}>
+                      {/* Task Details */}
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, mb: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <Schedule sx={{ color: "#666", fontSize: 16 }} />
+                          <Box>
+                            <Typography variant="caption" color="textSecondary">
+                              Due Date
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                              {formatDate(task.dueDate)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
+                          <Person sx={{ color: "#666", fontSize: 16 }} />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="caption" color="textSecondary">
+                              Assigned To
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                              {assignedTechName}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="textSecondary"
+                              sx={{
+                                display: "block",
+                                fontSize: "0.75rem",
+                                lineHeight: 1.2,
+                                mt: 0.25,
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {task.techEmail && assignedTechName !== "Unassigned" ? task.techEmail : "\u00A0"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Due Date Warning */}
+                      {!isOverdue &&
+                        daysUntilDue !== null &&
+                        daysUntilDue <= 3 &&
+                        daysUntilDue > 0 &&
+                        task.status !== "Completed" && (
+                          <Chip
+                            label={`Due in ${daysUntilDue} day${daysUntilDue !== 1 ? "s" : ""}`}
+                            color="warning"
+                            size="small"
+                            sx={{ mt: 0, mb: 2 }}
+                          />
+                        )}
+
+                      {/* Action Buttons */}
+                      {renderActionButtons(task)}
+                    </CardContent>
+                  </TaskCard>
+                </Box>
+              )
+            })
+          )}
         </Box>
 
         {/* Empty State */}
-        {filteredTasks?.length === 0 && (
+        {filteredTasks?.length === 0 && !taskLoading && (
           <Paper sx={{ p: 6, textAlign: "center", mt: 3 }}>
             <Assignment sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
             <Typography variant="h6" color="textSecondary" gutterBottom>

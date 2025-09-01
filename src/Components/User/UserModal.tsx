@@ -18,6 +18,22 @@ import
   CheckCircle,
   Warning,
 } from "@mui/icons-material"
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  IconButton,
+  Box,
+  Typography,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  InputAdornment
+} from "@mui/material"
 
 import type { CreateTechnicianModel, Technician } from "../../Models/Technician/TechnicianModel"
 import { CheckEmail } from "../../Redux/Slicers/LoginSlicer"
@@ -154,10 +170,15 @@ const validateFullName = (name: string): string | undefined => {
         break;
     }
 
-    setErrors(prev => ({
-      ...prev,
-      [field]: error
-    }));
+    setErrors(prev => {
+      if (field === 'email' && !error && prev.email === 'This email is already taken.') {
+        return prev; 
+      }
+      return {
+        ...prev,
+        [field]: error,
+      };
+    });
   };
   const getModalTitle = () => {
     switch (mode) {
@@ -176,6 +197,14 @@ const validateFullName = (name: string): string | undefined => {
   }
   
   const handleBlur = (field: keyof CreateTechnicianModel, value: string) => {
+    if (field === 'email') {
+      const formatError = validateEmail(value)
+      if (formatError) {
+        setErrors((prev) => ({ ...prev, email: formatError }))
+      }
+      // If format is valid, do not overwrite a potential async uniqueness error here
+      return
+    }
     validateField(field, value)
   }
 
@@ -194,7 +223,14 @@ const validateFullName = (name: string): string | undefined => {
   if (debounceRef.current) {
     clearTimeout(debounceRef.current);
   }
-
+  if (isEditMode && user && formData.email === user.email) {
+    setErrors(prev => ({
+      ...prev,
+      email: undefined,
+    }));
+    return;
+  }
+  
   if (formData.email && !validateEmail(formData.email)) {
     debounceRef.current = setTimeout(async () => 
     {
@@ -211,7 +247,7 @@ const validateFullName = (name: string): string | undefined => {
       {
         setErrors((prev) => ({
           ...prev,
-          email: "",
+          email: undefined,
         }));
       }
 
@@ -235,9 +271,12 @@ const validateFullName = (name: string): string | undefined => {
     newErrors.password = validatePassword(formData.password)
    }
   
-   setErrors(newErrors)
+   setErrors(prev => ({
+    ...newErrors,
+    email: prev.email === "This email is already taken." ? prev.email : newErrors.email,
+  }))
   
-   const hasErrors = Object.values(newErrors).some(error => error !== undefined)
+   const hasErrors = Object.values(newErrors).some(error => error !== undefined) || !!errors.email
   
    if (hasErrors) {
     return
@@ -268,415 +307,165 @@ const validateFullName = (name: string): string | undefined => {
   }
 };
 
-const getInputStyle = (hasError: boolean, isValid: boolean) => ({
-  width: "100%", 
-  padding: "12px 16px", 
-  borderRadius: "8px", 
-  border: hasError ? "2px solid #dc3545" : isValid ? "2px solid #28a745" : "2px solid #e0e0e0",
-  fontSize: "1rem",
-  fontWeight: "500",
-  transition: "border-color 0.2s ease",
-  backgroundColor: hasError ? "#fff5f5" : isValid ? "#f8fff8" : "#f8f9fa"
-})
-
   if (!open) return null
 
+  const titleIcon = isViewMode ? <Person color="primary" /> : isEditMode ? <Edit color="primary" /> : isDeleteMode ? <Delete color="error" /> : <Add color="primary" />
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        zIndex: 1000, padding: "20px",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          maxWidth: "700px",
-          width: "100%",
-          maxHeight: "90vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div
-          style={{
-            background: isViewMode 
-              ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-              : "linear-gradient(135deg, #4caf50 0%, #45a049 100%)",
-            padding: "20px 24px",
-            color: "white",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {isViewMode ? <Person /> : isEditMode ? <Edit /> : <Add />}
-            <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold" }}>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {titleIcon}
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
               {getModalTitle()}
-            </h2>
-          </div>
-          <button 
-            onClick={onClose} 
-            style={{ 
-              border: "none", 
-              background: "rgba(255,255,255,0.2)", 
-              color: "white",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-            onMouseOver={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.3)"}
-            onMouseOut={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.2)"}
-          >
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose}>
             <Close />
-          </button>
-        </div>
+        </IconButton>
+      </DialogTitle>
 
-        {/* Body */}
-        <div style={{ padding: "24px", flex: 1, overflowY: "auto" }}>
+      <DialogContent dividers sx={{ pt: 2 }}>
           {isViewMode || isDeleteMode ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <Person style={{ color: "#666", fontSize: 20 }} />
-                <div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#666", fontWeight: "500" }}>Full Name</p>
-                  <p style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#2c3e50" }}>{formData.fullName}</p>
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <Email style={{ color: "#666", fontSize: 20 }} />
-                <div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#666", fontWeight: "500" }}>Email Address</p>
-                  <p style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#2c3e50" }}>{formData.email}</p>
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <Phone style={{ color: "#666", fontSize: 20 }} />
-                <div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#666", fontWeight: "500" }}>Phone Number</p>
-                  <p style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#2c3e50" }}>{formData.phoneNumber}</p>
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                {formData.gender === "Male" ? <Male style={{ color: "#666", fontSize: 20 }} /> : <Female style={{ color: "#666", fontSize: 20 }} />}
-                <div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#666", fontWeight: "500" }}>Gender</p>
-                  <p style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#2c3e50" }}>{formData.gender}</p>
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-                <LocationOn style={{ color: "#666", fontSize: 20, marginTop: "2px" }} />
-                <div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#666", fontWeight: "500" }}>Address</p>
-                  <p style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#2c3e50", lineHeight: 1.4 }}>{formData.address}</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {/* Full Name */}
-              <div>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", color: "#2c3e50", fontSize: "0.875rem" }}>
-                  <Person style={{ fontSize: 16, marginRight: "6px", verticalAlign: "middle" }} />
-                  Full Name *
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="text"
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            {!isDeleteMode ? (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Person sx={{ color: '#666' }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Full Name</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.fullName}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Email sx={{ color: '#666' }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Email</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.email}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Phone sx={{ color: '#666' }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Phone</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.phoneNumber}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {formData.gender === 'Male' ? <Male sx={{ color: '#666' }} /> : <Female sx={{ color: '#666' }} />}
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Gender</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.gender}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <LocationOn sx={{ color: '#666', mt: 0.5 }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Address</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.address}</Typography>
+                  </Box>
+                </Box>
+              </>
+            ) : (
+              <Typography>Are you sure you want to delete this user?</Typography>
+            )}
+          </Box>
+        ) : (
+          <Box sx={{ display: 'grid', gap: 2 }}>
+            <TextField
+              label="Full Name"
                     value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
-                    onBlur={(e) => handleBlur("fullName", e.target.value)}
-                    style={getInputStyle(!!errors.fullName, !errors.fullName && formData.fullName.length > 0)}
-                    placeholder="Enter full name"
-                  />
-                  {/*  Added success/error icons */}
-                  {formData.fullName && !errors.fullName && (
-                    <CheckCircle style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#28a745", fontSize: 20 }} />
-                  )}
-                </div>
-                {/*  Added error message display */}
-                {errors.fullName && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", color: "#dc3545", fontSize: "0.875rem" }}>
-                    <Warning style={{ fontSize: 16 }} />
-                    {errors.fullName}
-                  </div>
-                )}
-              </div>
+              onChange={(e) => handleInputChange('fullName', e.target.value)}
+              onBlur={(e) => handleBlur('fullName', e.target.value)}
+              error={!!errors.fullName}
+              helperText={errors.fullName}
+              fullWidth
+            />
 
-              {/* Email */}
-              <div>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", color: "#2c3e50", fontSize: "0.875rem" }}>
-                  <Email style={{ fontSize: 16, marginRight: "6px", verticalAlign: "middle" }} />
-                  Email Address *
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="email"
+            <TextField
+              label="Email"
                     value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    onBlur={(e) => handleBlur("email", e.target.value)}
-                    style={getInputStyle(!!errors.email, !errors.email && formData.email.length > 0)}
-                    placeholder="Enter email address"
-                  />
-                  {/*  Added success/error icons */}
-                  {formData.email && !errors.email && (
-                    <CheckCircle style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#28a745", fontSize: 20 }} />
-                  )}
-                </div>
-                {/*  Added error message display */}
-                {errors.email && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", color: "#dc3545", fontSize: "0.875rem" }}>
-                    <Warning style={{ fontSize: 16 }} />
-                    {errors.email}
-                  </div>
-                )}
-              </div>
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              onBlur={(e) => handleBlur('email', e.target.value)}
+              error={!!errors.email}
+              helperText={errors.email}
+              fullWidth
+            />
 
-              {/* Phone Number */}
-              <div>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", color: "#2c3e50", fontSize: "0.875rem" }}>
-                  <Phone style={{ fontSize: 16, marginRight: "6px", verticalAlign: "middle" }} />
-                  Phone Number *
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="tel"
+            <TextField
+              label="Phone Number"
                     value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                    onBlur={(e) => handleBlur("phoneNumber", e.target.value)}
-                    style={getInputStyle(!!errors.phoneNumber, !errors.phoneNumber && formData.phoneNumber.length > 0)}
-                    placeholder="Enter phone number"
-                  />
-                  {/*  Added success/error icons */}
-                  {formData.phoneNumber && !errors.phoneNumber && (
-                    <CheckCircle style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#28a745", fontSize: 20 }} />
-                  )}
-                </div>
-                {/*  Added error message display */}
-                {errors.phoneNumber && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", color: "#dc3545", fontSize: "0.875rem" }}>
-                    <Warning style={{ fontSize: 16 }} />
-                    {errors.phoneNumber}
-                  </div>
-                )}
-              </div>
+              onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+              onBlur={(e) => handleBlur('phoneNumber', e.target.value)}
+              error={!!errors.phoneNumber}
+              helperText={errors.phoneNumber}
+              fullWidth
+            />
 
-              {/* Password Field - Only for Create and Edit modes */}
-              {(isCreateMode || isEditMode) && (
-                <div>
-                  <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", color: "#2c3e50", fontSize: "0.875rem" }}>
-                    <Lock style={{ fontSize: 16, marginRight: "6px", verticalAlign: "middle" }} />
-                    {isCreateMode ? "Password *" : "New Password (optional)"}
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showPassword ? "text" : "password"}
+            <FormControl fullWidth>
+              <InputLabel>Gender</InputLabel>
+              <Select
+                value={formData.gender}
+                label="Gender"
+                onChange={(e) => handleInputChange('gender', e.target.value)}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label={isCreateMode ? 'Password' : 'New Password (optional)'}
+              type={showPassword ? 'text' : 'password'}
                       value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
-                      onBlur={(e) => handleBlur("password", e.target.value)}
-                      style={{
-                        ...getInputStyle(!!errors.password, !errors.password && formData.password.length > 0),
-                        paddingRight: "50px"
-                      }}
-                      placeholder={isCreateMode ? "Enter password" : "Enter new password"}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: "absolute",
-                        right: "12px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        border: "none",
-                        background: "transparent",
-                        color: "#666",
-                        cursor: "pointer",
-                        padding: "4px"
-                      }}
-                    >
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              onBlur={(e) => handleBlur('password', e.target.value)}
+              error={!!errors.password}
+              helperText={errors.password}
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </button>
-                    {/*  Added success icon for password */}
-                    {formData.password && !errors.password && (
-                      <CheckCircle style={{ position: "absolute", right: "50px", top: "50%", transform: "translateY(-50%)", color: "#28a745", fontSize: 20 }} />
-                    )}
-                  </div>
-                  {/*  Added error message display */}
-                  {errors.password && (
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", color: "#dc3545", fontSize: "0.875rem" }}>
-                      <Warning style={{ fontSize: 16 }} />
-                      {errors.password}
-                    </div>
-                  )}
-                </div>
-              )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-              {/* Gender Selection */}
-              <div>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", color: "#2c3e50", fontSize: "0.875rem" }}>
-                  <Person style={{ fontSize: 16, marginRight: "6px", verticalAlign: "middle" }} />
-                  Gender *
-                </label>
-                <div style={{ position: "relative" }}>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => handleInputChange("gender", e.target.value)}
-                    style={{ 
-                      width: "100%", 
-                      padding: "12px 40px 12px 16px", 
-                      borderRadius: "8px", 
-                      border: "2px solid #e0e0e0",
-                      fontSize: "1rem",
-                      fontWeight: "500",
-                      transition: "border-color 0.2s ease",
-                      backgroundColor: "#f8f9fa",
-                      appearance: "none",
-                      backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 4 5\"><path fill=\"%23666\" d=\"M2 0L0 2h4zm0 5L0 3h4z\"/></svg>')",
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "right 12px center",
-                      backgroundSize: "12px",
-                      cursor: "pointer"
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = "#4caf50"}
-                    onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
-                  >
-                    <option value="Male">👨 Male</option>
-                    <option value="Female">👩 Female</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", color: "#2c3e50", fontSize: "0.875rem" }}>Address *</label>
-              <textarea
+            <TextField
+              label="Address"
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 onBlur={(e) => handleBlur('address', e.target.value)}
-                rows={3}
-                style={{
-                  ...getInputStyle(!!errors.address, !errors.address && formData.address.length > 0),
-                  borderColor: errors.address ? '#ef4444' : (!errors.address && formData.address.trim() ? '#10b981' : '#d1d5db'),
-                  resize: 'none'
-                }}
-              />
-              {/*  Added success icon for password */}
-            <div>
-                {formData.address && !errors.address && (
-                  <CheckCircle style={{ position: "absolute", right: "50px", top: "50%", transform: "translateY(-50%)", color: "#28a745", fontSize: 20 }} />
-                )}
-              </div>
-              {/*  Added error message display */}
-              {errors.address && (
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", color: "#dc3545", fontSize: "0.875rem" }}>
-                  <Warning style={{ fontSize: 16 }} />
-                  {errors.address}
-                </div>
-              )}
-            </div>
-          </div>
-          )}
-        </div>
+              error={!!errors.address}
+              helperText={errors.address}
+              multiline
+              minRows={3}
+              fullWidth
+            />
+          </Box>
+        )}
+      </DialogContent>
 
-        {/* Footer */}
-        <div
-          style={{
-            padding: "20px 24px",
-            backgroundColor: "#f8f9fa",
-            borderTop: "1px solid #e9ecef",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <button
-            onClick={onClose}
-            style={{
-              padding: "12px 24px", 
-              backgroundColor: "#6c757d", 
-              color: "white", 
-              border: "none",
-              borderRadius: "8px", 
-              fontWeight: "bold", 
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontSize: "1rem",
-              transition: "background-color 0.2s ease"
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#5a6268"}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#6c757d"}
-          >
-            <Close style={{ fontSize: 18 }} />
+      <DialogActions sx={{ p: 2.5 }}>
+        <Button onClick={onClose} variant="outlined">
             Close
-          </button>
-          
+        </Button>
           {!isViewMode && !isDeleteMode ? (
-            <button
-              onClick={onSubmit}
-              style={{
-                padding: "12px 24px", 
-                backgroundColor: "#4caf50", 
-                color: "white", 
-                border: "none",
-                borderRadius: "8px", 
-                fontWeight: "bold", 
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                fontSize: "1rem",
-                transition: "background-color 0.2s ease"
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#45a049"}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#4caf50"}
-            >
-              {isEditMode ? <Save style={{ fontSize: 18 }} /> : <Add style={{ fontSize: 18 }} />}
-              {isEditMode ? "Save Changes" : "Create User"}
-            </button>
-          ) : (
-            user && isDeleteMode && (
-              <button
-                onClick={handleDelete}
-                style={{
-                  padding: "12px 24px", 
-                  backgroundColor: "#dc3545", 
-                  color: "white", 
-                  border: "none",
-                  borderRadius: "8px", 
-                  fontWeight: "bold", 
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  fontSize: "1rem",
-                  transition: "background-color 0.2s ease"
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#c82333"}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#dc3545"}
-              >
-                <Delete style={{ fontSize: 18 }} />
+          <Button onClick={onSubmit} variant="contained" startIcon={isEditMode ? <Save /> : <Add />}>
+            {isEditMode ? 'Save Changes' : 'Create User'}
+          </Button>
+        ) : (
+          user && isDeleteMode ? (
+            <Button onClick={handleDelete} color="error" variant="contained" startIcon={<Delete />}>
                 Delete User
-              </button>
-            )
+            </Button>
+          ) : null
           )}
-        </div>
-      </div>
-    </div>
+      </DialogActions>
+    </Dialog>
   )
 }
 
