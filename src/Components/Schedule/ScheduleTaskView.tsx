@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useState } from "react"
 import {
@@ -567,10 +565,21 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
         </Paper>
 
         {/* Task Cards */}
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+        <Box sx={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: 3,
+          '@media (max-width: 768px)': {
+            gap: 2
+          }
+        }}>
           {(filteredTasks?.length ?? 0) > 0 ? (
             filteredTasks?.sort((a,b) => b.scheduleTaskId - a.scheduleTaskId).map((task) => (
-              <Box key={task.scheduleTaskId} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
+              <Box key={task.scheduleTaskId} sx={{ 
+                flex: "1 1 350px", 
+                minWidth: { xs: '100%', sm: '300px', md: '350px' }, 
+                maxWidth: { xs: '100%', sm: 'none', md: '400px' }
+              }}>
                 <TaskCard>
                   <CardHeader
                     avatar={<TaskAvatar name={task.taskName} />}
@@ -599,31 +608,43 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
                     }
                   />
                   <CardContent sx={{ pt: 0 }}>
-                    {/* Task Details */}
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, mb: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <CalendarToday sx={{ color: "#666", fontSize: 16 }} />
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
-                            Due Date
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                            {formatDate(task.dueDate)}
-                          </Typography>
+                                                              {/* Task Details */}
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mt: 2, mb: 2, gap: 3 }}>
+                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                         <CalendarToday sx={{ color: "#666", fontSize: 16 }} />
+                         <Box>
+                           <Typography variant="caption" color="text.secondary">
+                             Due Date
+                           </Typography>
+                           <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                             {formatDate(task.dueDate)}
+                           </Typography>
+                         </Box>
+                       </Box>
+                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: "1 1 auto" }}>
+                          <Person sx={{ color: "#666", fontSize: 16 }} />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary">
+                              Assigned To
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                              {task.assignedTo || "Unassigned"}
+                            </Typography>
+                                                         <Typography
+                               variant="caption"
+                               color="text.secondary"
+                               sx={{
+                                 display: "block",
+                                 fontSize: "0.75rem",
+                                 lineHeight: 1.2,
+                                 mt: 0.25
+                               }}
+                             >
+                               {task.techEmail || "No email"}
+                             </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <Person sx={{ color: "#666", fontSize: 16 }} />
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
-                            Assigned To
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                            {task.assignedTo || "Unassigned"}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
+                     </Box>
                     {userRole?.includes("Admin") && renderTaskActionButtons(task)}
                   </CardContent>
                 </TaskCard>

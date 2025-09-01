@@ -613,10 +613,21 @@ if (selectedSchedule) {
         </Paper>
 
         {/* Schedule Cards */}
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+        <Box sx={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: 3,
+          '@media (max-width: 768px)': {
+            gap: 2
+          }
+        }}>
           {scheduleLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
+              <Box key={i} sx={{ 
+                flex: '1 1 350px', 
+                minWidth: { xs: '100%', sm: '300px', md: '350px' }, 
+                maxWidth: { xs: '100%', sm: 'none', md: '400px' }
+              }}>
                 <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
               </Box>
             ))
@@ -626,8 +637,8 @@ if (selectedSchedule) {
               key={schedule.scheduleId}
               sx={{
                 flex: "1 1 350px",
-                minWidth: "350px",
-                maxWidth: "400px",
+                minWidth: { xs: '100%', sm: '300px', md: '350px' },
+                maxWidth: { xs: '100%', sm: 'none', md: '400px' },
               }}
             >
               <ScheduleCard>

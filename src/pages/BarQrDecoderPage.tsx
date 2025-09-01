@@ -35,6 +35,8 @@ import { EquipmentModal } from "../Components/Equipment/EquipmentModal";
 import type { Equipment } from "../Models/EquipmentModels/EquipmentModel";
 import type { WorkShop } from "../Models/WorkShopModel/WorkShop";
 import { GetWorkShopLocation } from "../Redux/Thunks/WorkShopThunk";
+import { ToastNotification } from "../Components/ui/ToastNotification";
+import { useToast } from "../hooks/useToast";
 import {
 	EquipmentCard,
 	EquipmentCardContent,
@@ -87,6 +89,13 @@ export const BarQrDecoderPage = () => {
 	const [scannerError, setScannerError] = useState<string>("");
 	const [isDownloading, setIsDownloading] = useState<boolean>(false);
 	const [successMessage, setSuccessMessage] = useState<string>("");
+	
+	// Auto-close timer state
+	const [scannerTimeout, setScannerTimeout] = useState<NodeJS.Timeout | null>(null);
+	const [generalizedError, setGeneralizedError] = useState<string>("");
+	
+	// Toast notification hook
+	const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast();
 
 	// Redux state
 	const equipmentOptions = useSelector((state: RootState) => state.Equipment.equipmentList);
@@ -118,6 +127,15 @@ export const BarQrDecoderPage = () => {
 		dispatch(GetWorkShopLocation());
 	}, [dispatch]);
 
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (scannerTimeout) {
+				clearTimeout(scannerTimeout);
+			}
+		};
+	}, [scannerTimeout]);
+
 	// Scanner control functions
 	const handleStartScanner = async () => {
 		try {
@@ -129,10 +147,22 @@ export const BarQrDecoderPage = () => {
 			setDecodedText("Scanner Active - Point camera at QR code");
 			setErrorText("");
 			setScannerError("");
+			setGeneralizedError("");
+			
+			// Show info message when scanner starts
+			showInfo("Scanner activated - Point camera at QR code");
+			
+			// Set auto-close timer (30 seconds)
+			const timeout = setTimeout(() => {
+				setIsScannerActive(false);
+				setDecodedText("Scanner timed out - No QR code detected");
+				showError("Scanner closed - No QR code detected within 30 seconds. Please try again.");
+			}, 30000); // 30 seconds
+			
+			setScannerTimeout(timeout);
 		} catch (error) {
 			const errorMessage = "Camera access denied. Please allow camera permissions and try again.";
-			setScannerError(errorMessage);
-			setErrorText(errorMessage);
+			showError(errorMessage);
 			console.error("Camera permission error:", error);
 		}
 	};
@@ -141,14 +171,22 @@ export const BarQrDecoderPage = () => {
 		setIsScannerActive(false);
 		setDecodedText("Scanner Stopped");
 		setErrorText("");
+		setGeneralizedError("");
+		
+		// Show error message when scanner is manually stopped (no QR code found)
+		showError("Scanner stopped - No QR code was detected. Please try again.");
+		
+		// Clear the timeout if it exists
+		if (scannerTimeout) {
+			clearTimeout(scannerTimeout);
+			setScannerTimeout(null);
+		}
 	};
 
 	// Scanner result handler
 	const handleScanResult = (err: any, result: any) => {
 		if (err) {
-			const errorMessage = err.message || "Scanning error occurred";
-			setScannerError(errorMessage);
-			setErrorText(errorMessage);
+			// Only log the error, don't show toast during active scanning
 			console.error("Scanner error:", err);
 			return;
 		}
@@ -156,6 +194,14 @@ export const BarQrDecoderPage = () => {
 			setDecodedText(result.text || "");
 			setScannerError(""); // Clear any previous scanner errors
 			setErrorText("");
+			setGeneralizedError("");
+			
+			// Clear the timeout since we got a result
+			if (scannerTimeout) {
+				clearTimeout(scannerTimeout);
+				setScannerTimeout(null);
+			}
+			
 			dispatch(DecodeBarCode(result.text));
 			
 			// Check if equipment was found and automatically stop scanner
@@ -166,6 +212,8 @@ export const BarQrDecoderPage = () => {
 				// Automatically stop scanner to preserve Redux state
 				setIsScannerActive(false);
 				setDecodedText("Equipment found - Scanner stopped");
+				// Show success message when equipment is found
+				showSuccess("QR code scanned successfully! Equipment information displayed.");
 			}
 		}
 	};
@@ -212,10 +260,12 @@ export const BarQrDecoderPage = () => {
 			const successMsg = `Successfully downloaded QR codes for ${selectedEquipments.length} equipment(s)`;
 			setSuccessMessage(successMsg);
 			setDecodedText(successMsg);
+			showSuccess(successMsg);
 			
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred during download.";
 			setDownloadError(errorMessage);
+			showError(errorMessage);
 			console.error("Download error:", error);
 		} finally {
 			setIsDownloading(false);
@@ -245,10 +295,12 @@ export const BarQrDecoderPage = () => {
 			const successMsg = `Successfully generated and downloaded PDF with ${equipmentOptions.length} equipment QR codes`;
 			setSuccessMessage(successMsg);
 			setDecodedText(successMsg);
+			showSuccess(successMsg);
 			
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred during PDF generation.";
 			setDownloadError(errorMessage);
+			showError(errorMessage);
 			console.error("PDF generation error:", error);
 		} finally {
 			setIsDownloading(false);
@@ -288,11 +340,18 @@ export const BarQrDecoderPage = () => {
 			setDecodedText("Scanner Stopped");
 			setErrorText("");
 			setScannerError("");
+			setGeneralizedError("");
+			
+			// Clear the timeout if it exists
+			if (scannerTimeout) {
+				clearTimeout(scannerTimeout);
+				setScannerTimeout(null);
+			}
 		}
 	
-			// Clear all errors and success messages when switching modes
-	setDownloadError("");
-	setSuccessMessage("");
+		// Clear all errors and success messages when switching modes
+		setDownloadError("");
+		setSuccessMessage("");
 	};
 
 	const isMenuOpen = Boolean(menuAnchorEl);
@@ -426,60 +485,7 @@ export const BarQrDecoderPage = () => {
 				<Box>
 					<SectionTitle>QR Code Download</SectionTitle>
 					
-					{/* Selected Equipment Summary */}
-					{selectedEquipments.length > 0 && (
-						<Card sx={{ mb: 3, border: '2px solid #1976d2', backgroundColor: '#f3f8ff' }}>
-							<CardContent>
-								<Stack spacing={2}>
-									<Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-										<CheckCircleIcon color="primary" />
-										Selected Equipment ({selectedEquipments.length})
-									</Typography>
-									<Stack direction="row" spacing={2} flexWrap="wrap">
-										<Button 
-											variant="contained" 
-											startIcon={<DownloadIcon />}
-											onClick={handleDownloadSelected}
-											disabled={barCodeLoading || isDownloading}
-											sx={{ 
-												bgcolor: '#1976d2',
-												'&:hover': { bgcolor: '#1565c0' },
-												fontWeight: 600,
-												px: 3,
-												py: 1.5
-											}}
-										>
-											{isDownloading ? "Downloading..." : "Download Selected QR Codes"}
-										</Button>
-										<Button 
-											variant="outlined" 
-											startIcon={<PictureAsPdfIcon />}
-											onClick={handleDownloadAllPDF}
-											disabled={barCodeLoading || isDownloading}
-											sx={{ 
-												borderColor: '#1976d2',
-												color: '#1976d2',
-												'&:hover': { 
-													borderColor: '#1565c0',
-													backgroundColor: '#f3f8ff'
-												},
-												fontWeight: 600,
-												px: 3,
-												py: 1.5
-											}}
-										>
-											{isDownloading ? "Generating PDF..." : "Download All Equipment (PDF)"}
-										</Button>
-									</Stack>
-									<Alert severity="info" sx={{ border: '1px solid #1976d2' }}>
-										<strong>{selectedEquipments.length} equipment(s)</strong> selected for QR code download. 
-										Click "Download Selected QR Codes" to generate QR codes for only the selected items, 
-										or "Download All Equipment (PDF)" to generate a complete PDF with all equipment.
-									</Alert>
-								</Stack>
-							</CardContent>
-						</Card>
-					)}
+
 
 					{/* Download Options - Always Visible */}
 					<Card sx={{ mb: 3, border: '1px solid #e0e0e0' }}>
@@ -488,9 +494,6 @@ export const BarQrDecoderPage = () => {
 								<Typography variant="h6" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
 									<DownloadIcon color="primary" />
 									Download Options
-								</Typography>
-								<Typography variant="body2" color="text.secondary">
-									Choose from the following download options:
 								</Typography>
 								<Stack direction="row" spacing={2} flexWrap="wrap">
 									<Button 
@@ -526,10 +529,7 @@ export const BarQrDecoderPage = () => {
 										{isDownloading ? "Generating PDF..." : "Download All Equipment (PDF)"}
 									</Button>
 								</Stack>
-								<Alert severity="info">
-									<strong>Download Selected:</strong> Generates QR codes only for equipment you've selected below.<br/>
-									<strong>Download All:</strong> Generates a complete PDF with QR codes for all equipment in the system.
-								</Alert>
+
 							</Stack>
 						</CardContent>
 					</Card>
@@ -776,49 +776,7 @@ export const BarQrDecoderPage = () => {
 				<Box>
 					<SectionTitle>QR Code Scanner</SectionTitle>
 					
-					{/* Quick Access to Download Options */}
-					<Card sx={{ mb: 3, border: '1px solid #e0e0e0', backgroundColor: '#fafafa' }}>
-						<CardContent>
-							<Stack spacing={2}>
-								<Typography variant="h6" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-									<DownloadIcon color="primary" />
-									Quick Access - Download QR Codes
-								</Typography>
-								<Typography variant="body2" color="text.secondary">
-									Need to download QR codes? Switch to Download mode or use these quick options:
-								</Typography>
-								<Stack direction="row" spacing={2} flexWrap="wrap">
-									<Button 
-										variant="outlined" 
-										startIcon={<DownloadIcon />}
-										onClick={() => handleModeChange("generating")}
-										sx={{ 
-											borderColor: '#1976d2',
-											color: '#1976d2',
-											'&:hover': { 
-												borderColor: '#1565c0',
-												backgroundColor: '#f3f8ff'
-											}
-										}}
-									>
-										Switch to Download Mode
-									</Button>
-									<Button 
-										variant="contained" 
-										startIcon={<PictureAsPdfIcon />}
-										onClick={handleDownloadAllPDF}
-										disabled={barCodeLoading || isDownloading}
-										sx={{ 
-											bgcolor: '#ff9800',
-											'&:hover': { bgcolor: '#f57c00' }
-										}}
-									>
-										{isDownloading ? "Generating PDF..." : "Download All Equipment (PDF)"}
-									</Button>
-								</Stack>
-							</Stack>
-						</CardContent>
-					</Card>
+
 					
 					<Card>
 						<CardContent>
@@ -909,40 +867,26 @@ export const BarQrDecoderPage = () => {
 									</Box>
 								)}
 
-								{/* Scan Instructions */}
-								{!isScannerActive && (
-									<Paper sx={{ p: 2, bgcolor: '#fff3e0' }}>
-										<Typography variant="body2" textAlign="center" color="#e65100">
-											Click "Start Scanner" to begin scanning QR codes
-										</Typography>
-									</Paper>
-								)}
 
-								{/* Scan Results and Errors */}
-								{(barCodeReturnValue || scannerError) && (
+
+								{/* Scan Results */}
+								{barCodeReturnValue && (
 									<Paper sx={{ p: 2, bgcolor: '#ffebee' }}>
 										<Stack spacing={1}>
-											{barCodeReturnValue && (
-												<Typography variant="body2" color="error">
-													<strong>Barcode Error:</strong> {barCodeReturnValue}
-												</Typography>
-											)}
-											{scannerError && (
-												<Typography variant="body2" color="error">
-													<strong>Scanner Error:</strong> {scannerError}
-												</Typography>
-											)}
+											<Typography variant="body2" color="error">
+												<strong>Barcode Error:</strong> {barCodeReturnValue}
+											</Typography>
 											<Button 
 												variant="text" 
 												size="small" 
 												color="error"
 												onClick={() => {
-													setScannerError("");
-													setErrorText("");
+													// Clear barcode error from Redux state
+													// This would need to be handled in Redux
 												}}
 												sx={{ alignSelf: 'flex-start', mt: 1 }}
 											>
-												Clear Errors
+												Dismiss
 											</Button>
 										</Stack>
 									</Paper>
@@ -1006,6 +950,16 @@ export const BarQrDecoderPage = () => {
 				onArchiveToggle={handleArchiveToggle}
 				view="view"
 				workshops={workshops}
+			/>
+
+			{/* Toast Notifications */}
+			<ToastNotification
+				open={toast.open}
+				message={toast.message}
+				severity={toast.severity}
+				duration={toast.duration}
+				onClose={hideToast}
+				position="bottom-right"
 			/>
 		</MainContainer>
 	);

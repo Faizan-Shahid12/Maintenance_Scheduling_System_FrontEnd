@@ -38,15 +38,30 @@ const NavigationSidebar: React.FC = () => {
   const Name = localStorage.getItem("Name");
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"))
 
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // Auto-collapse on tablet screens for better space utilization
   useEffect(() => {
-    const width = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH
-    document.documentElement.style.setProperty("--sidebar-width", `${width}px`)
-    document.body.setAttribute("data-sidebar-collapsed", isCollapsed.toString())
-  }, [isCollapsed])
+    if (isTablet && !isCollapsed) {
+      setIsCollapsed(true)
+    }
+  }, [isTablet, isCollapsed])
+
+  useEffect(() => {
+    // Don't set sidebar width on mobile as it uses drawer overlay
+    if (!isMobile) {
+      const width = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH
+      document.documentElement.style.setProperty("--sidebar-width", `${width}px`)
+      document.body.setAttribute("data-sidebar-collapsed", isCollapsed.toString())
+    } else {
+      // Reset CSS variable on mobile
+      document.documentElement.style.setProperty("--sidebar-width", "0px")
+      document.body.setAttribute("data-sidebar-collapsed", "false")
+    }
+  }, [isCollapsed, isMobile])
 
   const handleLogout = () => {
     localStorage.clear()
@@ -263,7 +278,23 @@ const NavigationSidebar: React.FC = () => {
               zIndex: 1300,
               bgcolor: theme.palette.primary.main,
               color: "white",
-              "&:hover": { bgcolor: theme.palette.primary.dark },
+              boxShadow: "0 4px 12px rgba(37,99,235,0.3)",
+              width: 48,
+              height: 48,
+              border: "2px solid rgba(255,255,255,0.2)",
+              backdropFilter: "blur(8px)",
+              "&:hover": { 
+                bgcolor: theme.palette.primary.dark,
+                transform: "scale(1.05)",
+                boxShadow: "0 6px 16px rgba(37,99,235,0.4)"
+              },
+              transition: "all 0.2s ease",
+              '@media (max-width: 600px)': {
+                top: 12,
+                left: 12,
+                width: 44,
+                height: 44,
+              }
             }}
           >
             <MenuIcon />
@@ -273,13 +304,23 @@ const NavigationSidebar: React.FC = () => {
             variant="temporary"
             open={mobileOpen}
             onClose={() => setMobileOpen(false)}
-            ModalProps={{ keepMounted: true }}
+            ModalProps={{ 
+              keepMounted: true,
+              // Prevent body scroll when drawer is open
+              disableScrollLock: false
+            }}
             sx={{
               "& .MuiDrawer-paper": {
-                width: SIDEBAR_WIDTH,
+                width: Math.min(SIDEBAR_WIDTH, window.innerWidth * 0.85),
+                maxWidth: "85vw",
                 boxSizing: "border-box",
                 border: "none",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.12)"
               },
+              // Improve backdrop styling
+              "& .MuiBackdrop-root": {
+                backgroundColor: "rgba(0,0,0,0.5)"
+              }
             }}
           >
             <SidebarContent mobile />

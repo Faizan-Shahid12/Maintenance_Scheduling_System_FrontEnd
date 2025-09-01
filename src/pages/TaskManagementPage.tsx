@@ -692,10 +692,21 @@ export const TaskManagementPage = () => {
         </Paper>
 
         {/* Task Cards */}
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+        <Box sx={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: 3,
+          '@media (max-width: 768px)': {
+            gap: 2
+          }
+        }}>
           {taskLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
+              <Box key={i} sx={{ 
+                flex: '1 1 350px', 
+                minWidth: { xs: '100%', sm: '300px', md: '350px' }, 
+                maxWidth: { xs: '100%', sm: 'none', md: '400px' }
+              }}>
                 <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
               </Box>
             ))
@@ -706,7 +717,11 @@ export const TaskManagementPage = () => {
               const assignedTechName = task.assignedTo || "Unassigned"
 
               return (
-                <Box key={task.taskId || index} sx={{ flex: "1 1 350px", minWidth: "350px", maxWidth: "400px" }}>
+                <Box key={task.taskId || index} sx={{ 
+                  flex: "1 1 350px", 
+                  minWidth: { xs: '100%', sm: '300px', md: '350px' }, 
+                  maxWidth: { xs: '100%', sm: 'none', md: '400px' }
+                }}>
                   <TaskCard isOverdue={isOverdue}>
                     <CardHeader
                       avatar={<TechnicianAvatar name={assignedTechName} specialization="" />}
@@ -731,44 +746,43 @@ export const TaskManagementPage = () => {
                       }
                     />
                     <CardContent sx={{ pt: 0, cursor: "pointer" }}>
-                      {/* Task Details */}
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, mb: 2 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                          <Schedule sx={{ color: "#666", fontSize: 16 }} />
-                          <Box>
-                            <Typography variant="caption" color="textSecondary">
-                              Due Date
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                              {formatDate(task.dueDate)}
-                            </Typography>
+                                                                    {/* Task Details */}
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mt: 2, mb: 2, gap: 3 }}>
+                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                           <Schedule sx={{ color: "#666", fontSize: 16 }} />
+                           <Box>
+                             <Typography variant="caption" color="textSecondary">
+                               Due Date
+                             </Typography>
+                             <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                               {formatDate(task.dueDate)}
+                             </Typography>
+                           </Box>
+                         </Box>
+                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: "1 1 auto" }}>
+                            <Person sx={{ color: "#666", fontSize: 16 }} />
+                            <Box>
+                              <Typography variant="caption" color="textSecondary">
+                                Assigned To
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                                {assignedTechName}
+                              </Typography>
+                                                             <Typography
+                                 variant="caption"
+                                 color="textSecondary"
+                                 sx={{
+                                   display: "block",
+                                   fontSize: "0.75rem",
+                                   lineHeight: 1.2,
+                                   mt: 0.25
+                                 }}
+                               >
+                                 {task.techEmail || "No email"}
+                               </Typography>
+                            </Box>
                           </Box>
-                        </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
-                          <Person sx={{ color: "#666", fontSize: 16 }} />
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography variant="caption" color="textSecondary">
-                              Assigned To
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                              {assignedTechName}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="textSecondary"
-                              sx={{
-                                display: "block",
-                                fontSize: "0.75rem",
-                                lineHeight: 1.2,
-                                mt: 0.25,
-                                wordBreak: "break-word",
-                              }}
-                            >
-                              {task.techEmail && assignedTechName !== "Unassigned" ? task.techEmail : "\u00A0"}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
+                       </Box>
 
                       {/* Due Date Warning */}
                       {!isOverdue &&

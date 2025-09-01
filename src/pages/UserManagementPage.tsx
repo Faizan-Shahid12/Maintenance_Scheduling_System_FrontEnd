@@ -373,9 +373,19 @@ const handleCloseModal = () =>
 
             {/* Statistics */}
             {loading ? (
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap',
+                gap: 2,
+                '@media (max-width: 768px)': {
+                  gap: 1
+                }
+              }}>
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <Box key={i} sx={{ flex: '1 1 180px', minWidth: '180px' }}>
+                  <Box key={i} sx={{ 
+                    flex: '1 1 180px', 
+                    minWidth: { xs: '100%', sm: '150px', md: '180px' }
+                  }}>
                     <Skeleton variant="rectangular" height={72} sx={{ borderRadius: 2 }} />
                   </Box>
                 ))}
@@ -385,11 +395,14 @@ const handleCloseModal = () =>
                 display: "flex",
                 flexWrap: "wrap",
                 gap: 2,
-                "@media (max-width: 600px)": {
-                  flexDirection: "column",
+                '@media (max-width: 768px)': {
+                  gap: 1
                 }
               }}>
-                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                <Box sx={{ 
+                  flex: "1 1 180px", 
+                  minWidth: { xs: '100%', sm: '150px', md: '180px' }
+                }}>
                   <StatsCard>
                     <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
                       <People sx={{ fontSize: 18 }} />
@@ -404,7 +417,10 @@ const handleCloseModal = () =>
                     </Box>
                   </StatsCard>
                 </Box>
-                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                <Box sx={{ 
+                  flex: "1 1 180px", 
+                  minWidth: { xs: '100%', sm: '150px', md: '180px' }
+                }}>
                   <StatsCard>
                     <Avatar sx={{ bgcolor: "#2196f3", width: 36, height: 36 }}>
                       <Male sx={{ fontSize: 18 }} />
@@ -419,7 +435,10 @@ const handleCloseModal = () =>
                     </Box>
                   </StatsCard>
                 </Box>
-                <Box sx={{ flex: "1 1 180px", minWidth: "180px" }}>
+                <Box sx={{ 
+                  flex: "1 1 180px", 
+                  minWidth: { xs: '100%', sm: '150px', md: '180px' }
+                }}>
                   <StatsCard>
                     <Avatar sx={{ bgcolor: "#e91e63", width: 36, height: 36 }}>
                       <Female sx={{ fontSize: 18 }} />
@@ -439,26 +458,10 @@ const handleCloseModal = () =>
           </Box>
         </HeaderCard>
 
-        {/* Filters */}
-        <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-          <Box sx={{ 
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 2,
-            alignItems: "center",
-            "@media (max-width: 768px)": {
-              flexDirection: "column",
-              alignItems: "stretch",
-            }
-          }}>
-            {/* Search Field */}
-            <Box sx={{ 
-              flex: "1 1 250px",
-              minWidth: "250px",
-              "@media (max-width: 768px)": {
-                minWidth: "100%",
-              }
-            }}>
+                {/* Filters */}
+        <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
+            <Box sx={{ flex: "1 1 250px", minWidth: "250px" }}>
               <TextField
                 fullWidth
                 placeholder="Search users..."
@@ -473,15 +476,7 @@ const handleCloseModal = () =>
                 }}
               />
             </Box>
-
-            {/* Gender Filter */}
-            <Box sx={{ 
-              flex: "1 1 150px",
-              minWidth: "150px",
-              "@media (max-width: 768px)": {
-                minWidth: "100%",
-              }
-            }}>
+            <Box sx={{ flex: "1 1 150px", minWidth: "150px" }}>
               <FormControl fullWidth>
                 <InputLabel>Gender</InputLabel>
                 <Select
@@ -495,77 +490,43 @@ const handleCloseModal = () =>
                 </Select>
               </FormControl>
             </Box>
-
-            {/* Results Counter */}
-            <Box sx={{ 
-              flex: "0 0 auto",
-              textAlign: "center",
-              "@media (max-width: 768px)": {
-                textAlign: "left",
-                mt: 1,
-              }
-            }}>
-              <Paper
-                sx={{
-                  px: 2,
-                  py: 1,
-                  bgcolor: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 2,
-                  display: "inline-block",
-                }}
-              >
-                <Typography 
-                  variant="body2"
-                  color="textSecondary"
-                  sx={{ 
-                    fontWeight: "medium",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  <Box component="span" sx={{ color: "#2563eb", fontWeight: "bold" }}>
-                    {filteredUsers.length}
-                  </Box>
-                  {' '}of{' '}
-                  <Box component="span" sx={{ color: "#0f172a", fontWeight: "bold" }}>
-                    {users.length}
-                  </Box>
-                  {' '}users
-                </Typography>
-              </Paper>
+            <Box sx={{ flex: "1 1 120px", minWidth: "120px" }}>
+              <Typography variant="body2" color="textSecondary">
+                {filteredUsers.length} of {users.length} users
+              </Typography>
             </Box>
           </Box>
         </Paper>
 
-        {/* User Cards */}
-        <Box sx={{ 
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 3,
-          "@media (max-width: 600px)": {
-            flexDirection: "column",
-          }
-        }}>
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <Box key={i} sx={{ flex: '1 1 350px', minWidth: '350px', maxWidth: '400px' }}>
-                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
-              </Box>
-            ))
-          ) : (
-            filteredUsers  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((user) => (
-              <Box 
-                key={user.id}
-                sx={{
-                  flex: "1 1 350px",
-                  minWidth: "350px",
-                  maxWidth: "400px",
-                  "@media (max-width: 600px)": {
-                    minWidth: "100%",
-                    maxWidth: "100%",
-                  }
-                }}
-              >
+                 {/* User Cards */}
+         <Box sx={{ 
+           display: "flex",
+           flexWrap: "wrap",
+           gap: 3,
+           '@media (max-width: 768px)': {
+             gap: 2
+           }
+         }}>
+           {loading ? (
+             Array.from({ length: 6 }).map((_, i) => (
+               <Box key={i} sx={{ 
+                 flex: '1 1 350px', 
+                 minWidth: { xs: '100%', sm: '300px', md: '350px' }, 
+                 maxWidth: { xs: '100%', sm: 'none', md: '400px' }
+               }}>
+                 <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
+               </Box>
+             ))
+           ) : (
+             filteredUsers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((user) => (
+               <Box 
+                 key={user.id}
+                 sx={{
+                   flex: "1 1 350px",
+                   minWidth: { xs: '100%', sm: '300px', md: '350px' },
+                   maxWidth: { xs: '100%', sm: 'none', md: '400px' }
+                 }}
+               >
                 <UserCard>
                   <CardHeader
                     avatar={<UserAvatar name={user.fullName} gender={user.gender} />}
