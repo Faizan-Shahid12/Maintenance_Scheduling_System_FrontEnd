@@ -1,5 +1,6 @@
 import type { CreateEquipmentModel } from "../../Models/EquipmentModels/CreateEquipmentModel";
 import type { Equipment } from "../../Models/EquipmentModels/EquipmentModel";
+import type { WorkShop } from "../../Models/WorkShopModel/WorkShop";
 import api from "../../settings/axios";
 
 
@@ -50,9 +51,9 @@ export const UnArchiveEquipments_api = (id: number) =>
     return api.put<Equipment>("/Equipment/UnArchiveEquipment?EquipId=" + id);
 }
 
-export const AssignEquipmentToWorkShop_api = (equipmentId: number, workShopId: number) =>
+export const AssignEquipmentToWorkShop_api = (equipmentId: number, workShop: WorkShop) =>
 {
-    return api.put<Equipment>("/Equipment/AssignWorkShopLocation?EquipId=" + equipmentId + "&workShopId=" + workShopId);
+    return api.put<Equipment>("/Equipment/AssignWorkShopLocation?EquipId=" + equipmentId + "",workShop);
 }
 
 export const AssignEquipmentType_api = (equipmentId: number, type: string) =>

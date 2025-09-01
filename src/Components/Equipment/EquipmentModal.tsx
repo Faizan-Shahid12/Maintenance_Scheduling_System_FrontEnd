@@ -3,7 +3,10 @@ import type { Equipment } from "../../Models/EquipmentModels/EquipmentModel";
 import type { WorkShop } from "../../Models/WorkShopModel/WorkShop";
 import type { CreateEquipmentModel } from "../../Models/EquipmentModels/CreateEquipmentModel";
 import { Close, Save, Add, Archive, Unarchive, Delete, Visibility, Edit, Business } from "@mui/icons-material";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, IconButton, TextField, FormControl, InputLabel, Select, MenuItem, Chip } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, IconButton, TextField, FormControl, InputLabel, Select, MenuItem, Chip, Divider, Autocomplete } from "@mui/material";
+
+import { GoogleMapsLocationPicker } from "../ui/GoogleMapsLocationPicker";
+import { GoogleMapsDisplay } from "../ui/GoogleMapsDisplay";
 
  type EquipmentModalProps = {
   show: boolean;
@@ -35,6 +38,8 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
   const [model, setModel] = useState("");
   const [workShopName, setWorkShopName] = useState("");
   const [workShopLocation, setWorkShopLocation] = useState("");
+  const [workShopLatitude, setWorkShopLatitude] = useState<number | undefined>(undefined);
+  const [workShopLongitude, setWorkShopLongitude] = useState<number | undefined>(undefined);
 
   //  Added validation error states
   const [errors, setErrors] = useState({
@@ -94,42 +99,93 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
     validateField("model", value);
   };
 
-  const handleWorkShopNameChange = (value: string) => {
-    setWorkShopName(value);
-    const ws = workshops.find((w) => w.name === value);
-    setWorkShopLocation(ws?.location || "");
+  const handleWorkShopNameChange = (value: string | null) => {
+    if (value) 
+      {
+        setWorkShopName(value);
+        const ws = workshops.find((w) => w.name === value);
+        if (ws) 
+        {
+          setWorkShopLocation(ws.location || "");
+          setWorkShopLatitude(ws.latitude);
+          setWorkShopLongitude(ws.longitude);
+        } 
+        else 
+        {
+          // If it's a new workshop name (not in existing list), keep current location
+          // This allows users to set a custom workshop name and location
+        }
+    } 
+    else 
+    {
+          setWorkShopName("");
+          setWorkShopLocation("");
+          setWorkShopLatitude(undefined);
+          setWorkShopLongitude(undefined);
+    }
   };
 
-  useEffect(() => {
-    if (equipment) {
-      setName(equipment.name || "");
-      setType(equipment.type || "");
-      setLocation(equipment.location || "");
-      setSerialNumber(equipment.serialNumber || "");
-      setModel(equipment.model || "");
-      setWorkShopName(equipment.workShopName || "");
-      setWorkShopLocation(equipment.workShopLocation || "");
-    } else {
-      // Reset form when no equipment (create mode) or when modal closes
-      setName("");
-      setType("");
-      setLocation("");
-      setSerialNumber("");
-      setModel("");
-      setWorkShopName("");
-      setWorkShopLocation("");
+  const handleWorkShopLocationChange = (location: string, lat?: number, lng?: number, establishmentName?: string, fullAddress?: string) => {
+    setWorkShopLocation(location);
+    setWorkShopLatitude(lat);
+    setWorkShopLongitude(lng);
+    
+    // Always suggest a workshop name based on the establishment name or location
+    // This ensures the dropdown name matches the selected location
+    if (establishmentName && establishmentName.trim()) 
+    {
+      // Use establishment name if available (e.g., "McDonald's", "City Hall")
+      setWorkShopName(establishmentName.trim());
+
+    } else if (location) 
+    {
+      // Fallback to first part of address if no establishment name
+      const locationParts = location.split(',');
+      const suggestedName = locationParts[0]?.trim() || 'New Workshop';
+      setWorkShopName(suggestedName);
+
     }
-    //  Clear errors when modal opens/closes
-    setErrors({
-      name: "",
-      type: "",
-      location: "",
-      serialNumber: "",
-      model: "",
-    });
+  };
+
+  useEffect(() => 
+    {
+      if (equipment)
+      {
+        setName(equipment.name || "");
+        setType(equipment.type || "");
+        setLocation(equipment.location || "");
+        setSerialNumber(equipment.serialNumber || "");
+        setModel(equipment.model || "");
+        setWorkShopName(equipment.workShopName || "");
+        setWorkShopLocation(equipment.workShopLocation || "");
+        setWorkShopLatitude(equipment.workShopLatitude);
+        setWorkShopLongitude(equipment.workShopLongitude);
+      } 
+      else 
+      {
+        // Reset form when no equipment (create mode) or when modal closes
+        setName("");
+        setType("");
+        setLocation("");
+        setSerialNumber("");
+        setModel("");
+        setWorkShopName("");
+        setWorkShopLocation("");
+        setWorkShopLatitude(undefined);
+        setWorkShopLongitude(undefined);
+      }
+      //  Clear errors when modal opens/closes
+      setErrors({
+        name: "",
+        type: "",
+        location: "",
+        serialNumber: "",
+        model: "",
+      });
   }, [equipment, show, view]);
 
-  const handleWorkshopChange = (name: string) => {
+  const handleWorkshopChange = (name: string | null) => 
+  {
     handleWorkShopNameChange(name);
   };
 
@@ -155,20 +211,32 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       workShopName,
       workShopLocation,
       workShopId: selectedWorkshop?.workShopId ?? null,
+      workShopLatitude,
+      workShopLongitude,
     };
 
-    if (view === "create" && onSubmitCreate) {
+    if (view === "create" && onSubmitCreate) 
+    {
+      const tempWorkshop : WorkShop = {
+         workShopId: selectedWorkshop?.workShopId ?? 0,
+         name: workShopName,
+         location: workShopLocation,
+         latitude: workShopLatitude,
+         longitude: workShopLongitude
+      }
       const newEquipment: CreateEquipmentModel = {
         name,
         type,
         location,
         serialNumber,
         model,
-        WorkShopId: selectedWorkshop?.workShopId ?? null,
+        WorkShop: tempWorkshop
       };
 
       onSubmitCreate(newEquipment);
-    } else if (view === "edit" && equipment && onSubmitEdit) {
+    } 
+    else if (view === "edit" && equipment && onSubmitEdit) 
+    {
       onSubmitEdit({ ...equipment, ...commonFields }); 
     }
 
@@ -185,6 +253,8 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       setModel("");
       setWorkShopName("");
       setWorkShopLocation("");
+      setWorkShopLatitude(undefined);
+      setWorkShopLongitude(undefined);
       setErrors({
         name: "",
         type: "",
@@ -202,7 +272,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
   };
 
   return (
-    <Dialog open={show} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog open={show} onClose={handleClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {view === "view" ? <Visibility /> : view === "edit" ? <Edit /> : <Add />}
@@ -243,7 +313,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                 <Business sx={{ fontSize: 18, color: '#1976d2' }} />
                 <Typography variant="body2" sx={{ color: '#1976d2', fontWeight: 700 }}>WORKSHOP INFORMATION</Typography>
               </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
                 <Box>
                   <Typography variant="caption" sx={{ color: '#1976d2', fontWeight: 700 }}>WORKSHOP NAME</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>{workShopName || 'N/A'}</Typography>
@@ -253,6 +323,32 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>{workShopLocation || 'N/A'}</Typography>
                 </Box>
               </Box>
+              
+              {/* Show coordinates if available */}
+              {(workShopLatitude !== undefined && workShopLongitude !== undefined) && (
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#1976d2', fontWeight: 700 }}>LATITUDE</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>{workShopLatitude.toFixed(6)}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#1976d2', fontWeight: 700 }}>LONGITUDE</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>{workShopLongitude.toFixed(6)}</Typography>
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Google Maps Display */}
+              {workShopLocation && (
+                <GoogleMapsDisplay
+                  location={workShopLocation}
+                  latitude={workShopLatitude}
+                  longitude={workShopLongitude}
+                  workshopName={workShopName}
+                  height="250px"
+                  showInfo={false}
+                />
+              )}
             </Box>
           </Box>
         ) : (
@@ -263,18 +359,73 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
             <TextField label="Serial Number" value={serialNumber} onChange={(e) => handleSerialNumberChange(e.target.value)} error={!!errors.serialNumber} helperText={errors.serialNumber} fullWidth />
             <TextField label="Model" value={model} onChange={(e) => handleModelChange(e.target.value)} error={!!errors.model} helperText={errors.model} fullWidth />
 
-            <FormControl fullWidth>
-              <InputLabel>Workshop Name</InputLabel>
-              <Select label="Workshop Name" value={workShopName} onChange={(e) => handleWorkshopChange(e.target.value)}>
-                <MenuItem value=""><em>None</em></MenuItem>
-                {workshops.map((w) => (
-                  <MenuItem key={w.name} value={w.name}>{w.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              options={workshops.map(w => w.name)}
+              value={workShopName}
+              onChange={(_, newValue) => handleWorkshopChange(newValue)}
+              freeSolo
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Workshop Name"
+                  placeholder="Type to search existing workshops or enter a new name"
+                  helperText={
+                    workShopLocation && !workshops.find(w => w.name === workShopName)
+                      ? "Workshop name suggested from map location"
+                      : "Select from existing workshops or type a new workshop name"
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        {params.InputProps.endAdornment}
+                        {workShopLocation && !workshops.find(w => w.name === workShopName) && (
+                          <Chip
+                            label="Map Suggested"
+                            size="small"
+                            sx={{ 
+                              bgcolor: '#e3f2fd', 
+                              color: '#1976d2',
+                              fontSize: '0.7rem',
+                              height: '20px'
+                            }}
+                          />
+                        )}
+                      </Box>
+                    )
+                  }}
+                />
+              )}
+              renderOption={(props, option) => {
+                const { key, ...otherProps } = props;
+                return (
+                  <Box component="li" key={key} {...otherProps}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Business sx={{ fontSize: 16, color: '#1976d2' }} />
+                      <Typography>{option}</Typography>
+                    </Box>
+                  </Box>
+                );
+              }}
+              noOptionsText="No existing workshops found. You can type a new workshop name."
+              clearOnBlur={false}
+              selectOnFocus
+                         />
 
-            <TextField label="Workshop Location" value={workShopLocation} disabled fullWidth />
-          </Box>
+                           {/* Google Maps Location Picker */}
+              <GoogleMapsLocationPicker
+                value={workShopLocation}
+                onChange={handleWorkShopLocationChange}
+                placeholder="Search for workshop location..."
+                label="Workshop Location"
+                error={false}
+                helperText={
+                  workShopName && !workshops.find(w => w.name === workShopName)
+                    ? `Location for new workshop: ${workShopName}`
+                    : "Select a location on the map or search for an address. The workshop name will be suggested based on the selected location."
+                }
+              />
+           </Box>
         )}
       </DialogContent>
 

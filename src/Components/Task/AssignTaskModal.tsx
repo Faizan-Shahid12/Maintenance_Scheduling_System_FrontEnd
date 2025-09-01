@@ -140,7 +140,7 @@ const EnhancedAssignModal: React.FC<EnhancedAssignModalProps> = ({
                 <ListItemText
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                      <Typography variant="subtitle2" component="div" sx={{ fontWeight: 700 }}>
                         {tech.fullName}
                       </Typography>
                       <Chip
@@ -153,7 +153,7 @@ const EnhancedAssignModal: React.FC<EnhancedAssignModalProps> = ({
                   secondary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                       <WorkOutline sx={{ fontSize: 16, color: '#666' }} />
-                      <Typography variant="body2" color="textSecondary">
+                      <Typography variant="body2" component="div" color="textSecondary">
                         {tech.email}
                       </Typography>
                     </Box>

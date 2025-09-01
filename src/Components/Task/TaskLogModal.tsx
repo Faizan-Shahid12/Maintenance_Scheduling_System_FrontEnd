@@ -316,6 +316,7 @@ const LogCard = ({
                         primary={
                           <Typography
                             variant="body2"
+                            component="div"
                             sx={{
                               fontWeight: "medium",
                               overflow: "hidden",
@@ -462,16 +463,16 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
     }
   }
 
-  const handleDeleteLog = (logId: number) => {
-    if (window.confirm("Are you sure you want to delete this log entry?")) {
+  const handleDeleteLog = (logId: number) => 
+  {
       dispatch(DeleteTaskLog(logId))
-    }
+    
   }
 
   const handleDeleteAttachment = (attachmentId: number) => {
-    if (window.confirm("Are you sure you want to delete this attachment?")) {
+    
       dispatch(DeleteAttachment(attachmentId))
-    }
+    
   }
 
   const handleUploadAttachment = (logId: number) => {
@@ -524,27 +525,95 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 3, maxHeight: "90vh" },
+        sx: {
+          borderRadius: 3,
+          maxHeight: "90vh",
+          background:
+            userRole === "Admin"
+              ? "linear-gradient(135deg, #2196f3 0%, #1976d2 100%)"
+              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+        },
       }}
     >
-      <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Description color="primary" />
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Task Logs: {task.taskName}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {task.equipmentName} • Task ID: {task.taskId}
-            </Typography>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          pb: 2,
+          borderBottom: "1px solid rgba(255,255,255,0.2)",
+          bgcolor: "rgba(255,255,255,0.1)",
+          backdropFilter: "blur(10px)",
+          position: "relative",
+        }}
+      >
+        <Box sx={{ position: "absolute", top: -20, right: -20, opacity: 0.1 }}>
+          <Engineering sx={{ fontSize: 80 }} />
+        </Box>
+        <Box sx={{ position: "relative", zIndex: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Paper
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 2,
+                background: userRole === "Admin" ? "rgba(33, 150, 243, 0.2)" : "rgba(255, 152, 0, 0.2)",
+                backdropFilter: "blur(10px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: userRole === "Admin" ? "1px solid rgba(33, 150, 243, 0.3)" : "1px solid rgba(255, 152, 0, 0.3)",
+              }}
+            >
+              <Description
+                sx={{
+                  color: userRole === "Admin" ? "#2196f3" : "#ff9800",
+                  fontSize: 24,
+                }}
+              />
+            </Paper>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 0.5 }}>
+                Task Logs: {task.taskName}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {task.equipmentName} • Task ID: {task.taskId}
+              </Typography>
+              <Chip
+                label={`${userRole} - Full Access`}
+                size="small"
+                sx={{
+                  mt: 1,
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              />
+            </Box>
           </Box>
         </Box>
-        <IconButton onClick={onClose}>
+        <Button
+          onClick={onClose}
+          sx={{
+            minWidth: "auto",
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            color: "white",
+            bgcolor: "rgba(255,255,255,0.1)",
+            "&:hover": {
+              bgcolor: "rgba(255,255,255,0.2)",
+              transform: "scale(1.1)",
+            },
+            transition: "all 0.2s ease",
+          }}
+        >
           <Close />
-        </IconButton>
+        </Button>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
+      <DialogContent sx={{ p: 3, bgcolor: "#f8f9fa" }}>
         {/* Add New Log Form - Available for both roles */}
         {showAddLogForm && (
           <Paper
@@ -552,13 +621,15 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
               p: 3,
               mb: 3,
               borderRadius: 2,
-              border: "1px solid #e5e7eb",
+              border: userRole === "Admin" ? "2px solid #2196f3" : "2px solid #4caf50",
+              background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
             }}
           >
             <Typography
               variant="h6"
               sx={{
                 mb: 2,
+                color: userRole === "Admin" ? "#2196f3" : "#4caf50",
                 fontWeight: "bold",
                 display: "flex",
                 alignItems: "center",
@@ -578,6 +649,15 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
               placeholder="Enter detailed log information..."
               sx={{ mb: 1 }}
               error={newLogNoteError}
+              InputProps={{
+                sx: {
+                  "& .MuiOutlinedInput-root": {
+                    "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#f44336",
+                    },
+                  },
+                },
+              }}
             />
             {newLogNoteError && (
               <Typography
@@ -598,6 +678,12 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
                 startIcon={<Save />}
                 onClick={handleSaveNewLog}
                 disabled={!newLogNote.trim()}
+                sx={{
+                  bgcolor: userRole === "Admin" ? "#2196f3" : "#4caf50",
+                  "&:hover": {
+                    bgcolor: userRole === "Admin" ? "#1976d2" : "#45a049",
+                  },
+                }}
               >
                 Save Log
               </Button>
@@ -615,13 +701,15 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
               p: 3,
               mb: 3,
               borderRadius: 2,
-              border: "1px solid #e5e7eb",
+              border: "2px solid #ff9800",
+              background: "linear-gradient(135deg, #ffffff 0%, #fff8e1 100%)",
             }}
           >
             <Typography
               variant="h6"
               sx={{
                 mb: 2,
+                color: "#ff9800",
                 fontWeight: "bold",
                 display: "flex",
                 alignItems: "center",
@@ -640,6 +728,15 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
               onChange={handleEditLogNoteChange}
               sx={{ mb: 1 }}
               error={editLogNoteError}
+              InputProps={{
+                sx: {
+                  "& .MuiOutlinedInput-root": {
+                    "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#f44336",
+                    },
+                  },
+                },
+              }}
             />
             {editLogNoteError && (
               <Typography
@@ -660,6 +757,10 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
                 startIcon={<Save />}
                 onClick={handleSaveEditLog}
                 disabled={!editLogNote.trim()}
+                sx={{
+                  bgcolor: "#ff9800",
+                  "&:hover": { bgcolor: "#f57c00" },
+                }}
               >
                 Update Log
               </Button>
@@ -669,7 +770,7 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
             </Box>
           </Paper>
         )}
-        
+
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
             <CircularProgress />
@@ -677,7 +778,7 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
         ) : logs && logs.length > 0 ? (
           <Box>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="textSecondary">
                 Showing {logs.length} log entr{logs.length !== 1 ? "ies" : "y"} for this task
               </Typography>
               <Button
@@ -685,6 +786,12 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
                 startIcon={<Add />}
                 onClick={handleAddLog}
                 size="small"
+                sx={{
+                  bgcolor: userRole === "Admin" ? "#2196f3" : "#4caf50",
+                  "&:hover": {
+                    bgcolor: userRole === "Admin" ? "#1976d2" : "#45a049",
+                  },
+                }}
               >
                 Add Log
               </Button>
@@ -708,16 +815,22 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
         ) : (
           <Box sx={{ textAlign: "center", py: 6 }}>
             <Description sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Typography variant="h6" color="textSecondary" gutterBottom>
               No logs found
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
               This task doesn't have any log entries yet. Start by adding the first log entry.
             </Typography>
             <Button
               variant="contained"
               startIcon={<Add />}
               onClick={handleAddLog}
+              sx={{
+                bgcolor: userRole === "Admin" ? "#2196f3" : "#4caf50",
+                "&:hover": {
+                  bgcolor: userRole === "Admin" ? "#1976d2" : "#45a049",
+                },
+              }}
             >
               Add First Log
             </Button>
@@ -726,14 +839,49 @@ const TaskLogsModal: React.FC<TaskLogsModalProps> = ({ open, onClose, task, onDo
 
         {/* Add New Log FAB - Available for both roles */}
         {logs && logs.length > 0 && !showAddLogForm && !showEditLogForm && (
-          <Fab color="primary" aria-label="add log" sx={{ position: "fixed", bottom: 100, right: 24 }} onClick={handleAddLog}>
+          <Fab
+            color="primary"
+            aria-label="add log"
+            sx={{
+              position: "fixed",
+              bottom: 100,
+              right: 24,
+              bgcolor: userRole === "Admin" ? "#2196f3" : "#4caf50",
+              "&:hover": {
+                bgcolor: userRole === "Admin" ? "#1976d2" : "#45a049",
+                transform: "scale(1.1)",
+              },
+              transition: "all 0.2s ease",
+            }}
+            onClick={handleAddLog}
+          >
             <Add />
           </Fab>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5 }}>
-        <Button onClick={onClose} variant="outlined">
+      <DialogActions
+        sx={{
+          p: 3,
+          pt: 0,
+          bgcolor: "rgba(255,255,255,0.1)",
+          backdropFilter: "blur(10px)",
+          borderTop: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          size="large"
+          sx={{
+            color: "white",
+            borderColor: "rgba(255,255,255,0.3)",
+            "&:hover": {
+              borderColor: "white",
+              bgcolor: "rgba(255,255,255,0.1)",
+            },
+          }}
+        >
           Close
         </Button>
       </DialogActions>

@@ -151,7 +151,9 @@ export const UpdateMainTask = createAsyncThunk<Task,{ task: Task; OldTechId: str
             else
             {
                 task1.assignedTo = "N/A";
-            }thunkAPI.dispatch(AssignTechnician({ taskId: task1.taskId, TechId: NewTechId }));
+            }
+            
+            thunkAPI.dispatch(AssignTechnician({ taskId: task1.taskId, TechId: NewTechId }));
 
         }
 
@@ -159,7 +161,7 @@ export const UpdateMainTask = createAsyncThunk<Task,{ task: Task; OldTechId: str
         } 
         catch (error: any)
         {
-            console.log(error.message);
+    
             return thunkAPI.rejectWithValue(error.message);
         }
   }

@@ -3,8 +3,11 @@ import { setLogout, RefreshTokenThunk } from "../Redux/Slicers/LoginSlicer";
 import type { MyDispatch } from "../Redux/Store";
 import type { LoginResponse } from "../Models/LoginModels/LoginResponse";
 
+const envUrl = import.meta.env.VITE_API_URL as string | undefined;
+const defaultBaseUrl = envUrl ?? "http://localhost:5086/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: defaultBaseUrl,
   headers: {
     "Content-Type": "application/json",
   },

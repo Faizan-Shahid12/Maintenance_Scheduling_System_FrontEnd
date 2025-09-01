@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { NavLink } from "react-router-dom"
 import {
@@ -23,6 +21,7 @@ import {
   History,
   People,
   Schedule,
+  QrCode,
   Menu as MenuIcon,
   Logout,
   Engineering,
@@ -64,6 +63,7 @@ const NavigationSidebar: React.FC = () => {
     { path: "/SchedulePage", label: "Schedule Management", icon: <Schedule />, roles: ["Admin"] },
     { path: "/TaskManagement", label: "Task Management", icon: <Assignment />, roles: ["Admin", "Technician"] },
     { path: "/MaintenanceHistory", label: "Maintenance History", icon: <History />, roles: ["Admin"] },
+    { path: "/BarCodeScannerPage", label: "Bar Code Management", icon: <QrCode />, roles: ["Admin", "Technician"]},
     { path: "/UserManagement", label: "User Management", icon: <People />, roles: ["Admin"] },
   ]
 

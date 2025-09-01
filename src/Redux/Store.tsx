@@ -8,6 +8,7 @@ import TaskLogReducer from "./Slicers/TaskLogSlicer"
 import LogAttachmentReducer from "./Slicers/LogAttachmentSlicer"
 import TechnicianReducer from "./Slicers/TechnicianSlicer"
 import MaintenanceScheduleReducer from "./Slicers/ScheduleSlicer"
+import BarCodeReducer from "./Slicers/BarcodeSlicer"
 
 const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ const store = configureStore({
       TaskLog: TaskLogReducer,
       LogAttachment: LogAttachmentReducer,
       Technicians: TechnicianReducer,
-      Schedule: MaintenanceScheduleReducer
+      Schedule: MaintenanceScheduleReducer,
+      BarCode: BarCodeReducer,
   }
   });
 

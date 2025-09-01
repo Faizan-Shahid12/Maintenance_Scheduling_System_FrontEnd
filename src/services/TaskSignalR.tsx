@@ -45,38 +45,38 @@ export const RegisterTaskHandlers = (dispatch: MyDispatch) =>
     
     connection?.on("RecieveTaskFromServer", (taskdto : Task) => 
     {
-        console.log("HELLO")
+    
         dispatch(AddTaskToTech(taskdto));
     })
 
     connection?.on("RecieveUpdatedAssignTaskFromServer", (taskdto : Task) => 
     {
-        console.log("HELLO UPDATE")
+    
         dispatch(AddTaskToTech(taskdto));
     })
 
     connection?.on("RecieveRemoveAssignTaskFromServer", (taskdto : Task) => 
     {
-        console.log("Helping Others")
+    
         dispatch(RemoveTaskFromTech(taskdto));
     })
 
     connection?.on("RecieveChangeTaskStatusFromServer", (taskdto: Task) =>
     {
-        console.log("Status Changed");
+    
         dispatch(ChangeTaskStatus(taskdto));
 
     });
 
     connection.on("RecieveEditTaskFromServer", (taskdto: Task) =>
     {
-        console.log("EDit TASk Completed")
+    
         dispatch(EditTaskinTechTask(taskdto));
     })
 
     connection.on("RecieveRemoveTaskIdFromServer", (taskdto : Task) => 
     {
-        console.log("REMOVED TASK HAHAHAHAHAHAHA")
+    
         dispatch(RemoveTaskFromTech(taskdto))
     })
 

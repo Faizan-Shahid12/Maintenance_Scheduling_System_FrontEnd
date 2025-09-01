@@ -114,17 +114,33 @@ export const EquipmentPage: React.FC = () => {
 
       let WorkShopId = WorkShops.find((w) => w.name === updatedEquipment.workShopName)?.workShopId || null;
 
-      dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShopId: WorkShopId || 0}));
+      const TempWorkShop: WorkShop = {
+        workShopId: WorkShopId ? WorkShopId : 0,
+        name: updatedEquipment.workShopName,
+        location: updatedEquipment.workShopLocation,
+        latitude: updatedEquipment.workShopLatitude,
+        longitude: updatedEquipment.workShopLongitude
+      }
+
+      dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShop: TempWorkShop}));
       setSelectedEquipmentTable(null);
     }
   };
 
-  const AssignWorkShop = (EquipId: number, WorkShopId: number) => {
+  const AssignWorkShop = (EquipId: number, WorkShop: WorkShop) => {
     if (selectedEquipmentTable) 
-        {
-        dispatch(AssignEquipmentToWorkShop({ equipmentId: EquipId, workShopId: WorkShopId }));
+       {
+        const TempWorkShop: WorkShop = {
+          workShopId: WorkShop.workShopId ? WorkShop.workShopId : 0,
+          name: WorkShop.name,
+          location: WorkShop.location,
+          latitude: WorkShop.latitude,
+          longitude: WorkShop.longitude
+        }
+  
+        dispatch(AssignEquipmentToWorkShop({ equipmentId: EquipId, workShop: TempWorkShop }));
         setSelectedEquipmentTable(null);
-        }  
+       }  
     };
 
   const AssignType = (updatedEquipment: Equipment) => {

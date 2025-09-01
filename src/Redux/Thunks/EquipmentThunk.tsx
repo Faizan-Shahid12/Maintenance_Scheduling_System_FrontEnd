@@ -3,6 +3,7 @@ import type { CreateEquipmentModel } from "../../Models/EquipmentModels/CreateEq
 import type { Equipment } from "../../Models/EquipmentModels/EquipmentModel";
 import { ArchiveEquipments_api, AssignEquipmentToWorkShop_api, AssignEquipmentType_api, CreateNewEquipment_api, DeleteEquipments_api, EditEquipments_api, GetAllEquipments_api, GetArchivedEquipments_api, GetEquipmentById_api, GetEquipmentByName_api, UnArchiveEquipments_api } from "../Api/EquipmentApis";
 import type { RootState } from "../Store";
+import type { WorkShop } from "../../Models/WorkShopModel/WorkShop";
 
 export const GetAllEquipment = createAsyncThunk<Equipment[]>(
     "Equipment/getAllEquipment",
@@ -89,9 +90,9 @@ export const CreateNewEquipment = createAsyncThunk<Equipment, CreateEquipmentMod
         {
             const response = await CreateNewEquipment_api(equipment);
          
-            if (equipment?.WorkShopId && equipment.WorkShopId > 0 && response?.data?.equipmentId) 
+            if (equipment?.WorkShop.workShopId && equipment?.WorkShop.workShopId > 0 && response?.data?.equipmentId) 
             {
-                const response1 = await AssignEquipmentToWorkShop_api(response.data.equipmentId, equipment.WorkShopId);
+                const response1 = await AssignEquipmentToWorkShop_api(response.data.equipmentId, equipment.WorkShop);
                 return response1.data;
             }
 
@@ -168,13 +169,13 @@ export const UnArchiveEquipment = createAsyncThunk<Equipment, Equipment>(
         }
     });
 
-export const AssignEquipmentToWorkShop = createAsyncThunk<Equipment, { equipmentId: number; workShopId: number }>(
+export const AssignEquipmentToWorkShop = createAsyncThunk<Equipment, { equipmentId: number; workShop: WorkShop }>(
     "Equipment/AssignEquipmentToWorkShop",
-    async ({ equipmentId, workShopId }, { rejectWithValue }) => 
+    async ({ equipmentId, workShop }, { rejectWithValue }) => 
     {
         try 
         {
-            const response = await AssignEquipmentToWorkShop_api(equipmentId, workShopId);
+            const response = await AssignEquipmentToWorkShop_api(equipmentId, workShop);
             return response.data;
         } 
         catch (error: any) 

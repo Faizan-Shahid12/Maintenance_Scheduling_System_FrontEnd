@@ -314,7 +314,7 @@ export const AdminDashboard: React.FC = () => {
           <ListItemText
             primary={
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                <Typography variant="body2" component="span" sx={{ fontWeight: "bold" }}>
                   {schedule.scheduleName}
                 </Typography>
                 <StatusChip status={schedule.isActive ? "Active" : "Inactive"} />
@@ -353,7 +353,7 @@ export const AdminDashboard: React.FC = () => {
           <ListItemText
             primary={
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                <Typography variant="body2" component="span" sx={{ fontWeight: "bold" }}>
                   {task.taskName}
                 </Typography>
                 <PriorityChip priority={task.priority} />
@@ -596,7 +596,7 @@ export const AdminDashboard: React.FC = () => {
                       </ListItemAvatar>
                       <ListItemText
                         primary={
-                          <Typography variant="body2" sx={{ fontWeight: "bold", mb: 0.5 }}>
+                          <Typography variant="body2" component="span" sx={{ fontWeight: "bold", mb: 0.5 }}>
                             {tech.fullName}
                           </Typography>
                         }
