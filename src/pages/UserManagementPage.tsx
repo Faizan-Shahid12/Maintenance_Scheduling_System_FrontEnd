@@ -42,6 +42,8 @@ import { type MyDispatch, type RootState } from "../Redux/Store"
 import type { CreateTechnicianModel, Technician } from "../Models/Technician/TechnicianModel"
 import { ChangePassword, CreateNewTechnician, DeleteTechnician, GetAllTechniciansWithoutTask, UpdateTechnician } from "../Redux/Thunks/TechnicianThunk"
 import UserModal from "../Components/User/UserModal"
+import { ToastNotification } from "../Components/ui/ToastNotification"
+import { useToast } from "../hooks/useToast"
 
 // Styled components
 const HeaderCard = ({ children }: { children: React.ReactNode }) => (
@@ -145,6 +147,9 @@ export const UserManagementPage = () =>
   const users = useSelector((state:RootState) => state.Technicians.TechniciansWithoutTask)
   const loading = useSelector((state:RootState) => state.Technicians.loading)
   const dispatch = useDispatch<MyDispatch>();
+  
+  // Toast notification hook
+  const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast()
 
   useEffect( () =>
     {
@@ -172,7 +177,12 @@ const handleDeleteUser = (userId: string) =>
 {
     if(userId !== null && userId !== undefined && userId !== "")
     {
-        dispatch(DeleteTechnician(userId));
+        const user = users.find(u => u.id === userId)
+        dispatch(DeleteTechnician(userId)).then(() => {
+          showSuccess(`User "${user?.fullName || 'Unknown'}" deleted successfully`)
+        }).catch((error) => {
+          showError(`Failed to delete user: ${error.message || 'Unknown error'}`)
+        })
     }
 }
 
@@ -180,7 +190,11 @@ const handleCreateUser = (user : CreateTechnicianModel) =>
 {
     if (user != null && user != undefined)
     {
-        dispatch(CreateNewTechnician(user));
+        dispatch(CreateNewTechnician(user)).then(() => {
+          showSuccess(`User "${user.fullName}" created successfully`)
+        }).catch((error) => {
+          showError(`Failed to create user: ${error.message || 'Unknown error'}`)
+        })
     }
 }
 
@@ -188,11 +202,19 @@ const handleEditUser = (user : Technician, password1?:string) =>
 {
     if (user != null && user != undefined)
     {
-        dispatch(UpdateTechnician(user));
+        dispatch(UpdateTechnician(user)).then(() => {
+          showSuccess(`User "${user.fullName}" updated successfully`)
+        }).catch((error) => {
+          showError(`Failed to update user: ${error.message || 'Unknown error'}`)
+        })
 
         if(password1 !== null && password1 !== "" && password1 !== undefined)
         {
-            dispatch(ChangePassword({TechId: user.id, password: password1}));
+            dispatch(ChangePassword({TechId: user.id, password: password1})).then(() => {
+              showSuccess(`Password updated for "${user.fullName}"`)
+            }).catch((error) => {
+              showError(`Failed to update password: ${error.message || 'Unknown error'}`)
+            })
         }
     }
 }
@@ -625,6 +647,16 @@ const handleCloseModal = () =>
         onSubmitCreate={handleCreateUser}
         onSubmitEdit={handleEditUser}
         onDelete={handleDeleteUser}
+        />
+
+        {/* Toast Notifications */}
+        <ToastNotification
+          open={toast.open}
+          message={toast.message}
+          severity={toast.severity}
+          duration={toast.duration}
+          onClose={hideToast}
+          position="bottom-right"
         />
       </Container>
     </Box>

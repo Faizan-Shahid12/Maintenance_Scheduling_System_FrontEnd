@@ -28,11 +28,16 @@ import {
     Alert,
 } from "@mui/material";
 import { RegisterTaskHandlers, StartConnection } from "../services/TaskSignalR";
+import { ToastNotification } from "../Components/ui/ToastNotification";
+import { useToast } from "../hooks/useToast";
 
 export default function LoginPage() 
 {
     const navigate = useNavigate();
     const dispatch = useDispatch<MyDispatch>();
+    
+    // Toast notification hook
+    const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast();
 
     const [showPassword, setShowPassword] = useState(false)
 
@@ -57,6 +62,7 @@ export default function LoginPage()
             .then( async () => 
             {
               const role = localStorage.getItem("Role");
+              showSuccess("Login successful! Redirecting...");
 
                await StartConnection().then(async ()=>
                {
@@ -65,6 +71,7 @@ export default function LoginPage()
                .catch((error : any) => 
                 {
                     console.log(error);    
+                    showWarning("Connection established but some features may be limited");
                 })
 
               if (role === "Admin") {
@@ -76,6 +83,7 @@ export default function LoginPage()
             .catch((err) =>
             {
               console.error("Login failed:", err); 
+              showError("Login failed. Please check your credentials and try again.");
             });
         };
 
@@ -198,6 +206,16 @@ export default function LoginPage()
                     </Box>
                 )}
             </Paper>
+
+            {/* Toast Notifications */}
+            <ToastNotification
+                open={toast.open}
+                message={toast.message}
+                severity={toast.severity}
+                duration={toast.duration}
+                onClose={hideToast}
+                position="bottom-right"
+            />
         </Container>
     );
 }

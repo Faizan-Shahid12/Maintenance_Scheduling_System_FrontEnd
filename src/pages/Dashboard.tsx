@@ -42,6 +42,8 @@ import { ScheduleModal } from "../Components/Schedule/ScheduleModal"
 import { TaskModal } from "../Components/Task/TaskModal"
 import type { DashboardScheduleModel, DisplayScheduleModel } from "../Models/MainScheduleModels/MainScheduleModel"
 import type { Task } from "../Models/TaskModels/TaskModel"
+import { ToastNotification } from "../Components/ui/ToastNotification"
+import { useToast } from "../hooks/useToast"
 
 // Styled Components modernized for light theme
 const HeaderCard = ({ children }: { children: React.ReactNode }) => (
@@ -189,6 +191,9 @@ export const AdminDashboard: React.FC = () => {
   const overdueTask = useSelector((state: RootState) => state.AppTask.OverDueTask || [])
   const loadingSchedules = useSelector((state: RootState) => state.Schedule.loading)
   const loadingTasks = useSelector((state: RootState) => state.AppTask.loading)
+  
+  // Toast notification hook
+  const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast()
 
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null)
@@ -207,6 +212,13 @@ export const AdminDashboard: React.FC = () => {
     dispatch(GetAllOverDueTasks())
     dispatch(GetAllTechnicians())
   }, [dispatch])
+
+  // Show warnings for overdue tasks
+  useEffect(() => {
+    if (overdueTask.length > 0) {
+      showWarning(`You have ${overdueTask.length} overdue task(s) that require attention`)
+    }
+  }, [overdueTask.length, showWarning])
 
   const upcomingSchedules = schedules
     .filter((schedule) => {
@@ -651,6 +663,16 @@ export const AdminDashboard: React.FC = () => {
           onClose={handleCloseTaskModal}
           task={selectedTask}
           view={taskModalView}
+        />
+
+        {/* Toast Notifications */}
+        <ToastNotification
+          open={toast.open}
+          message={toast.message}
+          severity={toast.severity}
+          duration={toast.duration}
+          onClose={hideToast}
+          position="bottom-right"
         />
       </Container>
     </Box>

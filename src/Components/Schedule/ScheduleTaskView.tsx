@@ -41,6 +41,8 @@ import { useDispatch, useSelector } from "react-redux"
 import { type MyDispatch, type RootState } from "../../Redux/Store"
 import { AddScheduleTask, AssignTechnicianToScheduleTask, DeleteScheduleTask, EditScheduleTask } from "../../Redux/Thunks/ScheduleThunk"
 import type { CreateScheduleTaskModel } from "../../Models/ScheduleTaskModels/ScheduleTaskModel"
+import { useToast } from "../../hooks/useToast"
+import { ToastNotification } from "../ui/ToastNotification"
 
 const HeaderCard = ({ children }: { children: React.ReactNode }) => (
   <Paper
@@ -172,6 +174,9 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
 
   const userRole = localStorage.getItem("Role")
   const dispatch = useDispatch<MyDispatch>()
+  
+  // Toast notification hook
+  const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast()
 
   let scheduleTask = useSelector((state: RootState) => state.Schedule.ScheduleListWithTask.find(s => s.scheduleId === schedule.scheduleId)?.scheduleTasks)
 
@@ -235,7 +240,11 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
 
   const handleTaskSubmit = (taskData: CreateScheduleTaskModel) => 
   {
-    dispatch(AddScheduleTask({ScheduleId: schedule.scheduleId,Task: taskData}))
+    dispatch(AddScheduleTask({ScheduleId: schedule.scheduleId,Task: taskData})).then(() => {
+      showSuccess(`Task "${taskData.taskName}" created successfully`)
+    }).catch((error) => {
+      showError(`Failed to create task: ${error.message || 'Unknown error'}`)
+    })
   }
 
   const handleTaskEdit = async (taskData: any, AssignData : {taskId: number, TechId: string}) => {
@@ -245,19 +254,32 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
     ).unwrap();
 
     dispatch(AssignTechnicianToScheduleTask({ScheduleId: schedule.scheduleId, ScheduleTaskId: AssignData.taskId, TechId: AssignData.TechId}));
-  } catch (error) {
+    showSuccess(`Task "${taskData.taskName}" updated successfully`)
+  } catch (error : any) {
     console.error("Edit failed:", error);
+    showError(`Failed to update task: ${error.message || 'Unknown error'}`)
   }
   }
 
   const handleTaskDelete = (taskId: number) => 
   {
-    dispatch(DeleteScheduleTask({ScheduleId: schedule.scheduleId,TaskId: taskId}))
+    const task = scheduleTask?.find(t => t.scheduleTaskId === taskId)
+    dispatch(DeleteScheduleTask({ScheduleId: schedule.scheduleId,TaskId: taskId})).then(() => {
+      showSuccess(`Task "${task?.taskName || 'Unknown'}" deleted successfully`)
+    }).catch((error) => {
+      showError(`Failed to delete task: ${error.message || 'Unknown error'}`)
+    })
   }
 
   const handleTaskAssign = (taskId: number, technicianId: string) => 
   {
-    dispatch(AssignTechnicianToScheduleTask({ScheduleId: schedule.scheduleId, ScheduleTaskId: taskId, TechId: technicianId}))
+    const task = scheduleTask?.find(t => t.scheduleTaskId === taskId)
+    const technician = technicianOptions.find(t => t.id === technicianId)
+    dispatch(AssignTechnicianToScheduleTask({ScheduleId: schedule.scheduleId, ScheduleTaskId: taskId, TechId: technicianId})).then(() => {
+      showSuccess(`Task "${task?.taskName || 'Unknown'}" assigned to ${technician?.fullName || 'technician'} successfully`)
+    }).catch((error) => {
+      showError(`Failed to assign task: ${error.message || 'Unknown error'}`)
+    })
   }
 
   const renderTaskActionButtons = (task: any) => {
@@ -694,6 +716,16 @@ export const ScheduleTaskView: React.FC<ScheduleTaskViewProps> = ({
           StartDate={schedule.startDate}
           equipmentName={equipmentName}
           technicianOptions={technicianOptions}
+        />
+
+        {/* Toast Notifications */}
+        <ToastNotification
+          open={toast.open}
+          message={toast.message}
+          severity={toast.severity}
+          duration={toast.duration}
+          onClose={hideToast}
+          position="bottom-right"
         />
       </Container>
     </Box>

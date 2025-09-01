@@ -53,6 +53,8 @@ import { GetAllEquipment } from "../Redux/Thunks/EquipmentThunk"
 import { GetAllTechOptions } from "../Redux/Thunks/TechnicianThunk"
 import { GetAllTask } from "../Redux/Thunks/TaskThunk"
 import { ScheduleTaskView } from "../Components/Schedule/ScheduleTaskView"
+import { ToastNotification } from "../Components/ui/ToastNotification"
+import { useToast } from "../hooks/useToast"
 
 // Styled Components modernized for light theme
 const HeaderCard = ({ children }: { children: React.ReactNode }) => (
@@ -214,6 +216,9 @@ export const SchedulePage = () => {
   const scheduleLoading = useSelector((state: RootState) => state.Schedule.loading)
   const equipmentOptions = useSelector((state: RootState) => state.Equipment.equipmentList.filter(e => !e.isArchived ))
   const technicianOptions = useSelector((state: RootState) => state.Technicians.TechOptions)
+  
+  // Toast notification hook
+  const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast()
 
   const [showModal, setShowModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -252,25 +257,46 @@ export const SchedulePage = () => {
 
   // Schedule Operations
   const CreateScheduleModal = (schedule: CreateScheduleModel) => {
-    dispatch(CreateNewSchedule(schedule))
+    dispatch(CreateNewSchedule(schedule)).then(() => {
+      showSuccess(`Schedule "${schedule.scheduleName}" created successfully`)
+    }).catch((error) => {
+      showError(`Failed to create schedule: ${error.message || 'Unknown error'}`)
+    })
     setShowAddModal(false)
   }
 
   const UpdateSchedule = (schedule: DisplayScheduleModel) => {
-    dispatch(EditSchedule(schedule))
+    dispatch(EditSchedule(schedule)).then(() => {
+      showSuccess(`Schedule "${schedule.scheduleName}" updated successfully`)
+    }).catch((error) => {
+      showError(`Failed to update schedule: ${error.message || 'Unknown error'}`)
+    })
     setShowModal(false)
   }
 
   const HandleDeleteSchedule = (schedule: DisplayScheduleModel) => {
-    dispatch(DeleteSchedule(schedule.scheduleId))
+    dispatch(DeleteSchedule(schedule.scheduleId)).then(() => {
+      showSuccess(`Schedule "${schedule.scheduleName}" deleted successfully`)
+    }).catch((error) => {
+      showError(`Failed to delete schedule: ${error.message || 'Unknown error'}`)
+    })
     setShowModal(false)
   }
 
   const toggleScheduleStatus = (schedule: DisplayScheduleModel) => {
-    if(schedule.isActive === false)
-    dispatch(ActivateSchedule(schedule.scheduleId))
-    else
-    dispatch(DeactivateSchedule(schedule.scheduleId))
+    if(schedule.isActive === false) {
+      dispatch(ActivateSchedule(schedule.scheduleId)).then(() => {
+        showSuccess(`Schedule "${schedule.scheduleName}" activated successfully`)
+      }).catch((error) => {
+        showError(`Failed to activate schedule: ${error.message || 'Unknown error'}`)
+      })
+    } else {
+      dispatch(DeactivateSchedule(schedule.scheduleId)).then(() => {
+        showSuccess(`Schedule "${schedule.scheduleName}" deactivated successfully`)
+      }).catch((error) => {
+        showError(`Failed to deactivate schedule: ${error.message || 'Unknown error'}`)
+      })
+    }
   }
 
   const handleAddClick = () => {
@@ -785,6 +811,16 @@ if (selectedSchedule) {
         onSubmit={CreateScheduleModal}
         equipmentOptions={equipmentOptions}
         technicianOptions={technicianOptions}
+      />
+
+      {/* Toast Notifications */}
+      <ToastNotification
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        duration={toast.duration}
+        onClose={hideToast}
+        position="bottom-right"
       />
     </Box>
   )

@@ -52,6 +52,8 @@ import {
 } from "../Components/ui/equipment-tree-component"
 import { Box, Divider, Button } from "@mui/material"
 import { Skeleton, CircularProgress } from "@mui/material"
+import { ToastNotification } from "../Components/ui/ToastNotification"
+import { useToast } from "../hooks/useToast"
 
 
 
@@ -61,6 +63,9 @@ export const EquipmentPage: React.FC = () => {
   const archivedEquipment = useSelector((state: RootState) => state.Equipment.archivedEquipment);
   const WorkShops = useSelector((state:RootState) => state.WorkShop.WorkShopList);
   const loading = useSelector((state: RootState) => state.Equipment.loading);
+  
+  // Toast notification hook
+  const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast()
 
   const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState<"create" | "edit" | "view">("view");
@@ -83,9 +88,17 @@ export const EquipmentPage: React.FC = () => {
   const ArchiveOrUnarchive = () => {
     if (selectedEquipmentTable) {
       if (!selectedEquipmentTable.isArchived) {
-        dispatch(ArchiveEquipment(selectedEquipmentTable));
+        dispatch(ArchiveEquipment(selectedEquipmentTable)).then(() => {
+          showSuccess(`Equipment "${selectedEquipmentTable.name}" archived successfully`)
+        }).catch((error) => {
+          showError(`Failed to archive equipment: ${error.message || 'Unknown error'}`)
+        })
       } else {
-        dispatch(UnArchiveEquipment(selectedEquipmentTable));
+        dispatch(UnArchiveEquipment(selectedEquipmentTable)).then(() => {
+          showSuccess(`Equipment "${selectedEquipmentTable.name}" unarchived successfully`)
+        }).catch((error) => {
+          showError(`Failed to unarchive equipment: ${error.message || 'Unknown error'}`)
+        })
       }
       setSelectedEquipmentTable(null);
     }
@@ -93,13 +106,21 @@ export const EquipmentPage: React.FC = () => {
 
   const DeleteEquipment1 = () => {
     if (selectedEquipmentTable) {
-      dispatch(DeleteEquipment(selectedEquipmentTable));
+      dispatch(DeleteEquipment(selectedEquipmentTable)).then(() => {
+        showSuccess(`Equipment "${selectedEquipmentTable.name}" deleted successfully`)
+      }).catch((error) => {
+        showError(`Failed to delete equipment: ${error.message || 'Unknown error'}`)
+      })
       setSelectedEquipmentTable(null);
     }
   };
 
   const CreateEquipment = (newEquipment: CreateEquipmentModel) => {
-    dispatch(CreateNewEquipment(newEquipment));
+    dispatch(CreateNewEquipment(newEquipment)).then(() => {
+      showSuccess(`Equipment "${newEquipment.name}" created successfully`)
+    }).catch((error) => {
+      showError(`Failed to create equipment: ${error.message || 'Unknown error'}`)
+    })
     setSelectedEquipmentTable(null);
     setShowModal(false); // Close the modal after creating
   };
@@ -110,7 +131,11 @@ export const EquipmentPage: React.FC = () => {
         ...selectedEquipmentTable,
         ...updatedData,
       };
-      dispatch(EditEquipment(updatedEquipment));
+      dispatch(EditEquipment(updatedEquipment)).then(() => {
+        showSuccess(`Equipment "${updatedEquipment.name}" updated successfully`)
+      }).catch((error) => {
+        showError(`Failed to update equipment: ${error.message || 'Unknown error'}`)
+      })
 
       let WorkShopId = WorkShops.find((w) => w.name === updatedEquipment.workShopName)?.workShopId || null;
 
@@ -122,7 +147,11 @@ export const EquipmentPage: React.FC = () => {
         longitude: updatedEquipment.workShopLongitude
       }
 
-      dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShop: TempWorkShop}));
+      dispatch(AssignEquipmentToWorkShop({equipmentId: updatedEquipment.equipmentId, workShop: TempWorkShop})).then(() => {
+        showSuccess(`Equipment "${updatedEquipment.name}" assigned to workshop "${TempWorkShop.name}"`)
+      }).catch((error) => {
+        showError(`Failed to assign equipment to workshop: ${error.message || 'Unknown error'}`)
+      })
       setSelectedEquipmentTable(null);
     }
   };
@@ -138,7 +167,11 @@ export const EquipmentPage: React.FC = () => {
           longitude: WorkShop.longitude
         }
   
-        dispatch(AssignEquipmentToWorkShop({ equipmentId: EquipId, workShop: TempWorkShop }));
+        dispatch(AssignEquipmentToWorkShop({ equipmentId: EquipId, workShop: TempWorkShop })).then(() => {
+          showSuccess(`Equipment assigned to workshop "${TempWorkShop.name}" successfully`)
+        }).catch((error) => {
+          showError(`Failed to assign equipment to workshop: ${error.message || 'Unknown error'}`)
+        })
         setSelectedEquipmentTable(null);
        }  
     };
@@ -149,7 +182,11 @@ export const EquipmentPage: React.FC = () => {
             ...selectedEquipmentTable,
             type: updatedEquipment.type,
         };
-        dispatch(AssignEquipmentType({equipmentId: updatedEquipment.equipmentId, type: updatedEquipment1.type}));
+        dispatch(AssignEquipmentType({equipmentId: updatedEquipment.equipmentId, type: updatedEquipment1.type})).then(() => {
+          showSuccess(`Equipment type updated to "${updatedEquipment1.type}" successfully`)
+        }).catch((error) => {
+          showError(`Failed to update equipment type: ${error.message || 'Unknown error'}`)
+        })
         setSelectedEquipmentTable(null);
         }
     };
@@ -589,6 +626,16 @@ const EquipmentCardComponent: React.FC<{ equipment: Equipment; isArchived?: bool
              HandleWorkShop={AssignWorkShop}
          />
          )}
+
+       {/* Toast Notifications */}
+       <ToastNotification
+         open={toast.open}
+         message={toast.message}
+         severity={toast.severity}
+         duration={toast.duration}
+         onClose={hideToast}
+         position="bottom-right"
+       />
     </MainContainer>
   )
 }

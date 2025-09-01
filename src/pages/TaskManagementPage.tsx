@@ -57,6 +57,8 @@ import EnhancedAssignModal from "../Components/Task/AssignTaskModal"
 import { DownloadAttachment } from "../Redux/Thunks/LogAttachmentThunk"
 import { StoreTechTask } from "../Redux/Slicers/TaskSlicer"
 import { Skeleton, CircularProgress } from "@mui/material"
+import { ToastNotification } from "../Components/ui/ToastNotification"
+import { useToast } from "../hooks/useToast"
 
 export const TaskManagementPage = () => {
   
@@ -83,6 +85,9 @@ export const TaskManagementPage = () => {
 
   const dispatch = useDispatch<MyDispatch>()
   const PageType = "Task"
+  
+  // Toast notification hook
+  const { toast, showSuccess, showError, showWarning, showInfo, hideToast } = useToast()
 
   useEffect(() => 
   {
@@ -158,7 +163,11 @@ export const TaskManagementPage = () => {
         }
         dispatch(
           AssignTechnician({taskId: updatedTask.taskId, TechId: technicianId})
-        )
+        ).then(() => {
+          showSuccess(`Task "${selectedTask.taskName}" assigned to ${selectedTech.fullName}`)
+        }).catch((error) => {
+          showError(`Failed to assign task: ${error.message || 'Unknown error'}`)
+        })
       }
     }
     handleCloseAssignModal()
@@ -166,7 +175,11 @@ export const TaskManagementPage = () => {
 
   const handleSubmitCreate = (newTaskData: CreateTaskModel) => {
     if (newTaskData !== null) {
-      dispatch(AddMainTask(newTaskData))
+      dispatch(AddMainTask(newTaskData)).then(() => {
+        showSuccess(`Task "${newTaskData.taskName}" created successfully`)
+      }).catch((error) => {
+        showError(`Failed to create task: ${error.message || 'Unknown error'}`)
+      })
     }
     setShowModal(false)
   }
@@ -174,7 +187,11 @@ export const TaskManagementPage = () => {
   const handleSubmitEdit = (updatedTaskData: Task, oldTechId: string, newTechId: string) => {
     if (updatedTaskData !== null) 
     {
-      dispatch(UpdateMainTask({ task: updatedTaskData, OldTechId: oldTechId, NewTechId: newTechId }))
+      dispatch(UpdateMainTask({ task: updatedTaskData, OldTechId: oldTechId, NewTechId: newTechId })).then(() => {
+        showSuccess(`Task "${updatedTaskData.taskName}" updated successfully`)
+      }).catch((error) => {
+        showError(`Failed to update task: ${error.message || 'Unknown error'}`)
+      })
     }
 
     setShowModal(false)
@@ -182,7 +199,11 @@ export const TaskManagementPage = () => {
 
   const handleSubmitDelete = (Task: Task) => {
     if (userRole?.includes("Admin")) {
-      dispatch(DeleteMainTask(Task))
+      dispatch(DeleteMainTask(Task)).then(() => {
+        showSuccess(`Task "${Task.taskName}" deleted successfully`)
+      }).catch((error) => {
+        showError(`Failed to delete task: ${error.message || 'Unknown error'}`)
+      })
     }
     setShowModal(false)
   }
@@ -249,7 +270,11 @@ export const TaskManagementPage = () => {
   }
 
   const handleCompleteTask = (task: Task) => {
-    dispatch(CompleteTask(task))
+    dispatch(CompleteTask(task)).then(() => {
+      showSuccess(`Task "${task.taskName}" marked as completed`)
+    }).catch((error) => {
+      showError(`Failed to complete task: ${error.message || 'Unknown error'}`)
+    })
   }
 
   // Render action buttons based on user role
@@ -876,6 +901,16 @@ export const TaskManagementPage = () => {
             PageType={PageType}
           />
         )}
+
+        {/* Toast Notifications */}
+        <ToastNotification
+          open={toast.open}
+          message={toast.message}
+          severity={toast.severity}
+          duration={toast.duration}
+          onClose={hideToast}
+          position="bottom-right"
+        />
       </Container>
     </Box>
   )
