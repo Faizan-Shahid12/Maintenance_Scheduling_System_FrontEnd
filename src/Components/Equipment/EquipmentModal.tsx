@@ -109,11 +109,6 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
           setWorkShopLocation(ws.location || "");
           setWorkShopLatitude(ws.latitude);
           setWorkShopLongitude(ws.longitude);
-        } 
-        else 
-        {
-          // If it's a new workshop name (not in existing list), keep current location
-          // This allows users to set a custom workshop name and location
         }
     } 
     else 
@@ -130,16 +125,12 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
     setWorkShopLatitude(lat);
     setWorkShopLongitude(lng);
     
-    // Always suggest a workshop name based on the establishment name or location
-    // This ensures the dropdown name matches the selected location
     if (establishmentName && establishmentName.trim()) 
     {
-      // Use establishment name if available (e.g., "McDonald's", "City Hall")
       setWorkShopName(establishmentName.trim());
 
     } else if (location) 
     {
-      // Fallback to first part of address if no establishment name
       const locationParts = location.split(',');
       const suggestedName = locationParts[0]?.trim() || 'New Workshop';
       setWorkShopName(suggestedName);
@@ -163,7 +154,6 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       } 
       else 
       {
-        // Reset form when no equipment (create mode) or when modal closes
         setName("");
         setType("");
         setLocation("");
@@ -411,8 +401,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               clearOnBlur={false}
               selectOnFocus
                          />
-
-                           {/* Google Maps Location Picker */}
+              {/* Google Maps Location Picker */}
               <GoogleMapsLocationPicker
                 value={workShopLocation}
                 onChange={handleWorkShopLocationChange}

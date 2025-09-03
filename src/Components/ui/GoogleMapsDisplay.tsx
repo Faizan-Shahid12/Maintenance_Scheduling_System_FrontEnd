@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Box, Typography, Paper, CircularProgress, Alert, Chip } from '@mui/material';
 import { LocationOn, Business } from '@mui/icons-material';
@@ -28,7 +28,6 @@ const defaultCenter = {
   lng: -74.0060
 };
 
-// Static libraries array to prevent LoadScript reloading
 const GOOGLE_MAPS_LIBRARIES = ['places'];
 
 export const GoogleMapsDisplay: React.FC<MapDisplayProps> = ({
@@ -43,7 +42,6 @@ export const GoogleMapsDisplay: React.FC<MapDisplayProps> = ({
   const [infoWindow, setInfoWindow] = React.useState<google.maps.InfoWindow | null>(null);
   const [isInfoWindowOpen, setIsInfoWindowOpen] = React.useState(false);
 
-  // Use shared loader configuration to prevent conflicts
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-maps-shared-loader',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE',
@@ -68,14 +66,13 @@ export const GoogleMapsDisplay: React.FC<MapDisplayProps> = ({
     }
   }, [infoWindow, map]);
 
-  // Determine if we have valid coordinates
   const hasValidCoordinates = latitude && longitude && !isNaN(latitude) && !isNaN(longitude);
   
   // If no valid coordinates, try to geocode the location string
-  const [geocodedLocation, setGeocodedLocation] = React.useState<MapLocation | null>(null);
-  const [isGeocoding, setIsGeocoding] = React.useState(false);
+  const [geocodedLocation, setGeocodedLocation] = useState<MapLocation | null>(null);
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
-  React.useEffect(() => {
+   useEffect(() => {
     if (!hasValidCoordinates && location && isLoaded) {
       setIsGeocoding(true);
       const geocoder = new google.maps.Geocoder();

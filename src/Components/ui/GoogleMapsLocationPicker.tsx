@@ -29,10 +29,8 @@ const defaultCenter = {
   lng: -74.0060
 };
 
-// Static libraries array to prevent LoadScript reloading
 const GOOGLE_MAPS_LIBRARIES = ['places'];
 
-// Shared loader configuration to prevent conflicts
 const sharedLoaderConfig = {
   id: 'google-maps-shared-loader',
   googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE',
@@ -58,13 +56,7 @@ export const GoogleMapsLocationPicker: React.FC<LocationPickerProps> = ({
 
   const autocompleteRef = useRef<HTMLInputElement>(null);
 
-  // Use shared loader configuration
   const { isLoaded, loadError } = useJsApiLoader(sharedLoaderConfig);
-
-  // Debug logging
-  React.useEffect(() => {
-    // API Key and load status check
-  }, [isLoaded, loadError]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
@@ -78,7 +70,6 @@ export const GoogleMapsLocationPicker: React.FC<LocationPickerProps> = ({
   }, []);
 
 
-
   const handleInputChange = useCallback((inputValue: string) => {
     if (!isLoaded || !window.google || inputValue.length < 3) {
       setShowSuggestions(false);
@@ -88,6 +79,7 @@ export const GoogleMapsLocationPicker: React.FC<LocationPickerProps> = ({
 
     // Use Google Places AutocompleteService to get suggestions
     const service = new window.google.maps.places.AutocompleteService();
+
     service.getPlacePredictions({
       input: inputValue,
       types: ['establishment'],
@@ -156,7 +148,7 @@ export const GoogleMapsLocationPicker: React.FC<LocationPickerProps> = ({
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
         if (status === 'OK' && results && results[0]) {
           const address = results[0].formatted_address;
-          const placeId = results[0].place_id; // 🔹 capture place ID
+          const placeId = results[0].place_id; // capture place ID
   
           if (placeId) {
             // Use PlacesService to get full details
@@ -218,9 +210,7 @@ export const GoogleMapsLocationPicker: React.FC<LocationPickerProps> = ({
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          
-
-          
+                    
           // Reverse geocode to get address
           const geocoder = new google.maps.Geocoder();
           
